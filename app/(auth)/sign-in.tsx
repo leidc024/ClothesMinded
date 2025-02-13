@@ -1,5 +1,6 @@
 ﻿import { useState } from "react";
-import { Link, router } from "expo-router";
+import { Link, router, Redirect } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, Image, TouchableOpacity } from "react-native";
 
@@ -10,8 +11,14 @@ import { StatusBar } from "expo-status-bar";
 
 
 const SignIn = () => {
- 
+  const { session } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  
   const [isSubmitting, setSubmitting] = useState(false);
+
+  if (session) return <Redirect href='/' />;
+  
   const [form, setForm] = useState({
     email: "",
     password: "",

@@ -7,11 +7,13 @@ import images from "@/assets/images";
 import FormField from "@/components/FormField";
 import { StatusBar } from "expo-status-bar";
 
-
+import { useUser } from "@/contexts/UserContext";
 
 const SignIn = () => {
+
+  const user = useUser();
  
-  const [isSubmitting, setSubmitting] = useState(false);
+  //const [isSubmitting, setSubmitting] = useState(false); Does this need to be used???
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -34,10 +36,7 @@ const SignIn = () => {
             resizeMode="contain"
             className="mx-auto mb-10 h-40 w-40"
           />
-
-         
-      
-
+          
           <FormField
             title="Username"
             value={form.email}
@@ -49,21 +48,21 @@ const SignIn = () => {
             title="Password"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
-            
           />
 
-                  {/* Sign In button */}
-                  <View className=' items-center justify-between'>
-        <TouchableOpacity
-                      className="mt-20 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3 pb-6"
-        onPress={() => router.push('/home')}
-        activeOpacity={0.7}
-        >
-        <Text className="w-full text-center text-lg font-semibold text-white">Sign In</Text>
+          {/* Sign In button */}
+          <View className=' items-center justify-between'>
+            <TouchableOpacity className="mt-20 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3 pb-6" activeOpacity={0.7}
+              onPress={() => {
+                router.push('/home'); 
+                user.login(form.email, form.password);
+              }}
+            >
+            <Text className="w-full text-center text-lg font-semibold text-white">Sign In</Text>
 
-        </TouchableOpacity>
+            </TouchableOpacity>
 
-                  </View>
+          </View>
 
           <View className="flex flex-row justify-center gap-2 pt-5">
             <Text className="font-pregular text-lg text-black">

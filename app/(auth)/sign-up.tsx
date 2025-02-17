@@ -6,16 +6,20 @@ import { View, Text, ScrollView, Dimensions, TouchableOpacity, Image } from "rea
 import images from "@/assets/images";
 import FormField from "@/components/FormField";
 
-
+import { useUser } from "@/contexts/UserContext";
 
 const Signup = () => {
+
+  const user = useUser();
  
-  const [isSubmitting, setSubmitting] = useState(false);
+  //const [isSubmitting, setSubmitting] = useState(false); Does this need to be used???
   const [form, setForm] = useState({
     email: "",
     password: "",
     username: "",
   });
+
+  const [password, checkPassword] = useState('');
 
   
 
@@ -34,14 +38,10 @@ const Signup = () => {
             className="mx-auto mb-10 h-40 w-40"
           />
 
-          
-
           <FormField
             title="Username"
             value={form.username}
             handleChangeText={(e) => setForm({ ...form, username: e })}
-           
-            
           />
 
           <FormField
@@ -49,39 +49,41 @@ const Signup = () => {
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
             keyboardType="email-address"
-            
           />
 
           <FormField
             title="Password"
             value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
-            
-            
+            handleChangeText={(e) => setForm({ 
+              ...form, 
+              password: e 
+            })}
           />
 
+          <FormField
+            title="Confirm Password"
+            value={form.password}
+            handleChangeText={(e) => setForm({ 
+              ...form, 
+              password: e 
+            })}
+          />
 
-                  <View className='mt-20 items-center'>
-                      <TouchableOpacity
-                          activeOpacity={0.7}
-                          className="mt-7 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3"
-                          onPress={() => router.push('/head')}
-        >
-        <Text className="w-full text-center text-lg font-semibold text-white">Sign Up</Text>
-
-                  </TouchableOpacity>
-
-                  </View>
-
-          
-
-         
-          
-
+          <View className='mt-20 items-center'>
+              <TouchableOpacity activeOpacity={0.7} className="mt-7 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3"
+                  onPress={() => {
+                    router.push('/head'); 
+                    user.register(form.email, form.password, form.username);
+                  }}
+              >
+                <Text className="w-full text-center text-lg font-semibold text-white">Sign Up</Text>
+              </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
+
 
 export default Signup;

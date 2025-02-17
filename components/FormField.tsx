@@ -45,7 +45,7 @@ const FormField: React.FC<FormFieldProps> = ({
           value={value}
           onChangeText={handleChangeText}
           placeholderTextColor="#A38F7A"
-          secureTextEntry={title === "Password" && !showPassword}
+          secureTextEntry={(title === "Password" || title === "Confirm Password") && !showPassword}
           style={{
             flex: 1,
             color: "#4B2A1F",
@@ -59,7 +59,24 @@ const FormField: React.FC<FormFieldProps> = ({
             style={{ padding: 8 }}
           >
             <Image
-              source={!showPassword ? icons.eye : icons.eyeHide}
+              source={!showPassword ? icons.eyeHide : icons.eye}
+              style={{
+                width: 24,
+                height: 24,
+                tintColor: "#4B2A1F", // Adjust color to fit your theme
+              }}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        )}
+
+        {title === "Confirm Password" && (
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={{ padding: 8 }}
+          >
+            <Image
+              source={!showPassword ? icons.eyeHide : icons.eye}
               style={{
                 width: 24,
                 height: 24,

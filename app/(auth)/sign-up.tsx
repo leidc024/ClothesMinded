@@ -8,6 +8,8 @@ import FormField from "@/components/FormField";
 
 import { useUser } from "@/contexts/UserContext";
 
+import { account } from "@/lib/appwrite"; //for testing purposes, will delete later
+
 const Signup = () => {
 
   const user = useUser();
@@ -16,11 +18,25 @@ const Signup = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     username: "",
   });
 
-  const [password, checkPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
+  const handleSignUp = async () => {
+    if (form.password === form.confirmPassword) {
+      try {
+        await user.register(form.email, form.password, form.username);
+        router.push('/head');
+      } catch (error) {
+        console.error(error);
+        setErrorMessage("Registration failed. Please try again.");
+      }
+    } else {
+      setErrorMessage("Passwords do not match");
+    }
+  };
   
 
   return (
@@ -62,19 +78,20 @@ const Signup = () => {
 
           <FormField
             title="Confirm Password"
-            value={form.password}
+            value={form.confirmPassword}
             handleChangeText={(e) => setForm({ 
               ...form, 
-              password: e 
+              confirmPassword: e 
             })}
           />
 
+          {errorMessage ? (
+            <Text className="text-red-500 text-center mt-4">{errorMessage}</Text>
+          ) : null}
+
           <View className='mt-20 items-center'>
               <TouchableOpacity activeOpacity={0.7} className="mt-7 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3"
-                  onPress={() => {
-                    router.push('/head'); 
-                    user.register(form.email, form.password, form.username);
-                  }}
+                  onPress={handleSignUp}
               >
                 <Text className="w-full text-center text-lg font-semibold text-white">Sign Up</Text>
               </TouchableOpacity>

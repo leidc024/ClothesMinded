@@ -11,7 +11,7 @@ export function useUser() {
 }
 
 export function UserProvider(props) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); 
 
   async function login(email, password) {
     const loggedIn = await account.createEmailPasswordSession(email, password);
@@ -26,9 +26,16 @@ export function UserProvider(props) {
   }
 
   async function register(email, password, username) {
-    await account.create(ID.unique(), email, password, username);
-    await login(email, password);
-    toast('Account created');
+
+    try {
+      await account.create(ID.unique(), email, password, username);
+      await login(email, password);
+      await account.createVerification("http://localhost:3000/verify");
+      toast('Account created');
+    } 
+    catch (err) {
+      toast(err.message);
+    }
   }
 
   async function init() {

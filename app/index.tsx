@@ -1,5 +1,6 @@
-﻿import React from 'react';
+﻿import React, { useCallback} from 'react';
 import { Text, View, Image, TouchableOpacity } from 'react-native';
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import images from '../assets/images';
@@ -23,13 +24,13 @@ const handleGoogleAuth = async () => {
             throw new Error('Failed to login');
         }
 
-        const browserResult = await openAuthSessionAsync(
+        const browserResult: any = await openAuthSessionAsync(
             response.toString(),
             redirectUri
         )
 
         //Console log browserResult to see what it returns
-        //console.log(browserResult);
+        // console.log(browserResult);
         
         //browserResult will be equal to { type: 'dismiss'} when the user closes the browser (which even includes verifying their account via email) 
         //if account already exists, it will still throw this error
@@ -70,12 +71,27 @@ const handleGoogleAuth = async () => {
         return true;
 
     } catch (error) {
+        console.log(error)
         console.error(error);
         return false;
     }
 };
 
 const App = () => {
+    useFocusEffect(
+        useCallback(() => {
+            const checkUserSession = async () => {
+                try {
+                    const userData = await account.get(); // Get current user
+                    // console.log("User is logged in:", userData);
+                    router.push("/(tabs)/home");
+                } catch (error) {
+                    console.log("No user logged in:", error);
+                }
+            };
+            checkUserSession();
+        }, [])
+    );
 
     return (
         <SafeAreaView className="flex-1 bg-[#FCF9E8]">

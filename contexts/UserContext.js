@@ -3,11 +3,36 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { account } from "../lib/appwrite";
 import { toast } from "../lib/toast";
 
-
 const UserContext = createContext();
 
 export function useUser() {
   return useContext(UserContext);
+}
+
+export async function checkSession(){
+  try {
+      const session = await account.getSession('current');
+      console.log("Session exists:", session);
+      return true; // Session exists
+  } catch (error) {
+      console.log("No active session:", error);
+      return false; // No session exists
+  }
+};
+
+export async function getUserSession() {
+  try {
+      // Get user account details
+      const user = await account.get();
+      console.log("User Details:", user);
+
+      // Get current session details
+      const session = await account.getSession("current");
+      console.log("Current Session:", session);
+
+  } catch (error) {
+      console.error("Error fetching session:", error);
+  }
 }
 
 export function UserProvider(props) {
@@ -26,7 +51,6 @@ export function UserProvider(props) {
   }
 
   async function register(email, password, username) {
-
     try {
       await account.create(ID.unique(), email, password, username);
       await login(email, password);

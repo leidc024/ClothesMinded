@@ -13,6 +13,7 @@ const RootLayout = () => {
     'LeagueSpartan-Bold': require('../assets/fonts/LeagueSpartan-Bold.ttf'),
     'ABeeZee-Regular': require('../assets/fonts/ABeeZee-Regular.ttf'),
     'ABeeZee-Italic': require('../assets/fonts/ABeeZee-Italic.ttf'),
+    'Roboto-Medium': require('../assets/fonts/Roboto-Medium.ttf'),
   });
   
   useEffect(() => {

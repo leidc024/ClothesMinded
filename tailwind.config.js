@@ -14,6 +14,7 @@ module.exports = {
         'spartan-bold': 'LeagueSpartan-Bold',
         'abeezee': 'ABeeZee-Regular',
         'abeezee-italic': 'ABeeZee-Italic',
+        'roboto-medium' : 'Roboto-Medium',
       },
     },
   },

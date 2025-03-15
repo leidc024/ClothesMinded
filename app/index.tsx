@@ -11,8 +11,22 @@ import { OAuthProvider } from 'react-native-appwrite';
 import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 
-const handleGoogleAuth = async () => {
+const { useEffect } = React;
+
+const checkUserSession = async () => {
     try {
+        const user = await account.get();
+        console.log("User is logged in:", user);
+        router.push('/home');
+    } catch (error) {
+        console.log("No active session, user needs to authenticate.");
+    }
+};
+
+const handleGoogleAuth = async () => {
+
+    try {
+
         const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
 
         const response = await account.createOAuth2Token(
@@ -56,8 +70,7 @@ const handleGoogleAuth = async () => {
             throw new Error('Failed to create session');
         }
 
-        const user = await account.get(); // Fetch user details
-        console.log(user.$id);
+        const user = await account.get(); //Fetch user details
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)
             await account.updatePrefs({ firstLogin: false });
@@ -79,27 +92,15 @@ const handleGoogleAuth = async () => {
         console.error(error);
         return false;
     }
+
 };
 
 const App = () => {
-    useFocusEffect(
-        useCallback(() => {
-            const checkUserSession = async () => {
-                try {
-                    const userData = await account.get(); // Get current user
-                    // addDocument('67ad9e670028ece6ed36', '67d3ea200018791dcc14', {
-                    //     userID: userData.$id,
-                    //     username: "test User1"
-                    // });
-                    // console.log("User is logged in:", userData);
-                    router.push("/(avatar)/head");
-                } catch (error) {
-                    console.log("No user logged in:", error);
-                }
-            };
-            checkUserSession();
-        }, [])
-    );
+
+    //Checks if a session is already active, if true then redirect to home screen
+    useEffect(() => {
+        checkUserSession(); // Run this when the screen loads
+    }, []);
 
     return (
         <SafeAreaView className="flex-1 bg-[#FCF9E8]">

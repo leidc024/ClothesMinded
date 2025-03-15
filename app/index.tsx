@@ -1,11 +1,12 @@
-﻿import React from 'react';
+﻿import React, { useCallback} from 'react';
 import { Text, View, Image, TouchableOpacity } from 'react-native';
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import images from '../assets/images';
 import icons from '../assets/icons';
-
 import { account } from "@/lib/appwrite"; //for testing purposes, will delete later
+import { addDocument } from '@/contexts/database.js';
 import { OAuthProvider } from 'react-native-appwrite';
 import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -23,13 +24,13 @@ const handleGoogleAuth = async () => {
             throw new Error('Failed to login');
         }
 
-        const browserResult = await openAuthSessionAsync(
+        const browserResult: any = await openAuthSessionAsync(
             response.toString(),
             redirectUri
         )
 
         //Console log browserResult to see what it returns
-        //console.log(browserResult);
+        // console.log(browserResult);
         
         //browserResult will be equal to { type: 'dismiss'} when the user closes the browser (which even includes verifying their account via email) 
         //if account already exists, it will still throw this error
@@ -56,26 +57,49 @@ const handleGoogleAuth = async () => {
         }
 
         const user = await account.get(); // Fetch user details
+        console.log(user.$id);
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)
             await account.updatePrefs({ firstLogin: false });
 
             // Redirect to '/head'
-            router.push('/head');
+            router.push('/(avatar)/head');
         } else {
             // Redirect to '/home'
             router.push('/home');
+            addDocument('67ad9e670028ece6ed36', '67d3ea200018791dcc14', {
+                userID: user.$id,
+                username: ""
+            });
         }
-
         return true;
 
     } catch (error) {
+        console.log(error)
         console.error(error);
         return false;
     }
 };
 
 const App = () => {
+    useFocusEffect(
+        useCallback(() => {
+            const checkUserSession = async () => {
+                try {
+                    const userData = await account.get(); // Get current user
+                    // addDocument('67ad9e670028ece6ed36', '67d3ea200018791dcc14', {
+                    //     userID: userData.$id,
+                    //     username: "test User1"
+                    // });
+                    // console.log("User is logged in:", userData);
+                    router.push("/(avatar)/head");
+                } catch (error) {
+                    console.log("No user logged in:", error);
+                }
+            };
+            checkUserSession();
+        }, [])
+    );
 
     return (
         <SafeAreaView className="flex-1 bg-[#FCF9E8]">
@@ -100,7 +124,8 @@ const App = () => {
 
                 <TouchableOpacity
                     className=" mt-10 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3"
-                    onPress={() => router.push('./sign-in')}
+                    // onPress={() => router.push('./sign-in')}
+                    onPress={() => router.push('/(auth)/sign-in')}
                     activeOpacity={0.7}
 
 

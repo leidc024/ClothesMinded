@@ -1,13 +1,15 @@
 ﻿import   { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FaceDetector from "expo-face-detector";
 import { useState, useRef } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator, Modal, SafeAreaView } from 'react-native';
+import Loader from '@/components/Loader';
 import { router } from 'expo-router';
 import { toast } from '@/lib/toast';
 
 export default function App() {
     const [facing, setFacing] = useState<CameraType>('front'); // Use the front camera by default
     const[photoUri, setPhotoUri] = useState<string | null>(null);
+    const [validPhoto, setValidPhoto] = useState<boolean>(false);
     const cameraRef = useRef<CameraView>(null);
     const [isDisabled, setIsDisabled] = useState(false);
     const [permission, requestPermission] = useCameraPermissions();
@@ -17,6 +19,7 @@ export default function App() {
         if (cameraRef.current) {
             const photo = await cameraRef.current.takePictureAsync();
             if (photo && photo.uri) {
+                setPhotoUri(photo.uri);
                 const faceData = await FaceDetector.detectFacesAsync(photo.uri, {
                     mode: FaceDetector.FaceDetectorMode.fast,
                     detectLandmarks: FaceDetector.FaceDetectorLandmarks.all,
@@ -24,8 +27,9 @@ export default function App() {
                 });
                 setIsDisabled(false);
                 if(faceData.faces.length > 0){
-                    setPhotoUri(photo.uri);
+                    setValidPhoto(true);
                 }else{
+                    setPhotoUri(null)
                     toast('Unable to detect a face. Please retake photo with good lighting.');
                 }
             }
@@ -60,15 +64,14 @@ export default function App() {
 
     return (
         <View style={styles.container}>
+            
             {/* Blurred Background & Loader when taking a photo */}
 
             {isDisabled && (
-                <>
-                    <ActivityIndicator size={80} color="#fff" style={styles.loader} />
-                </>
+                <Loader/>
             )}
 
-            { photoUri ? (
+            { validPhoto && photoUri ? (
                 <>
                     <View style={styles.cameraContainer}>
                         <Image source={{ uri: photoUri }} style={ styles.preview }/>
@@ -85,11 +88,16 @@ export default function App() {
             ) : (
                 <>
                     <View style={styles.cameraContainer}>
-                        <CameraView
-                            style={styles.camera}
-                            facing={facing}
-                            ref={cameraRef}
-                        />
+                        { !photoUri ? (
+                            <CameraView
+                                style={styles.camera}
+                                facing={facing}
+                                ref={cameraRef}
+                            />
+                        ):(
+                            <Image source={{ uri: photoUri }} style={ styles.preview }/>
+                        )}
+                        
                     </View>
                     <Text style={styles.instructions}>Move your {"\n"} head from {"\n"} left to right</Text>
                     <TouchableOpacity
@@ -195,11 +203,11 @@ const styles = StyleSheet.create({
     },
     loader: {
         position: "absolute",
-        top: "50%",
+        top: "40%",
         alignSelf: "center",
     },
     blurOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional dark overlay
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)", // Optional dark overlay
     },
 });

@@ -17,7 +17,7 @@ const checkUserSession = async () => {
     try {
         const user = await account.get();
         console.log("User is logged in:", user);
-        router.push('/home');
+        router.push('/(avatar)/head');
     } catch (error) {
         console.log("No active session, user needs to authenticate.");
     }
@@ -26,7 +26,6 @@ const checkUserSession = async () => {
 const handleGoogleAuth = async () => {
 
     try {
-
         const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
 
         const response = await account.createOAuth2Token(
@@ -74,16 +73,15 @@ const handleGoogleAuth = async () => {
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)
             await account.updatePrefs({ firstLogin: false });
-
+            addDocument('67ad9e670028ece6ed36', '67d3ea200018791dcc14', {
+                userID: user.$id,
+                username: ""
+            });
             // Redirect to '/head'
             router.push('/(avatar)/head');
         } else {
             // Redirect to '/home'
             router.push('/home');
-            addDocument('67ad9e670028ece6ed36', '67d3ea200018791dcc14', {
-                userID: user.$id,
-                username: ""
-            });
         }
         return true;
 

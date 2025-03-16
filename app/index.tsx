@@ -17,7 +17,7 @@ const checkUserSession = async () => {
     try {
         const user = await account.get();
         console.log("User is logged in:", user);
-        router.push('/(avatar)/head');
+        router.push('/(tabs)/home');
     } catch (error) {
         console.log("No active session, user needs to authenticate.");
     }

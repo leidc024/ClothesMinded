@@ -3,7 +3,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { account } from "../lib/appwrite";
 import { toast } from "../lib/toast";
 
-
 const UserContext = createContext();
 
 export function useUser() {

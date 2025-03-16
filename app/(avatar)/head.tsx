@@ -5,6 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import Loader from '@/components/Loader';
 import { router } from 'expo-router';
 import { toast } from '@/lib/toast';
+import { account } from '@/lib/appwrite';
 
 export default function App() {
     const [facing, setFacing] = useState<CameraType>('front'); // Use the front camera by default
@@ -28,6 +29,11 @@ export default function App() {
                 setIsDisabled(false);
                 if(faceData.faces.length > 0){
                     setValidPhoto(true);
+                    account.updatePrefs({ firstLogin: false, hasAvatar: true }).then(() => {
+                        console.log('User preferences updated successfully.');
+                    }).catch((error) => {
+                        console.error('Failed to update user preferences:', error);
+                    });
                 }else{
                     setPhotoUri(null)
                     toast('Unable to detect a face. Please retake photo with good lighting.');
@@ -97,7 +103,6 @@ export default function App() {
                         ):(
                             <Image source={{ uri: photoUri }} style={ styles.preview }/>
                         )}
-                        
                     </View>
                     <Text style={styles.instructions}>Move your {"\n"} head from {"\n"} left to right</Text>
                     <TouchableOpacity

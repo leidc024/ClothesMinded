@@ -24,7 +24,6 @@ const checkUserSession = async () => {
 };
 
 const handleGoogleAuth = async () => {
-
     try {
         const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
 

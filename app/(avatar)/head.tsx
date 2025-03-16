@@ -1,7 +1,7 @@
 ﻿import   { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FaceDetector from "expo-face-detector";
 import { useState, useRef } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator, Modal, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import Loader from '@/components/Loader';
 import { router } from 'expo-router';
 import { toast } from '@/lib/toast';
@@ -200,14 +200,5 @@ const styles = StyleSheet.create({
         height: "100%",
         resizeMode: "cover",
         transform: [{ scaleX: -1 }], // Flips the image horizontally
-    },
-    loader: {
-        position: "absolute",
-        top: "40%",
-        alignSelf: "center",
-    },
-    blurOverlay: {
-        flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Optional dark overlay
     },
 });

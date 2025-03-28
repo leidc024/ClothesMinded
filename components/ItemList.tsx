@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { FlatList, Text, View, Image, TextInput, TouchableOpacity, Dimensions } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 
-const ItemList = () => {
+type ItemListProps = {
+    keyword: string;
+};
+
+const ItemList = ({keyword}: ItemListProps) => {
     const [list, setList] = useState<{ id: string; title: string }[]>([]);
     const [title, setTitle] = useState('');
     const [showInputs, setShowInputs] = useState(false); // State to toggle input visibility
-
+    
     const { height } = Dimensions.get('window'); // Get screen height
     const ITEM_HEIGHT = height * 0.125; // % of screen height
 
@@ -18,64 +21,71 @@ const ItemList = () => {
         }
     };
 
+    // Filter and sort the list based on the keyword
+    const filteredAndSortedList = list
+        .filter(item => item.title.toLowerCase().includes(keyword.toLowerCase())) // Filter by keyword
+        .sort((a, b) => a.title.localeCompare(b.title)); // Sort in ascending order
+
     return (
-        <View className="w-full flex-1 items-center justify-center mx-4">
+        <View className='h-4/5 justify-center items-center'>
             {/* Toggle Button */}
-            <View style={{ height: ITEM_HEIGHT }} className="mt-4 flex-row items-center justify-center">
+            <View style={{ height: ITEM_HEIGHT }} className='w-full items-center justify-center'>
                 <TouchableOpacity
-                    className="rounded-3xl flex-row border-2 border-black w-[75%] h-full justify-center items-center"
+                    className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4"
                     onPress={() => setShowInputs(!showInputs)}
                 >
-                    <View style={{ aspectRatio: 1 }} className="rounded-2xl h-[75%] border-2 border-black justify-center items-center">
+                    <View style={{ aspectRatio: 1 }} className="rounded-2xl h-3/4 border-2 justify-center items-center">
                         <Image
                             source={require('../assets/icons/Union.png')} // Local image
-                            className="h-[25%]"
+                            className="h-1/4"
                             style={{ aspectRatio: 1 }} // Ensures square shape
                             resizeMode="contain"
                         />
                     </View>
-                    <Text className="mx-3 text-center text-lg font-bold">Create Category</Text>
-                    <View style={{ aspectRatio: 1 }} className="rounded-2xl h-[78%]" />
+                    <Text className="flex-1 text-lg font-bold ml-4">Create Category</Text>
                 </TouchableOpacity>
             </View>
 
             {/* Input Section (Hidden when showInputs is false) */}
             {showInputs && (
-                <View className="mt-4 flex-row items-center justify-center w-[75%]">
+                <View style={{ height: ITEM_HEIGHT / 3 }} className="flex-row w-3/4 mt-4">
                     <TextInput
                         className="flex-1 border border-gray-400 rounded-lg px-4"
-                        placeholder="Enter title"
+                        placeholder={`Enter title`}
                         value={title}
-                        onChangeText={setTitle}
+                        maxLength={18} // Prevents more than 18 characters
+                        onChangeText={(text) => setTitle(text.slice(0, 18))} // Ensures the limit
                     />
-                    <TouchableOpacity className="border border-black px-4 rounded-lg ml-4 h-full" onPress={addItem}>
+                    <TouchableOpacity 
+                        className="h-full border border-black rounded-lg ml-4 px-4 items-center justify-center" 
+                        onPress={addItem}
+                    >
                         <Text className="font-semibold">Add</Text>
                     </TouchableOpacity>
                 </View>
+            
             )}
 
             {/* List Section */}
-            <View className="flex-1 w-full">
+            <View className="flex-1 pb-16 w-full">
                 <FlatList
-                    data={list}
+                    data={filteredAndSortedList} // Use filtered and sorted list
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ paddingBottom: 20 }} // Ensures scrolling
                     renderItem={({ item }) => (
                         <View style={{ height: ITEM_HEIGHT }} className="mt-4 flex-row items-center justify-center">
-                            <TouchableOpacity className="rounded-3xl flex-row border-2 border-black w-[75%] h-full justify-center items-center px-4">
-                                <View style={{ aspectRatio: 1 }} className="rounded-2xl h-[75%] border-2 border-black justify-center items-center">
+                            <TouchableOpacity className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4">
+                                <View style={{ aspectRatio: 1 }} className="rounded-2xl h-3/4 border-2 justify-center items-center">
                                     <Image
                                         source={require('../assets/icons/Union.png')} // Local image
-                                        className="h-[25%]"
+                                        className="h-1/4"
                                         style={{ aspectRatio: 1 }} // Ensures square shape
                                         resizeMode="contain"
                                     />
                                 </View>
 
                                 {/* Centering text */}
-                                <Text className="flex-1 text-center text-lg font-bold">{item.title}</Text>
+                                <Text className="flex-1 text-lg font-bold ml-4">{item.title}</Text>
 
-                                <View style={{ aspectRatio: 1 }} className="rounded-2xl h-[78%]" />
                             </TouchableOpacity>
                         </View>
                     )}

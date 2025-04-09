@@ -27,7 +27,7 @@ const Wardrobe = () => {
                     <FontAwesome name="search" size={18} color="gray" />
                     <TextInput
                         placeholder="Search"
-                        className="flex-1 ml-3 text-lg"
+                        className="ml-3 flex-1 text-lg"
                     />
                     <TouchableOpacity>
                         <FontAwesome name="close" size={18} color="gray" />
@@ -142,7 +142,7 @@ const CategorySection = ({ title, images, scrollPosition, setScrollPosition }) =
 
 // Component for the "+" add item with rounded border
 const CategoryItem = () => (
-    <View className="border-2 mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-black">
+    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-2 border-black">
         <Text className="text-4xl">+</Text>
     </View>
 );

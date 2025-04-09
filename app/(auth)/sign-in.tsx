@@ -6,12 +6,13 @@ import images from '@/assets/images';
 import icons from '@/assets/icons';
 import { account } from "@/lib/appwrite"; //for testing purposes, will delete later
 import { handleGoogleAuth } from '@/contexts/googleAuth';
+import { useUser } from '@/contexts/UserContext';
 
 const { useEffect } = React;
 
 const checkUserSession = async () => {
+    const { current: user } = useUser(); // Import your UserContext
     try {
-        const user = await account.get();
         console.log("User is logged in:", user);
         if (user.prefs?.hasAvatar === false){
             router.push('/(avatar)/head');
@@ -41,7 +42,6 @@ const Signin = () => {
 
                 {/* Title and Subtitle */}
                 <View className="mb-10 items-center">
-                  
                     <Text className=" font-spartan mt-10 text-center text-lg font-semibold text-[#4D2A0A]">
                         Your Closet Becomes {"\n"}
                         Your Personal Stylist
@@ -49,27 +49,6 @@ const Signin = () => {
                 </View>
 
                 {/* Buttons */}
-{/* 
-                <TouchableOpacity
-                    className=" mt-10 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3"
-                    // onPress={() => router.push('./sign-in')}
-                    onPress={() => router.push('/(auth)/sign-in')}
-                    activeOpacity={0.7}
-
-
-                >
-                    <Text className="  text-center text-lg font-semibold text-white">Log-In</Text>
-
-                </TouchableOpacity> */}
-{/* 
-                <TouchableOpacity
-                    className=" mt-5 w-[75%] rounded-full bg-[#4D2A0A] px-6 py-3 text-white"
-                    onPress={() => router.push('/sign-up')}
-                    activeOpacity={0.7}
-                    >
-                    <Text className="text-center text-lg font-semibold text-white">Sign-Up</Text>
-
-                </TouchableOpacity> */}
 
                 <TouchableOpacity
                     onPress={handleGoogleAuth}

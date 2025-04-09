@@ -1,29 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
+import { useUser } from "@/contexts/UserContext"; // Import your UserContext
 import LottieView from "lottie-react-native";
 import { useRouter } from "expo-router";
-import { account } from "@/lib/appwrite"; //for testing purposes, will delete later
 
-const router = useRouter();
-
-const checkUserSession = async () => {
-    try {
-        const user = await account.get();
-        console.log("User is logged in:", user);
-        if (user.prefs?.hasAvatar === false){
-            router.push('/(avatar)/head');
-        }else{
-            router.push('/(tabs)/home');
-        }
-    } catch (error) {
-        router.push("/sign-in"); // Navigate using Expo Router
-        console.log("No active session, user needs to authenticate.");
-    }
-};
-
-
-const LoadingScreen = async () => {
+const LoadingScreen = () => {
     const [loadingText, setLoadingText] = useState("Boost your confidence...");
+    const { current: user } = useUser();
+    const router = useRouter();
 
     useEffect(() => {
         const textSequence = [
@@ -31,6 +15,7 @@ const LoadingScreen = async () => {
             "Generate your own avatar...",
             "Virtually try-on clothes..."
         ];
+
         let index = 0;
         const interval = setInterval(() => {
             setLoadingText(textSequence[index]);
@@ -39,7 +24,13 @@ const LoadingScreen = async () => {
         }, 1500);
 
         const timer = setTimeout(() => {
-            checkUserSession(); // Run this when the screen loads
+            if (user == null){
+                router.push("/sign-in");                 // Navigate using Expo Router
+            }else if(user.prefs?.hasAvatar === false){
+                router.push('/(avatar)/head');
+            }else{
+                router.push('/(tabs)/home');
+            }
         }, 5000);
 
         return () => {

@@ -1,17 +1,51 @@
-﻿import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+﻿import   { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import * as FaceDetector from "expo-face-detector";
+import { useState, useRef } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import Loader from '@/components/Loader';
 import { router } from 'expo-router';
+import { toast } from '@/lib/toast';
+import { account } from '@/lib/appwrite';
 
 export default function App() {
     const [facing, setFacing] = useState<CameraType>('front'); // Use the front camera by default
+    const[photoUri, setPhotoUri] = useState<string | null>(null);
+    const [validPhoto, setValidPhoto] = useState<boolean>(false);
+    const cameraRef = useRef<CameraView>(null);
+    const [isDisabled, setIsDisabled] = useState(false);
     const [permission, requestPermission] = useCameraPermissions();
+
+    const takePhotoAndDetectFaces = async () => {
+        setIsDisabled(true);
+        if (cameraRef.current) {
+            const photo = await cameraRef.current.takePictureAsync();
+            if (photo && photo.uri) {
+                setPhotoUri(photo.uri);
+                const faceData = await FaceDetector.detectFacesAsync(photo.uri, {
+                    mode: FaceDetector.FaceDetectorMode.fast,
+                    detectLandmarks: FaceDetector.FaceDetectorLandmarks.all,
+                    runClassifications: FaceDetector.FaceDetectorClassifications.all,
+                });
+                setIsDisabled(false);
+                if(faceData.faces.length > 0){
+                    setValidPhoto(true);
+                    account.updatePrefs({ firstLogin: false, hasAvatar: true }).then(() => {
+                        console.log('User preferences updated successfully.');
+                    }).catch((error) => {
+                        console.error('Failed to update user preferences:', error);
+                    });
+                }else{
+                    setPhotoUri(null)
+                    toast('Unable to detect a face. Please retake photo with good lighting.');
+                }
+            }
+        }
+    };
 
     if (!permission) {
         // Camera permissions are still loading.
         return <View />;
     }
-
     if (!permission.granted) {
         // Camera permissions are not granted yet.
         return (
@@ -36,17 +70,51 @@ export default function App() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.cameraContainer}>
-                <CameraView style={styles.camera} facing={facing} />
-            </View>
-            <Text style={styles.instructions}>Move your {"\n"} head from {"\n"} left to right</Text>
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => router.push('./body')}
-                activeOpacity={0.7}
-            >
-                <Text style={styles.buttonText}>Done</Text>
-            </TouchableOpacity>
+            
+            {/* Blurred Background & Loader when taking a photo */}
+
+            {isDisabled && (
+                <Loader/>
+            )}
+
+            { validPhoto && photoUri ? (
+                <>
+                    <View style={styles.cameraContainer}>
+                        <Image source={{ uri: photoUri }} style={ styles.preview }/>
+                    </View>
+                    <Text style={styles.instructions}>Photo Preview</Text>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => router.push('./body')}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.buttonText}>Next</Text>
+                    </TouchableOpacity>
+                </>
+            ) : (
+                <>
+                    <View style={styles.cameraContainer}>
+                        { !photoUri ? (
+                            <CameraView
+                                style={styles.camera}
+                                facing={facing}
+                                ref={cameraRef}
+                            />
+                        ):(
+                            <Image source={{ uri: photoUri }} style={ styles.preview }/>
+                        )}
+                    </View>
+                    <Text style={styles.instructions}>Move your {"\n"} head from {"\n"} left to right</Text>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={takePhotoAndDetectFaces}
+                        activeOpacity={0.7}
+                        disabled={isDisabled}
+                    >
+                        <Text style={styles.buttonText}>Take photo</Text>
+                    </TouchableOpacity>
+                </>
+            )}
         </View>
     );
 }
@@ -131,5 +199,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: 'white',
+    },
+    preview: {
+        width: "100%",
+        height: "100%",
+        resizeMode: "cover",
+        transform: [{ scaleX: -1 }], // Flips the image horizontally
     },
 });

@@ -1,7 +1,5 @@
-import { View, Text } from 'react-native';
 import React from 'react';
 import { Stack } from 'expo-router';
-
 import { UserProvider } from '@/contexts/UserContext';
 
 const AuthLayout = () => {
@@ -13,7 +11,7 @@ const AuthLayout = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen 
-          name='sign-up'
+          name='loading'
           options={{ headerShown: false }}
         />
       </Stack>

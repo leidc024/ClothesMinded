@@ -2,9 +2,27 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import LottieView from "lottie-react-native";
 import { useRouter } from "expo-router";
+import { account } from "@/lib/appwrite"; //for testing purposes, will delete later
 
-const LoadingScreen = () => {
-    const router = useRouter();
+const router = useRouter();
+
+const checkUserSession = async () => {
+    try {
+        const user = await account.get();
+        console.log("User is logged in:", user);
+        if (user.prefs?.hasAvatar === false){
+            router.push('/(avatar)/head');
+        }else{
+            router.push('/(tabs)/home');
+        }
+    } catch (error) {
+        router.push("/sign-in"); // Navigate using Expo Router
+        console.log("No active session, user needs to authenticate.");
+    }
+};
+
+
+const LoadingScreen = async () => {
     const [loadingText, setLoadingText] = useState("Boost your confidence...");
 
     useEffect(() => {
@@ -13,7 +31,6 @@ const LoadingScreen = () => {
             "Generate your own avatar...",
             "Virtually try-on clothes..."
         ];
-
         let index = 0;
         const interval = setInterval(() => {
             setLoadingText(textSequence[index]);
@@ -22,7 +39,7 @@ const LoadingScreen = () => {
         }, 1500);
 
         const timer = setTimeout(() => {
-            router.push("/sign-in"); // Navigate using Expo Router
+            checkUserSession(); // Run this when the screen loads
         }, 5000);
 
         return () => {

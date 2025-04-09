@@ -35,7 +35,7 @@ const App = () => {
 
                     {/* Get Started Button */}
                     <TouchableOpacity
-                        onPress={() => router.push("/(auth)/loading")}
+                        onPress={() => router.push('/(auth)/loading')}
                         className="w-[50%] mt-20 bg-[#C4A484] py-3 px-8 rounded-full"
                     >
                         <Text className="text-center text-lg font-bold text-white">

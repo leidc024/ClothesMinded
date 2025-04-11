@@ -17,6 +17,13 @@ const NewUserNamePop = () => {
           setModalVisible(true);
         } else {
           console.log("User already has username.");
+          account.getPrefs()
+            .then(prefs => {
+              console.log('User Preferences:', prefs);
+            })
+            .catch(error => {
+              console.error('Error getting preferences:', error);
+            });
         }
       } catch (error) {
         console.log("No active session, user needs to authenticate.");
@@ -50,7 +57,18 @@ const NewUserNamePop = () => {
                     className="rounded-xl px-4 py-2 bg-[#D2B48C] "
                     onPress={async () => {
                         try {
-                        await account.updatePrefs({ hasUserName: true });
+                          account.getPrefs().then(currentPrefs => {
+                            const newPrefs = {
+                              ...currentPrefs,
+                              hasUserName: true // 🆕 this is the new preference you're adding
+                            };
+                          
+                            return account.updatePrefs(newPrefs);
+                          }).then(updated => {
+                            console.log('Updated prefs:', updated);
+                          }).catch(err => {
+                            console.error('Error updating prefs:', err);
+                          });
                         setModalVisible(false);
                         const result = await account.updateName(text); // Assuming `text` is the new username
                         console.log('Username updated:', result);

@@ -12,11 +12,11 @@ const NewUserNamePop = () => {
   useEffect(() => {
     const checkUserPrefs = async () => {
       try {
-        if (user?.prefs?.firstLogin === false) {
-          console.log("User already has username.");
-        } else {
+        if (user?.prefs?.hasUserName === undefined ) {
           console.log("Creating new username.");
           setModalVisible(true);
+        } else {
+          console.log("User already has username.");
         }
       } catch (error) {
         console.log("No active session, user needs to authenticate.");
@@ -50,6 +50,7 @@ const NewUserNamePop = () => {
                     className="rounded-xl px-4 py-2 bg-[#D2B48C] "
                     onPress={async () => {
                         try {
+                        await account.updatePrefs({ hasUserName: true });
                         setModalVisible(false);
                         const result = await account.updateName(text); // Assuming `text` is the new username
                         console.log('Username updated:', result);

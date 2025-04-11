@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import images from '@/assets/images';
 import icons from '@/assets/icons';
-import { account } from "@/lib/appwrite"; //for testing purposes, will delete later
 import { handleGoogleAuth } from '@/contexts/googleAuth';
 import { useUser } from '@/contexts/UserContext';
 

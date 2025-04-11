@@ -6,9 +6,9 @@ import { FontAwesome } from '@expo/vector-icons'
 
 import ItemList from '../../components/ItemList'
 
-const home = () => {
+const categories = () => {
 
-    const [keyword, setKeyWord] = useState('')
+    const [keyword, setKeyWord] = useState('');
 
     return (
         <SafeAreaView >
@@ -45,4 +45,4 @@ const home = () => {
     )
 }
 
-export default home
+export default categories

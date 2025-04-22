@@ -1,5 +1,5 @@
 import { account } from "@/lib/appwrite";
-import { addDocument } from '@/contexts/database.js';
+import { addUserDocument } from '@/contexts/database.js';
 import { OAuthProvider } from 'react-native-appwrite';
 import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -54,7 +54,7 @@ export const handleGoogleAuth = async () => {
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)
             await account.updatePrefs({ firstLogin: false, hasAvatar: false });
-            addDocument('67ad9e670028ece6ed36', '67d3ea200018791dcc14', {
+            addUserDocument({
                 userID: user.$id,
                 name: user.name,
                 email: user.email,

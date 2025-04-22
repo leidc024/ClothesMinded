@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FlatList, Text, View, Image, TextInput, TouchableOpacity, Dimensions } from 'react-native';
+import { useUser } from '@/contexts/UserContext'; // Import your UserContext
+import { addCategoryDocument, getCategoryDocumentsByUserId } from '@/contexts/database';
 
 type ItemListProps = {
     keyword: string;
@@ -10,16 +12,37 @@ const ItemList = ({keyword}: ItemListProps) => {
     const [title, setTitle] = useState('');
     const [showInputs, setShowInputs] = useState(false); // State to toggle input visibility
     
+    const {current: user} = useUser();
+    
     const { height } = Dimensions.get('window'); // Get screen height
-    const ITEM_HEIGHT = height * 0.125; // % of screen height
+    const ITEM_HEIGHT = height * 0.125; // % of screen height   
+    
+    useEffect(() => {
+        getCategoryDocumentsByUserId(user.$id).then((res) => {
+            setList((prevList) => {
+                const newItems = res?.map((item) => ({ id: item.$id, title: item.categoryName })) || [];
+                return [...prevList, ...newItems];
+              });
+        });
+    }, []); // Empty dependency array to mimic componentDidMount
 
     // Function to add item to the list
-    const addItem = () => {
+    const addItem = async () => {
         if (title.trim()) {
-            setList([...list, { id: Date.now().toString(), title }]);
+          try {
+            // Add category to the database
+            const res = await addCategoryDocument({
+              "categoryName": title,
+              "userID": user.$id
+            });
+            setList((prevList) => [...prevList, { id: res?.$id || Date.now().toString(), title }]);
             setTitle('');
+          } catch (error) {
+            console.error("Error adding category:", error);
+            // Handle the error appropriately
+          }
         }
-    };
+      };
 
     // Filter and sort the list based on the keyword
     const filteredAndSortedList = list

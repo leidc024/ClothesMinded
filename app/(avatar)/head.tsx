@@ -6,6 +6,7 @@ import Loader from '@/components/Loader';
 import { router } from 'expo-router';
 import { toast } from '@/lib/toast';
 import { account } from '@/lib/appwrite';
+import { useUser } from '@/contexts/UserContext';
 
 export default function App() {
     const [facing, setFacing] = useState<CameraType>('front'); // Use the front camera by default
@@ -14,6 +15,7 @@ export default function App() {
     const cameraRef = useRef<CameraView>(null);
     const [isDisabled, setIsDisabled] = useState(false);
     const [permission, requestPermission] = useCameraPermissions();
+    const { updatePreferences } = useUser();
 
     const takePhotoAndDetectFaces = async () => {
         setIsDisabled(true);
@@ -29,26 +31,21 @@ export default function App() {
                 setIsDisabled(false);
                 if(faceData.faces.length > 0){
                     setValidPhoto(true);
-                    account.updatePrefs({ firstLogin: false, hasAvatar: true }).then(() => {
-                        console.log('User preferences updated successfully.');
-                    }).catch((error) => {
-                        console.error('Failed to update user preferences:', error);
+                    try {
+                        account.getPrefs().then(currentPrefs => {
+                        currentPrefs["hasAvatar"] = true;
+                        return account.updatePrefs(currentPrefs);
+                    }).then(updated => {
+                        console.log('Updated prefs:', updated);
+                    }).catch(err => {
+                        console.error('Error updating prefs:', err);
                     });
+                    } catch (err) {
+                    console.error('Failed to update username:', err);
+                    }
                 }else{
-        
                     setPhotoUri(null)
                     toast('Unable to detect a face. Please retake photo with good lighting.');
-                    
-
-                    //FOR TESTING PURPOSES ONLY SO THAT WE CAN BYPASS THE TAKE PHOTO SCREEN
-                    /*
-                    setValidPhoto(true);
-                    account.updatePrefs({ firstLogin: false, hasAvatar: true }).then(() => {
-                        console.log('User preferences updated successfully.');
-                    }).catch((error) => {
-                        console.error('Failed to update user preferences:', error);
-                    });
-                    */
                 }
             }
         }

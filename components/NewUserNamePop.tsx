@@ -7,7 +7,7 @@ import { useUser } from '@/contexts/UserContext';
 const NewUserNamePop = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [text, onChangeText] = useState('');
-  const { current: user } = useUser(); 
+  const { current: user, updatePreference } = useUser(); 
 
   useEffect(() => {
     const checkUserPrefs = async () => {
@@ -58,12 +58,8 @@ const NewUserNamePop = () => {
                     onPress={async () => {
                         try {
                           account.getPrefs().then(currentPrefs => {
-                            const newPrefs = {
-                              ...currentPrefs,
-                              hasUserName: true // 🆕 this is the new preference you're adding
-                            };
-                          
-                            return account.updatePrefs(newPrefs);
+                            currentPrefs["hasUserName"] = true // 🆕 this is the new preference you're adding
+                            return account.updatePrefs(currentPrefs);
                           }).then(updated => {
                             console.log('Updated prefs:', updated);
                           }).catch(err => {

@@ -1,21 +1,34 @@
-import { View, Text, Modal } from 'react-native'
-import React, {useState} from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView, View, Text, Pressable, Modal, TouchableOpacity } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
 
-import NewUserNamePop from '../../components/NewUserNamePop'
+const Home = () => {
+    const router = useRouter();
 
-const home = () => {
+    return (
+        <SafeAreaView className="bg-primary flex-1">
+            {/* Top Section */}
+            <View className="flex-1 p-5">
+                {/* Profile Button (top right corner) */}
+                <View className="flex-1 items-end justify-start p-5">
+                    <TouchableOpacity
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        onPress={() => {
+                            console.log("Pressed!");
+                            router.push('./modal/profile');
+                        }}
+                    >
+                        <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
+                    </TouchableOpacity>
+                </View>
 
-  return (
-    <SafeAreaView>
-      <NewUserNamePop/>
-      <View>
-        <Text className='text-xl'>hi</Text>
-      </View>
-      <StatusBar style='dark' />
-    </SafeAreaView>
-  )
-}
+            </View>
 
-export default home
+            <StatusBar style="dark" />
+        </SafeAreaView>
+    );
+};
+
+export default Home;

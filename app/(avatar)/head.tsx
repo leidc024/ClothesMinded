@@ -35,8 +35,20 @@ export default function App() {
                         console.error('Failed to update user preferences:', error);
                     });
                 }else{
+        
                     setPhotoUri(null)
                     toast('Unable to detect a face. Please retake photo with good lighting.');
+                    
+
+                    //FOR TESTING PURPOSES ONLY SO THAT WE CAN BYPASS THE TAKE PHOTO SCREEN
+                    /*
+                    setValidPhoto(true);
+                    account.updatePrefs({ firstLogin: false, hasAvatar: true }).then(() => {
+                        console.log('User preferences updated successfully.');
+                    }).catch((error) => {
+                        console.error('Failed to update user preferences:', error);
+                    });
+                    */
                 }
             }
         }

@@ -17,7 +17,7 @@ const Home = () => {
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         onPress={() => {
                             console.log("Pressed!");
-                            router.push('./modal/profile');
+                            router.push('../modal/profile');
                         }}
                     >
                         <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />

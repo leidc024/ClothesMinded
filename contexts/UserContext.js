@@ -45,9 +45,15 @@ export function UserProvider(props) {
   }
 
   async function logout() {
-    await account.deleteSession("current");
-    setUser(null);
-    toast('Logged out');
+    try {
+      await account.deleteSession("current");
+      setUser(null);
+      toast('Logged out');
+    } catch (err) {
+      toast('Failed to log out. Please try again.');
+      console.error("Logout failed:", err);
+      // Optionally: setUser(null) here too if you want to force local logout
+    }
   }
 
   async function register(email, password, username) {

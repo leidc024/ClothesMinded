@@ -2,14 +2,26 @@ import { View, Text, Pressable, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useUser } from '@/contexts/UserContext';
 
 export default function ProfileModal() {
     const router = useRouter();
     const [image, setImage] = useState<string | null>(null);
+    const { current: user, logout } = useUser(); // Assuming you have a user context to get the current user
 
     useEffect(() => {
         console.log("Profile modal mounted!");
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            await logout(); // Call the logout function from context
+            router.replace('/'); // Redirect to home screen after logout
+        } catch (error) {
+            Alert.alert("Logout Failed", "There was an error logging out. Please try again.");
+            console.error("Logout error:", error);
+        }
+    };
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -55,7 +67,7 @@ export default function ProfileModal() {
 
                 {/* Buttons */}
                 <View className="mt-4 w-[75%]">
-                    <Pressable className="mb-4 rounded-full bg-[#4B2E18] py-4">
+                    <Pressable onPress={ handleLogout } className="mb-4 rounded-full bg-[#4B2E18] py-4">
                         <Text className="text-center text-lg font-bold text-white">Sign Out</Text>
                     </Pressable>
 

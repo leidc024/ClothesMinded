@@ -1,27 +1,33 @@
-﻿import React from 'react';
+﻿// app/layout.js
+import React from 'react';
 import { View, Text } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'; // Import insets hook
-import { Stack } from 'expo-router';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Stack, usePathname } from 'expo-router';
 
 const Avalayout = () => {
     const insets = useSafeAreaInsets();
+    const pathname = usePathname();
+
+    // Skip layout for camera screen
+    if (pathname === '/camera') {
+        return <Stack screenOptions={{ headerShown: false }} />;
+    }
 
     return (
         <SafeAreaView
             style={{
                 flex: 1,
                 backgroundColor: '#7F705F',
-                paddingTop: insets.top, // Apply safe area padding
+                paddingTop: insets.top,
                 paddingBottom: insets.bottom,
             }}
         >
-            {/* Render header */}
             <View
                 style={{
                     alignItems: 'center',
-                    paddingHorizontal: 16, // Equivalent to px-4
-                    marginBottom: 15, // Equivalent to mb-3
-                    marginTop: -20, // Move it closer to the top
+                    paddingHorizontal: 16,
+                    marginBottom: 15,
+                    marginTop: -20,
                 }}
             >
                 <Text
@@ -39,19 +45,14 @@ const Avalayout = () => {
                         fontStyle: 'italic',
                         fontSize: 14,
                         color: 'white',
-                        marginBottom: 20, // Equivalent to mb-5
+                        marginBottom: 20,
                     }}
                 >
                     Your Closet Becomes Your Personal Stylist
                 </Text>
             </View>
 
-            {/* Stack for routing */}
-            <Stack
-                screenOptions={{
-                    headerShown: false,
-                }}
-            >
+            <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="head" />
                 <Stack.Screen name="body" />
                 <Stack.Screen name="clothes" />

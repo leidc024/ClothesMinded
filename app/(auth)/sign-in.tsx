@@ -9,25 +9,30 @@ import { useUser } from '@/contexts/UserContext';
 
 const { useEffect } = React;
 
-const checkUserSession = async () => {
-    const { current: user } = useUser(); // Import your UserContext
-    try {
-        console.log("User is logged in:", user);
-        if (user.prefs?.hasAvatar === false){
-            router.push('/(avatar)/head');
-        }else{
-            router.push('/(tabs)/home');
-        }
-    } catch (error) {
-        console.log("No active session, user needs to authenticate.");
-    }
-};
 
 const Signin = () => {
     //Checks if a session is already active, if true then redirect to home screen
+    const { current: user, login } = useUser(); // Import your UserContext
     useEffect(() => {
+        const checkUserSession = async () => {
+            try {
+                console.log("User is logged in:", user);
+                if (user.prefs?.hasAvatar === false){
+                    router.push('/(avatar)/head');
+                }else{
+                    router.push('/(tabs)/home');
+                }
+            } catch (error) {
+                console.log("No active session, user needs to authenticate.");
+            }
+        };
         checkUserSession(); // Run this when the screen loads
     }, []);
+
+    const handleOAuth = async () => {
+        handleGoogleAuth();
+        login();
+    };
 
     return (
         <SafeAreaView className="flex-1 bg-[#FCF9E8]">
@@ -50,7 +55,7 @@ const Signin = () => {
                 {/* Buttons */}
 
                 <TouchableOpacity
-                    onPress={handleGoogleAuth}
+                    onPress={handleOAuth}
                     className="w-[75%] bg-[#FFFFFF] border border-[#747775] shadow-zinc-300 rounded-full py-3 mt-5"
                     activeOpacity={0.7}
                     >

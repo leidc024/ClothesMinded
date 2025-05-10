@@ -7,10 +7,16 @@ import { useUser } from '@/contexts/UserContext';
 export default function ProfileModal() {
     const router = useRouter();
     const [image, setImage] = useState<string | null>(null);
+    const [name, setName] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
     const { current: user, logout } = useUser(); // Assuming you have a user context to get the current user
 
     useEffect(() => {
         console.log("Profile modal mounted!");
+        if (user){
+            setName(user.name);
+            setEmail(user.email);
+        }
     }, []);
 
     const handleLogout = async () => {
@@ -60,8 +66,8 @@ export default function ProfileModal() {
                 {/* Info Box */}
                 <View className="w-full flex-1 justify-center">
                     <View className="w-full rounded-2xl bg-[#DBC0A4] p-6">
-                        <Text className="mb-4 text-lg font-bold">Name:</Text>
-                        <Text className="text-lg font-bold">Email:</Text>
+                        <Text className="mb-4 text-lg font-bold">Name: {user ? user.name : ""}</Text>
+                        <Text className="text-lg font-bold">Email: {user ? user.email : ""}</Text>
                     </View>
                 </View>
 

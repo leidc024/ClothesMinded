@@ -38,10 +38,10 @@ export async function getUserSession() {
 export function UserProvider(props) {
   const [user, setUser] = useState(null); 
 
-  async function login(email, password) {
-    const loggedIn = await account.createEmailPasswordSession(email, password);
+  async function login() {
+    const loggedIn = await account.get();
     setUser(loggedIn);
-    toast('Welcome back. You are logged in');
+    toast('Welcome back,', user.name + ".");
   }
 
   async function logout() {

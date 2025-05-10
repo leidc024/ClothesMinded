@@ -16,13 +16,11 @@ export default function App() {
         // Camera permissions are not granted yet.
         return (
             <View style={styles.container}>
-                <Text style={styles.message}>We need your permission to show the camera</Text>
+                <Text style={styles.permissionMessage}>We need your permission to show the camera</Text>
                 <Button onPress={requestPermission} title="Grant Permission" />
             </View>
         );
     }
-
-
 
     return (
         <View style={styles.container}>
@@ -35,7 +33,6 @@ export default function App() {
             <TouchableOpacity style={styles.button} onPress={() => router.push('/clothes')} activeOpacity={0.7}>
                 <Text style={styles.buttonText}>Done</Text>
             </TouchableOpacity>
-
         </View>
     );
 }
@@ -75,5 +72,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: 'white',
-    },
+    },permissionMessage: {
+        fontSize: 16,
+        textAlign: 'center',
+        color: '#333',
+        marginBottom: 30,
+        marginTop:20,
+    } 
 });

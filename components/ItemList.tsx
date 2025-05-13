@@ -1,93 +1,112 @@
-import React, { useState } from 'react';
-import { FlatList, Text, View, Image, TextInput, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useContext, useEffect, useRef } from 'react';
+import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
+import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
+
+//icons
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 type ItemListProps = {
     keyword: string;
 };
 
-const ItemList = ({keyword}: ItemListProps) => {
-    const [list, setList] = useState<{ id: string; title: string }[]>([]);
-    const [title, setTitle] = useState('');
-    const [showInputs, setShowInputs] = useState(false); // State to toggle input visibility
-    
-    const { height } = Dimensions.get('window'); // Get screen height
-    const ITEM_HEIGHT = height * 0.125; // % of screen height
+const ItemList = ({ keyword }: ItemListProps) => {
 
-    // Function to add item to the list
-    const addItem = () => {
-        if (title.trim()) {
-            setList([...list, { id: Date.now().toString(), title }]);
-            setTitle('');
+    const { 
+        titleCategory, //current title of the category
+        setTitleCategory, 
+        categoryList, 
+        setCategoryList,
+        editCategory,
+        getCategoryId,
+        setCreateCategory,
+    } = useContext(CreateCategoryContext);
+
+    const { height, width } = Dimensions.get('window');
+    const ITEM_HEIGHT = height * 0.125;
+    const DELETE_BUTTON_WIDTH = width * 0.15;
+
+    useEffect(() => {
+
+        if (titleCategory.trim() !== '') {
+            const newItem = { id: Date.now().toString(), title: titleCategory.trim() };
+            setCategoryList((prev: { id: string; title: string }[]) => [...prev, newItem]);
+            setTitleCategory('');
         }
-    };
+    }, [titleCategory]);
 
-    // Filter and sort the list based on the keyword
-    const filteredAndSortedList = list
-        .filter(item => item.title.toLowerCase().includes(keyword.toLowerCase())) // Filter by keyword
-        .sort((a, b) => a.title.localeCompare(b.title)); // Sort in ascending order
+    const filteredAndSortedList = categoryList
+        .filter((item: { id: string; title: string }) => item.title.toLowerCase().includes(keyword.toLowerCase()))
+        .sort((a: { id: string; title: string }, b: { id: string; title: string }) => a.title.localeCompare(b.title));
 
     return (
         <View className='h-4/5 justify-center items-center'>
-            {/* Toggle Button */}
-            <View style={{ height: ITEM_HEIGHT }} className='w-full items-center justify-center'>
-                <TouchableOpacity
-                    className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4"
-                    onPress={() => setShowInputs(!showInputs)}
-                >
-                    <View style={{ aspectRatio: 1 }} className="rounded-2xl h-3/4 border-2 justify-center items-center">
-                        <Image
-                            source={require('../assets/icons/Union.png')} // Local image
-                            className="h-1/4"
-                            style={{ aspectRatio: 1 }} // Ensures square shape
-                            resizeMode="contain"
-                        />
-                    </View>
-                    <Text className="flex-1 text-lg font-bold ml-4">Create Category</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Input Section (Hidden when showInputs is false) */}
-            {showInputs && (
-                <View style={{ height: ITEM_HEIGHT / 3 }} className="flex-row w-3/4 mt-4">
-                    <TextInput
-                        className="flex-1 border border-gray-400 rounded-lg px-4"
-                        placeholder={`Enter title`}
-                        value={title}
-                        maxLength={18} // Prevents more than 18 characters
-                        onChangeText={(text) => setTitle(text.slice(0, 18))} // Ensures the limit
-                    />
-                    <TouchableOpacity 
-                        className="h-full border border-black rounded-lg ml-4 px-4 items-center justify-center" 
-                        onPress={addItem}
-                    >
-                        <Text className="font-semibold">Add</Text>
-                    </TouchableOpacity>
-                </View>
-            
-            )}
-
-            {/* List Section */}
             <View className="flex-1 pb-16 w-full">
                 <FlatList
-                    data={filteredAndSortedList} // Use filtered and sorted list
+                    data={filteredAndSortedList}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                        <View style={{ height: ITEM_HEIGHT }} className="mt-4 flex-row items-center justify-center">
-                            <TouchableOpacity className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4">
+                        <TouchableOpacity
+                            style={{
+                                height: ITEM_HEIGHT,
+                            }}
+                            className="mt-5 flex-row items-center justify-center"
+                        >
+                            
+                            {editCategory && (
+                                <TouchableOpacity
+                                    style={{
+                                        width: DELETE_BUTTON_WIDTH,
+                                        height: '100%',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        marginRight: 5,
+                                        backgroundColor: '#ddd',
+                                        borderRadius: 10,
+                                    }}
+                                    onPress={() => {
+                                        setCategoryList((prevList: { id: string; title: string }[]) => prevList.filter(listItem => listItem.id !== item.id));
+                                    }}
+                                >
+                                    <AntDesign 
+                                        name="delete" 
+                                        size={DELETE_BUTTON_WIDTH * 0.45} 
+                                        color="black" 
+                                    />
+                                </TouchableOpacity>
+                            )}
+                            <TouchableOpacity className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4"
+                                onPress={() => {
+                                    if (editCategory) {
+                                        // Perform edit action
+                                        getCategoryId(item.id);
+                                        setCreateCategory(true);
+                                        console.log('Edit action triggered for:', item.title);
+                                    } else {
+                                        // Perform default action
+                                        console.log('Default action triggered for:', item.title);
+                                    }
+                                }}
+                            >
                                 <View style={{ aspectRatio: 1 }} className="rounded-2xl h-3/4 border-2 justify-center items-center">
                                     <Image
-                                        source={require('../assets/icons/Union.png')} // Local image
+                                        source={require('../assets/icons/Union.png')}
                                         className="h-1/4"
-                                        style={{ aspectRatio: 1 }} // Ensures square shape
+                                        style={{ aspectRatio: 1 }}
                                         resizeMode="contain"
                                     />
                                 </View>
-
-                                {/* Centering text */}
                                 <Text className="flex-1 text-lg font-bold ml-4">{item.title}</Text>
 
+                                {editCategory && (
+                                    <AntDesign 
+                                        name="edit" 
+                                        size={ITEM_HEIGHT * 0.25} 
+                                        color="black" 
+                                    />
+                                )}
+
                             </TouchableOpacity>
-                        </View>
+                        </TouchableOpacity>
                     )}
                 />
             </View>

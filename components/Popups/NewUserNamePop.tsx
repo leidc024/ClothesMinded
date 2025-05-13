@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, Modal, Text, Pressable, View, TextInput } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { account } from "../lib/appwrite";
+import { account } from "../../lib/appwrite";
 import { useUser } from '@/contexts/UserContext';
 
 const NewUserNamePop = () => {

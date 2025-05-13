@@ -5,6 +5,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
 import Button from '@/components/Button'
+import { router } from 'expo-router';
 
 export default function camera() {
   
@@ -37,16 +38,48 @@ export default function camera() {
     if (!cameraPermission.granted || mediaLibraryPermissionResponse.status !== 'granted') {
         // Permissions are not granted yet.
         return (
-          <View style={styles.container}>
-              <Text>We need camera and gallery permissions to continue.</Text>
-              <TouchableOpacity style={styles.button} onPress={() => {
-                  requestCameraPermission();
-                  requestMediaLibraryPermission();
-              }} >
-                  <Text style={styles.buttonText}>Grant Permissions</Text>
-              </TouchableOpacity>
-          </View>
-        )
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#7F705F',
+            }}>
+                <View style={{
+                    backgroundColor: '#f9f5e9',
+                    padding: 32,
+                    borderRadius: 20,
+                    width: 300,
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: '#ddd',
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                    elevation: 4,
+                }}>
+                    
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 15 }}>Oops</Text>
+                    <Text style={{ fontSize: 14, color: '#333', textAlign: 'center', marginBottom: 30 }}>
+                        We need your permission to access{'\n'}the camera
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() => {
+                            requestCameraPermission();
+                            requestMediaLibraryPermission();
+                        }}
+                        style={{
+                            backgroundColor: '#4b2e1e',
+                            paddingHorizontal: 24,
+                            paddingVertical: 10,
+                            borderRadius: 20,
+                        }}
+                    >
+                        <Text style={{ color: 'white', fontWeight: 'bold' }}>Grant</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
     }
   
     //function to toggle camera properties
@@ -91,9 +124,12 @@ export default function camera() {
           try {
               const asset = await MediaLibrary.createAssetAsync(image);
               const assetInfo = await MediaLibrary.getAssetInfoAsync(asset.id);
-              Alert.alert('Photo saved!', image);
+              Alert.alert('Photo saved!');
               setImage(null);
-              getLastSavedImage();
+              getLastSavedImage
+
+              router.push('/wardrobe');
+
           } catch (err) {
               console.log('Error while saving the picture : ', err);
           }

@@ -1,8 +1,11 @@
 import { SafeAreaView, View, Text, Pressable, Modal, TouchableOpacity } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import React, {useState} from 'react';
+import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+
 import { useRouter } from 'expo-router';
+
+import NewUserNamePop from '../../components/Popups/NewUserNamePop'
 
 const Home = () => {
     const router = useRouter();
@@ -27,6 +30,8 @@ const Home = () => {
             </View>
 
             <StatusBar style="dark" />
+            <NewUserNamePop/>
+
         </SafeAreaView>
     );
 };

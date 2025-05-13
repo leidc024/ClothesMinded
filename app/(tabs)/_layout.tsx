@@ -1,7 +1,9 @@
-import React, { memo } from 'react';
+import React, { Children, memo } from 'react';
 import { Tabs } from 'expo-router';
 import icons from '@/assets/icons';
 import { View, Image, ImageSourcePropType } from 'react-native';
+import { CreateCategoryProvider } from '../../contexts/CreateCategoryContext'
+
 
 type TabIconProps = {
     icon: ImageSourcePropType; // Icon source type
@@ -56,6 +58,7 @@ const Tabslayout: React.FC = () => {
     });
 
     return (
+        
         <Tabs>
             <Tabs.Screen name="wardrobe" options={commonOptions('Wardrobe', icons.wardrobe)} />
             <Tabs.Screen name="home" options={commonOptions('Home', icons.home)} />

@@ -1,20 +1,47 @@
-import { View, Text, TextInput, TouchableOpacity} from 'react-native'
-import { useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { useState, useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { FontAwesome } from '@expo/vector-icons'
 
 import ItemList from '../../components/ItemList'
+import AddCategoryPop from '../../components/Popups/AddCategoryPop'
+import CreateCategoryButton from '../../components/CreateCategoryButton'
+import { CreateCategoryContext, CreateCategoryProvider } from '../../contexts/CreateCategoryContext';
 
-const categories = () => {
+const CategoriesComponent = () => {
 
     const [keyword, setKeyWord] = useState('');
+    const [editMode, setEditMode] = useState(false);
+    const {setEditCategory} = useContext(CreateCategoryContext);
+
+    const toggleEditCategory = () => {
+
+        setEditMode(prev => !prev);
+
+        if (editMode) {
+            setEditCategory(true);
+        }
+        else {
+            setEditCategory(false);
+        }
+    };
 
     return (
         <SafeAreaView >
             <StatusBar style='dark' />
+            <View className='flex-row justify-between'>
+                <TouchableOpacity className="border border-black rounded-lg px-4">
+                    <Text 
+                        className="font-semibold"
+                        onPress={toggleEditCategory}
+                    >Edit</Text>
+                </TouchableOpacity>
+
+            </View>
+        
             {/* Header */}
-            <View className="mt-4">
+            <View className="mt-2">
                 <Text className="text-center text-2xl font-bold">Categories</Text>
             </View>
 
@@ -36,13 +63,23 @@ const categories = () => {
                     <FontAwesome name="filter" size={18} color="white" />
                 </TouchableOpacity>
             </View>
-        
-            <ItemList 
-                keyword={keyword}
-            />
-       
+
+            
+            <View>
+                <CreateCategoryButton/>
+                <ItemList
+                    keyword={keyword}
+                />
+                <AddCategoryPop/>
+            </View>       
         </SafeAreaView>
     )
 }
 
-export default categories
+export default function categories() {
+    return (
+        <CreateCategoryProvider>
+            <CategoriesComponent />
+        </CreateCategoryProvider>
+    );
+}

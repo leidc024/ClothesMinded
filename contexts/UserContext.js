@@ -56,6 +56,19 @@ export function UserProvider(props) {
     }
   }
 
+  async function init() {
+    try {
+      const loggedIn = await account.get();
+      setUser(loggedIn);
+      toast('Welcome back. You are logged in');
+    } catch (err) {
+      setUser(null);
+    }
+  }
+
+  
+  //WE PROBABLY WON'T USE THIS
+
   async function register(email, password, username) {
     try {
       await account.create(ID.unique(), email, password, username);
@@ -67,16 +80,7 @@ export function UserProvider(props) {
       toast(err.message);
     }
   }
-
-  async function init() {
-    try {
-      const loggedIn = await account.get();
-      setUser(loggedIn);
-      toast('Welcome back. You are logged in');
-    } catch (err) {
-      setUser(null);
-    }
-  }
+  
 
   useEffect(() => {
     init();

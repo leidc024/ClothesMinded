@@ -2,6 +2,7 @@ import { SafeAreaView, View, Text, Pressable, Modal, TouchableOpacity } from 're
 import React, {useState} from 'react';
 import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons';
+import uploadBundledImage from '../../client_test_env/client';
 
 import { useRouter } from 'expo-router';
 
@@ -26,8 +27,15 @@ const Home = () => {
                         <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
                     </TouchableOpacity>
                 </View>
-
             </View>
+            <TouchableOpacity className='border border-black flex-1 items-center justify-center' 
+                onPress={async () => {
+                    await uploadBundledImage(); // Await the async function
+                    console.log("Pressed!");
+                }}
+            >
+                <Text className="text-xl font-bold text-black">PRESS THIS TO SEND PICTURES</Text>
+            </TouchableOpacity>
 
             <StatusBar style="dark" />
             <NewUserNamePop/>

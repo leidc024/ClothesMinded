@@ -1,112 +1,144 @@
-﻿import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native'
-import React, { useState } from 'react'
+﻿import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Alert } from 'react-native'
+import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { FontAwesome } from '@expo/vector-icons'
+import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_KEY = 'wardrobe_images';
+
+const saveImagesToStorage = async (images: Record<string, string[]>) => {
+    try {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
+    } catch (error) {
+        console.error('Failed to save images', error);
+    }
+};
+
+const loadImagesFromStorage = async (): Promise<Record<string, string[]> | null> => {
+    try {
+        const json = await AsyncStorage.getItem(STORAGE_KEY);
+        return json != null ? JSON.parse(json) : null;
+    } catch (error) {
+        console.error('Failed to load images', error);
+        return null;
+    }
+};
 
 const Wardrobe = () => {
-    // State to track scroll position for custom indicator
-    const [scrollPositionShirts, setScrollPositionShirts] = useState(0);
-    const [scrollPositionJackets, setScrollPositionJackets] = useState(0);
-    const [scrollPositionPants, setScrollPositionPants] = useState(0);
-    const [scrollPositionDress, setScrollPositionDress] = useState(0);
-    const [scrollPositionShorts, setScrollPositionShorts] = useState(0);
+    const [images, setImages] = useState({
+        Shirts: [],
+        Jackets: [],
+        Dress: [],
+        Shorts: [],
+        Pants: []
+    });
+
+    const [scrollPosition, setScrollPosition] = useState({
+        Shirts: 0,
+        Jackets: 0,
+        Dress: 0,
+        Shorts: 0,
+        Pants: 0
+    });
+
+    useEffect(() => {
+        const load = async () => {
+            const stored = await loadImagesFromStorage();
+            if (stored) setImages(stored);
+        };
+        load();
+    }, []);
+
+    const handleAddImage = async (category: string) => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissionResult.granted) {
+            Alert.alert("Permission required", "Please allow access to your photos.");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            const uri = result.assets[0].uri;
+            const updated = {
+                ...images,
+                [category]: [...images[category], uri]
+            };
+            setImages(updated);
+            await saveImagesToStorage(updated);
+        }
+    };
 
     return (
         <SafeAreaView className="flex-1 bg-[#F5EEDC] px-4">
             <StatusBar style="dark" />
-
-            {/* Header */}
             <View className="mt-4">
                 <Text className="text-center text-2xl font-bold">Wardrobe</Text>
             </View>
 
-            {/* Search and Filter */}
             <View className="mt-4 flex-row items-center justify-center">
                 <View className="w-[70%] flex-row items-center rounded-full border border-gray-300 bg-white px-4 py-3 shadow-md">
                     <FontAwesome name="search" size={18} color="gray" />
-                    <TextInput
-                        placeholder="Search"
-                        className="ml-3 flex-1 text-lg"
-                    />
-                    <TouchableOpacity>
-                        <FontAwesome name="close" size={18} color="gray" />
-                    </TouchableOpacity>
+                    <TextInput placeholder="Search" className="ml-3 flex-1 text-lg" />
                 </View>
-                <TouchableOpacity className="ml-3 rounded-lg border border-gray-400 bg-[#D2B48C] px-4 py-3 shadow-md">
-                    <FontAwesome name="filter" size={18} color="white" />
+                <TouchableOpacity
+                    onPress={() => router.push('/camera')}
+                    className="ml-3 rounded-lg border border-gray-400 bg-[#D2B48C] px-4 py-3 shadow-md">
+                    <FontAwesome name="camera" size={18} color="white" />
                 </TouchableOpacity>
             </View>
 
             <ScrollView className="mt-6" showsVerticalScrollIndicator={false}>
-                {/* Category: Shirts */}
-                <CategorySection
-                    title="Shirts"
-                    scrollPosition={scrollPositionShirts}
-                    setScrollPosition={setScrollPositionShirts}
-                    images={[
-                        "https://example.com/shirt1.png",
-                        "https://example.com/shirt2.png",
-                        "https://example.com/shirt3.png"
-                    ]}
-                />
-
-                {/* Category: Jackets */}
-                <CategorySection
-                    title="Jackets"
-                    scrollPosition={scrollPositionJackets}
-                    setScrollPosition={setScrollPositionJackets}
-                    images={[
-                        "https://example.com/jacket1.png",
-                        "https://example.com/jacket2.png",
-                        "https://example.com/jacket3.png"
-                    ]}
-                />
-
-                {/* Category: Pants */}
-                <CategorySection
-                    title="Dress"
-                    scrollPosition={scrollPositionDress}
-                    setScrollPosition={setScrollPositionDress}
-                    images={[
-                        "https://example.com/pants1.png",
-                        "https://example.com/pants2.png",
-                        "https://example.com/pants3.png"
-                    ]}
-                />
-
-                {/* Category: Shorts */}
-                <CategorySection
-                    title="Shorts"
-                    scrollPosition={scrollPositionShorts}
-                    setScrollPosition={setScrollPositionShorts}
-                    images={[
-                        "https://example.com/pants1.png",
-                        "https://example.com/pants2.png",
-                        "https://example.com/pants3.png"
-                    ]}
-                />
-
-
-                {/* Category: Pants */}
-
-                <CategorySection
-                    title="Pants"
-                    scrollPosition={scrollPositionPants}
-                    setScrollPosition={setScrollPositionPants}
-                    images={[
-                        "https://example.com/pants1.png",
-                        "https://example.com/pants2.png",
-                        "https://example.com/pants3.png"
-                    ]}
-                />
+                {Object.keys(images).map((category) => (
+                    <CategorySection
+                        key={category}
+                        title={category}
+                        imagesByCategory={images[category]}
+                        scrollPosition={scrollPosition[category]}
+                        setScrollPosition={(val: number) =>
+                            setScrollPosition(prev => ({ ...prev, [category]: val }))
+                        }
+                        onAddImage={() => handleAddImage(category)}
+                        onDeleteImage={(indexToDelete: number) => {
+                            const updatedCategory = images[category].filter((_, idx) => idx !== indexToDelete);
+                            const updatedImages = {
+                                ...images,
+                                [category]: updatedCategory
+                            };
+                            setImages(updatedImages);
+                            saveImagesToStorage(updatedImages);
+                        }}
+                    />
+                ))}
             </ScrollView>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-// Component for a category section with custom scroll indicator
-const CategorySection = ({ title, images, scrollPosition, setScrollPosition }) => {
+const CategorySection = ({
+    title,
+    imagesByCategory,
+    scrollPosition,
+    setScrollPosition,
+    onAddImage,
+    onDeleteImage
+}: {
+    title: string;
+    imagesByCategory: string[];
+    scrollPosition: number;
+    setScrollPosition: (val: number) => void;
+    onAddImage: () => void;
+    onDeleteImage: (indexToDelete: number) => void;
+}) => {
+    const slotCount = 10;
+
     return (
         <View className="mb-6">
             <Text className="text-xl font-semibold">{title}</Text>
@@ -115,21 +147,48 @@ const CategorySection = ({ title, images, scrollPosition, setScrollPosition }) =
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 onScroll={(e) => {
-                    let contentOffset = e.nativeEvent.contentOffset.x;
-                    let contentWidth = e.nativeEvent.contentSize.width;
-                    let scrollViewWidth = e.nativeEvent.layoutMeasurement.width;
-                    setScrollPosition((contentOffset / (contentWidth - scrollViewWidth)) * 100);
+                    let offset = e.nativeEvent.contentOffset.x;
+                    let totalWidth = e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width;
+                    setScrollPosition((offset / totalWidth) * 100 || 0);
                 }}
                 scrollEventThrottle={16}
                 className="mt-2"
             >
-                <CategoryItem />
-                {images.map((img, index) => (
-                    <ClothingItem key={index} image={img} />
-                ))}
+                <TouchableOpacity onPress={onAddImage}>
+                    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-2 border-black">
+                        <Text className="text-4xl">+</Text>
+                    </View>
+                </TouchableOpacity>
+
+                {Array.from({ length: slotCount }).map((_, i) =>
+                    imagesByCategory[i] ? (
+                        <ClothingItem
+                            key={i}
+                            image={imagesByCategory[i]}
+                            onDelete={() => {
+                                Alert.alert(
+                                    'Delete Image',
+                                    'Are you sure you want to delete this image?',
+                                    [
+                                        { text: 'Cancel', style: 'cancel' },
+                                        {
+                                            text: 'Delete',
+                                            style: 'destructive',
+                                            onPress: () => onDeleteImage(i)
+                                        }
+                                    ]
+                                );
+                            }}
+                        />
+                    ) : (
+                        <View
+                            key={i}
+                            className="mx-2 h-32 w-24 rounded-2xl border bg-white"
+                        />
+                    )
+                )}
             </ScrollView>
 
-            {/* Custom Scroll Indicator */}
             <View className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-300">
                 <View
                     style={{ width: `${scrollPosition}%` }}
@@ -138,24 +197,18 @@ const CategorySection = ({ title, images, scrollPosition, setScrollPosition }) =
             </View>
         </View>
     );
-}
+};
 
-// Component for the "+" add item with rounded border
-const CategoryItem = () => (
-    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-2 border-black">
-        <Text className="text-4xl">+</Text>
-    </View>
-);
-
-// Component for clothing items with rounded border
-const ClothingItem = ({ image }) => (
-    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border bg-white">
-        <Image
-            source={{ uri: image }}
-            className="h-full w-full rounded-2xl"
-            resizeMode="contain"
-        />
-    </View>
+const ClothingItem = ({ image, onDelete }: { image: string, onDelete: () => void }) => (
+    <TouchableOpacity onLongPress={onDelete}>
+        <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border bg-white">
+            <Image
+                source={{ uri: image }}
+                className="h-full w-full rounded-2xl"
+                resizeMode="contain"
+            />
+        </View>
+    </TouchableOpacity>
 );
 
 export default Wardrobe;

@@ -51,7 +51,7 @@ const Signin = () => {
 
                 <TouchableOpacity
                     onPress={handleGoogleAuth}
-                    className="w-[75%] bg-[#FFFFFF] border border-[#747775] shadow-zinc-300 rounded-full py-3 mt-5"
+                    className="mt-5 w-[75%] rounded-full border border-[#747775] bg-[#FFFFFF] py-3 shadow-zinc-300"
                     activeOpacity={0.7}
                     >
                         <View className="flex flex-row items-center justify-center">
@@ -60,9 +60,21 @@ const Signin = () => {
                                 style={{ width: 20, height: 20 }} 
                                 resizeMode="contain"
                             />
-                            <Text className="font-roboto-medium text-lg text-black-300 ml-2">Continue with Google</Text>
+                            <Text className="font-roboto-medium text-black-300 ml-2 text-lg">Continue with Google</Text>
                         </View>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => router.push('/(avatar)/clothes')}
+                    className="mt-5 w-[75%] rounded-full border border-[#747775] bg-[#FFFFFF] py-3 shadow-zinc-300"
+                    activeOpacity={0.7}
+                >
+                    <View className="flex flex-row items-center justify-center">
+                       
+                        <Text className="font-roboto-medium text-black-300 ml-2 text-lg">Clothes.tsx</Text>
+                    </View>
+                </TouchableOpacity>
+
             </View>
         </SafeAreaView>
     );

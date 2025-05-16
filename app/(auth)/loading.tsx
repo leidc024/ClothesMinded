@@ -26,7 +26,7 @@ const LoadingScreen = () => {
             if (user == null){
                 router.push("/sign-in");                 // Navigate using Expo Router
             }else if(!user.prefs?.hasAvatar || user.prefs?.hasAvatar === undefined){
-                router.push('/(avatar)/head');
+                router.push('/(avatar)/body');
             }else{
                 router.push('/(tabs)/home');
             }

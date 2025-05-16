@@ -3,10 +3,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
+import Loader from '@/components/Loader';
 
 export default function ProfileModal() {
     const router = useRouter();
     const [image, setImage] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const { current: user, logout } = useUser(); // Assuming you have a user context to get the current user
 
     useEffect(() => {
@@ -15,7 +17,9 @@ export default function ProfileModal() {
 
     const handleLogout = async () => {
         try {
+            setLoading(true);
             await logout(); // Call the logout function from context
+            setLoading(false);
             router.replace('/'); // Redirect to home screen after logout
         } catch (error) {
             Alert.alert("Logout Failed", "There was an error logging out. Please try again.");
@@ -44,6 +48,7 @@ export default function ProfileModal() {
 
     return (
         <View className="bg-primary flex-1 items-center justify-center">
+            {loading && (<Loader/>)}
             <View className="w-full flex-1 items-center rounded-b-[40px] rounded-t-[40px] bg-amber-50 px-6 pb-10 pt-12">
                 {/* Title */}
                 <Text className="mb-6 text-2xl font-bold">Profile</Text>
@@ -60,8 +65,8 @@ export default function ProfileModal() {
                 {/* Info Box */}
                 <View className="w-full flex-1 justify-center">
                     <View className="w-full rounded-2xl bg-[#DBC0A4] p-6">
-                        <Text className="mb-4 text-lg font-bold">Name:</Text>
-                        <Text className="text-lg font-bold">Email:</Text>
+                        <Text className="mb-4 text-lg font-bold">Name: {user != null ? user.name : "" }</Text>
+                        <Text className="text-lg font-bold">Email: {user != null ? user.email : "" }</Text>
                     </View>
                 </View>
 

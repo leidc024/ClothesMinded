@@ -20,7 +20,7 @@ const Avalayout = () => {
                 style={{
                     alignItems: 'center',
                     paddingHorizontal: 16, // Equivalent to px-4
-                    marginBottom: 15, // Equivalent to mb-3
+                    marginBottom: 10, // Equivalent to mb-3
                     marginTop: -20, // Move it closer to the top
                 }}
             >

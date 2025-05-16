@@ -5,7 +5,7 @@ import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 
-export const handleGoogleAuth = async () => {
+export const handleGoogleAuth = async (init: any) => {
     try {
         const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
 
@@ -51,6 +51,7 @@ export const handleGoogleAuth = async () => {
         }
 
         const user = await account.get(); //Fetch user details
+
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)
             await account.updatePrefs({ firstLogin: false, hasAvatar: false });
@@ -60,14 +61,15 @@ export const handleGoogleAuth = async () => {
                 email: user.email,
             });
             // Redirect to '/head'
-            router.push('/(avatar)/head');
-        } else if (user.prefs?.hasAvatar === false) {
+            router.push('/(avatar)/body');
+        } else if (user.prefs?.hasAvatar === false || user.prefs?.hasAvatar === undefined) {
             // Redirect to '/head'
-            router.push('/(avatar)/head');
+            router.push('/(avatar)/body');
         }else {
             // Redirect to '/home'
             router.push('/home');
         }
+        init()
         return true;
 
     } catch (error) {

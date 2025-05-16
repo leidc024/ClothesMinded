@@ -11,11 +11,15 @@ const NewUserNamePop = () => {
 
   useEffect(() => {
     const checkUserPrefs = async () => {
+      if (!user){
+        return;
+      }
       try {
         if (user?.prefs?.hasUserName === undefined ) {
           console.log("Creating new username.");
           setModalVisible(true);
         } else {
+          setModalVisible(false);
           console.log("User already has username.");
           account.getPrefs()
             .then(prefs => {

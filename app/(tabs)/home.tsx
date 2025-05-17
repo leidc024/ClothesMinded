@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 import NewUserNamePop from '../../components/Popups/NewUserNamePop'
+import Avatar from '../../components/Avatar';
 
 const { height } = Dimensions.get('window'); // Get screen height
 
@@ -14,7 +15,6 @@ const Home = () => {
 
     return (
         <SafeAreaView className="bg-primary items-center justify-center flex-1">    
-            {/* Top Section */}
 
             <View className="w-full flex-row justify-end mt-20 mr-20">
                 <TouchableOpacity
@@ -28,22 +28,8 @@ const Home = () => {
                 </TouchableOpacity>
             </View>
             <View className="items-center justify-center">
-                <Image  
-                    source={require('../../avatar_test/avatar.jpg')}
-                    className="h-[90vh] aspect-square mt-24"
-                    resizeMode='contain'
-                />
+                <Avatar />
             </View>
-            <TouchableOpacity
-                style={{
-                    position: 'absolute',
-                    bottom: 40, // distance from the bottom
-                    alignSelf: 'center', // center horizontally
-                    zIndex: 10, // ensure it's above other content
-                }}
-            >
-                <Text className="text-black text-2xl font-bold mt-4">Generate Avatar</Text>
-            </TouchableOpacity>
             <StatusBar style="dark" />
             <NewUserNamePop/>
 

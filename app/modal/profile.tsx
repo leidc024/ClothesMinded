@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileModal() {
     const router = useRouter();
@@ -10,12 +11,24 @@ export default function ProfileModal() {
     const { current: user, logout } = useUser(); // Assuming you have a user context to get the current user
 
     useEffect(() => {
-        console.log("Profile modal mounted!");
+        const loadImage = async () => {
+            try {
+                const savedImage = await AsyncStorage.getItem('profileImage');
+                if (savedImage) {
+                    setImage(savedImage);
+                }
+            } catch (error) {
+                console.error("Failed to load image from AsyncStorage", error);
+            }
+        };
+
+        loadImage();
     }, []);
 
     const handleLogout = async () => {
         try {
             await logout(); // Call the logout function from context
+            await AsyncStorage.removeItem('profileImage'); // Clear saved image
             router.replace('/'); // Redirect to home screen after logout
         } catch (error) {
             Alert.alert("Logout Failed", "There was an error logging out. Please try again.");
@@ -38,7 +51,13 @@ export default function ProfileModal() {
         });
 
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
+            const uri = result.assets[0].uri;
+            setImage(uri);
+            try {
+                await AsyncStorage.setItem('profileImage', uri);
+            } catch (error) {
+                console.error("Failed to save image URI to AsyncStorage", error);
+            }
         }
     };
 
@@ -60,14 +79,14 @@ export default function ProfileModal() {
                 {/* Info Box */}
                 <View className="w-full flex-1 justify-center">
                     <View className="w-full rounded-2xl bg-[#DBC0A4] p-6">
-                        <Text className="mb-4 text-lg font-bold">Name:</Text>
-                        <Text className="text-lg font-bold">Email:</Text>
+                        <Text className="mb-4 text-lg font-bold">Name: {user?.name ?? ""}</Text>
+                        <Text className="text-lg font-bold">Email: {user?.email ?? ""}</Text>
                     </View>
                 </View>
 
                 {/* Buttons */}
                 <View className="mt-4 w-[75%]">
-                    <Pressable onPress={ handleLogout } className="mb-4 rounded-full bg-[#4B2E18] py-4">
+                    <Pressable onPress={handleLogout} className="mb-4 rounded-full bg-[#4B2E18] py-4">
                         <Text className="text-center text-lg font-bold text-white">Sign Out</Text>
                     </Pressable>
 

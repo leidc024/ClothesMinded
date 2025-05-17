@@ -83,7 +83,7 @@ export function UserProvider(props) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ current: user, login, logout, register, toast }}>
+    <UserContext.Provider value={{ current: user, login, logout, register, toast, init }}>
       {props.children}
     </UserContext.Provider>
   );

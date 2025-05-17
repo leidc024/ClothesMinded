@@ -1,9 +1,56 @@
 import { databases } from '../lib/appwrite.js';
+import { ID } from 'react-native-appwrite';
 import { Query } from 'appwrite';
+import { storage } from '../lib/appwrite';
 
 const databaseID = "67ad9e670028ece6ed36";
 const userCollectionID = "67d3ea200018791dcc14";
 const categoryCollectionID = "67d3c85800348c24a27b";
+const storageID = "6825d9f500066a3dc28e"; // Storage ID
+
+const addRemovedBackground = async ( fileUri ) =>  {
+  const id = ID.unique();
+  console.log(fileUri)
+  try {
+    const result = await storage.createFile(
+      '6825d9f500066a3dc28e', // bucketId
+      id, // fileId
+      {
+        name: 'image1.jpg',
+        type: 'image/webp',
+        size: 1234567,
+        uri: fileUri,
+      }, // file
+    );
+    console.log(result); // Success
+    return id;
+  } catch (error) {
+    console.error(error); // Failure
+    return null;
+  }
+}
+
+const addUserAvatar = async ( filePath ) => {
+  const id = ID.unique();
+  console.log(filePath);
+  try {
+    const result = await storage.createFile(
+      '6825d9f500066a3dc28e', // bucketId
+      id, // fileId
+      {
+        name: 'image2.jpg',
+        type: 'image/webp',
+        size: 1234567,
+        uri: filePath
+      }, // file
+    );
+    console.log(result); // Success
+    return id;
+  } catch (error) {
+    console.error(error); // Failure
+    return null;
+  }
+}
 
 const addUserDocument = async ( data ) => {
   try {
@@ -55,4 +102,4 @@ async function getCategoryDocumentsByUserId(targetUserId) {
   }
 }
 
-export { addUserDocument, addCategoryDocument, getCategoryDocumentsByUserId };
+export { addUserDocument, addCategoryDocument, getCategoryDocumentsByUserId, addRemovedBackground, addUserAvatar };

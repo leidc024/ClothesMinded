@@ -65,13 +65,13 @@ const Signin = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => router.push('/(avatar)/clothes')}
+                    onPress={() => router.push('/(tabs)/home')}
                     className="mt-5 w-[75%] rounded-full border border-[#747775] bg-[#FFFFFF] py-3 shadow-zinc-300"
                     activeOpacity={0.7}
                 >
                     <View className="flex flex-row items-center justify-center">
                        
-                        <Text className="font-roboto-medium text-black-300 ml-2 text-lg">Clothes.tsx</Text>
+                        <Text className="font-roboto-medium text-black-300 ml-2 text-lg">Home.tsx</Text>
                     </View>
                 </TouchableOpacity>
 

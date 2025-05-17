@@ -9,3 +9,13 @@ export const saveImagesToStorage = async (images: Record<string, string[]>) => {
         console.error('Failed to save images', error);
     }
 };
+
+export const loadImagesFromStorage = async (): Promise<Record<string, string[]> | null> => {
+    try {
+        const json = await AsyncStorage.getItem(STORAGE_KEY);
+        return json != null ? JSON.parse(json) : null;
+    } catch (error) {
+        console.error('Failed to load images', error);
+        return null;
+    }
+};

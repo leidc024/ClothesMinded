@@ -1,11 +1,11 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Image, ImageSourcePropType } from 'react-native';
 import Loader from '@/components/Loader';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Asset } from 'expo-asset';
-import { addRemovedBackground, addUserAvatar } from '@/contexts/database';
+import { addAvatarDocument, addUserAvatar } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 import { account } from '@/lib/appwrite';
 
@@ -24,11 +24,13 @@ export default function App() {
 
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const { updatePreferences } = useUser();
+    const { current: user, updatePreferences } = useUser();
 
     const assetPaths = [
         require('@/assets/poses/pose0.png'),
     ];
+
+
 
     useEffect(() => {
         const loadAssets = async () => {
@@ -87,11 +89,19 @@ export default function App() {
         // const result = await removeBackground(photoUri as string);
         // console.log('Proceeding with photo:', result);
         // addRemovedBackground(result);
-        addUserAvatar(photoUri as string);
-        updatePreferences('hasAvatar', true);
-        setIsProcessing(false);
+        const avatarID = await addUserAvatar(photoUri as string);
+        if (avatarID && user.$id) {
+            //setAvatarId(avatarID);
+            updatePreferences('hasAvatar', true);
+            updatePreferences('avatarId', avatarID);
+            await addAvatarDocument({
+                userID: user.$id,
+                avatarID: avatarID,
+            });
+            setIsProcessing(false);
+            router.replace('/(tabs)/home');
+        }
         // setPhotoUri(result);
-        router.replace('/(tabs)/home');
     }
 
     const handleCameraPress = () => {

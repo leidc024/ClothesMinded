@@ -32,15 +32,15 @@ const RootLayout = () => {
 
   return (
     <UserProvider>
-      <SafeAreaProvider>
-        <Stack>
-            <Stack.Screen name = "index" options={{headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(avatar)" options={{ headerShown: false }} />
-            <Stack.Screen name = "(tabs)" options={{headerShown: false }} />
-            <Stack.Screen name="modal/profile" options={{ presentation: 'fullScreenModal', headerShown: false, }} />
-        </Stack>
-      </SafeAreaProvider>
+        <SafeAreaProvider>
+          <Stack>
+              <Stack.Screen name = "index" options={{headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                  <Stack.Screen name="(avatar)" options={{ headerShown: false }} />
+              <Stack.Screen name = "(tabs)" options={{headerShown: false }} />
+              <Stack.Screen name="modal/profile" options={{ presentation: 'fullScreenModal', headerShown: false, }} />
+          </Stack>
+        </SafeAreaProvider>
     </UserProvider>
   )
 }

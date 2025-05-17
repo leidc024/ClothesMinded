@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Asset } from 'expo-asset';
 import { addAvatarDocument, addUserAvatar } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
-import { account } from '@/lib/appwrite';
 
 export default function App() {
     const timer = 5;

@@ -50,6 +50,7 @@ const Wardrobe = () => {
     useEffect(() => {
         const load = async () => {
             const stored = await loadImagesFromStorage();
+            console.log(stored)
             if (stored) setImages(stored);
         };
         load();
@@ -82,6 +83,7 @@ const Wardrobe = () => {
                     [category]: [...images[category], uri]
                 };
                 setImages(updated);
+                console.log(updated)
                 await saveImagesToStorage(updated);
             }
         }

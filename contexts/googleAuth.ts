@@ -5,6 +5,14 @@ import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { getRedirectUri } from "@/utils/redirectUri";
 import { router } from 'expo-router';
+import { getClothingItemsByUserID, getClothingURI } from "@/contexts/database.js";
+import { saveImagesToStorage } from "@/utils/localStorage";
+
+
+interface ImagesCollection {
+  [key: string]: string[]; // All string keys will return string arrays
+}
+
 
 export const handleGoogleAuth = async (init: any) => {
     try {
@@ -61,6 +69,36 @@ export const handleGoogleAuth = async (init: any) => {
         }
 
         const user = await account.get(); //Fetch user details
+        
+        const clothesData = await getClothingItemsByUserID(user.$id); //Fetch clothing data
+        if (clothesData) {
+            const clothingImages = await Promise.all(
+                clothesData.map(async (item: any) => {
+                    const type = item.type;
+                    const uri = await getClothingURI(item.clothingID);
+                    return {type, uri};
+                })
+            );
+            console.log(clothingImages)
+            // Save images to storage
+            const images: ImagesCollection = {
+                Shirts: [],
+                Jackets: [],
+                Dress: [],
+                Shorts: [],
+                Pants: []
+            };
+
+
+            clothingImages.forEach((uri: any, index: number) => {
+                const category = clothesData[index].type;
+                if (images[category]) {
+                    images[category].push(uri.uri);
+                }
+            });
+            console.log(images)
+            saveImagesToStorage(images);
+        }
 
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)

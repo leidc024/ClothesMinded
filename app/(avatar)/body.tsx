@@ -5,8 +5,9 @@ import Loader from '@/components/Loader';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Asset } from 'expo-asset';
-import { removeBackground } from '@/utils/api';
 import { addRemovedBackground, addUserAvatar } from '@/contexts/database';
+import { useUser } from '@/contexts/UserContext';
+import { account } from '@/lib/appwrite';
 
 export default function App() {
     const timer = 5;
@@ -23,6 +24,8 @@ export default function App() {
 
     const [isProcessing, setIsProcessing] = useState(false);
 
+    const { updatePreferences } = useUser();
+
     const assetPaths = [
         require('@/assets/poses/pose0.png'),
     ];
@@ -33,7 +36,6 @@ export default function App() {
             setLoadedAssets(assetPaths.map(module => Asset.fromModule(module)));
         };
         loadAssets();
-        
     }, []);
 
     // Add this effect for countdown
@@ -81,13 +83,15 @@ export default function App() {
     const handleProceed = async () => {
         // Handle the proceed action (e.g., navigate to another screen)
         setIsProcessing(true);
+        console.log("processing")
         // const result = await removeBackground(photoUri as string);
         // console.log('Proceeding with photo:', result);
         // addRemovedBackground(result);
         addUserAvatar(photoUri as string);
+        updatePreferences('hasAvatar', true);
         setIsProcessing(false);
         // setPhotoUri(result);
-        // router.replace('/(tabs)/home');
+        router.replace('/(tabs)/home');
     }
 
     const handleCameraPress = () => {

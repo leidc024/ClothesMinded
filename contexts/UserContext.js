@@ -68,6 +68,23 @@ export function UserProvider(props) {
     }
   }
 
+  function updatePreferences(key, value){
+    console.log('Updating preferences:', key, value);
+    try{
+      account.getPrefs().then(currentPrefs => {
+        currentPrefs[key] = value // 🆕 this is the new preference you're adding
+        return account.updatePrefs(currentPrefs);
+      }).then(updated => {
+        console.log('Updated prefs:', updated);
+      }).catch(err => {
+        console.error('Error updating prefs:', err);
+      });
+    } catch(error){
+      console.log('Error updating preferences:', error);
+      toast('Failed to update preferences. Please try again.');
+    }
+  }
+
   async function init() {
     try {
       const loggedIn = await account.get();
@@ -83,7 +100,7 @@ export function UserProvider(props) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ current: user, login, logout, register, toast, init }}>
+    <UserContext.Provider value={{ current: user, login, logout, register, toast, init, updatePreferences }}>
       {props.children}
     </UserContext.Provider>
   );

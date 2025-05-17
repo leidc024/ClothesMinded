@@ -43,8 +43,16 @@ export const handleGoogleAuth = async (init: any) => {
         if (!secret || !userId) {
             throw new Error('Failed to login(2)');
         }
-
+        
+        try{
+            if (await account.getSession('current')) {
+                await account.deleteSession("current");
+            }
+        }catch (error) {
+            console.log("No active session, user needs to authenticate.");
+        }
         const session = await account.createSession(userId, secret);
+
 
         if (!session) {
             throw new Error('Failed to create session');

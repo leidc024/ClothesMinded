@@ -3,11 +3,13 @@ import { addUserDocument } from '@/contexts/database.js';
 import { OAuthProvider } from 'react-native-appwrite';
 import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import { getRedirectUri } from "@/utils/redirectUri";
 import { router } from 'expo-router';
 
 export const handleGoogleAuth = async (init: any) => {
     try {
-        const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
+        // const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
+        const redirectUri = getRedirectUri(); // Redirect to back to the app at index screen
 
         const response = await account.createOAuth2Token(
             OAuthProvider.Google,

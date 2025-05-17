@@ -6,6 +6,8 @@ import { FontAwesome } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { addClothingImage, addClothingDocument } from '@/contexts/database'
+import { useUser } from '@/contexts/UserContext'
 
 const STORAGE_KEY = 'wardrobe_images';
 
@@ -28,6 +30,7 @@ const loadImagesFromStorage = async (): Promise<Record<string, string[]> | null>
 };
 
 const Wardrobe = () => {
+    const { current: user } = useUser();
     const [images, setImages] = useState({
         Shirts: [],
         Jackets: [],
@@ -47,6 +50,7 @@ const Wardrobe = () => {
     useEffect(() => {
         const load = async () => {
             const stored = await loadImagesFromStorage();
+            console.log(stored)
             if (stored) setImages(stored);
         };
         load();
@@ -67,12 +71,21 @@ const Wardrobe = () => {
 
         if (!result.canceled) {
             const uri = result.assets[0].uri;
-            const updated = {
-                ...images,
-                [category]: [...images[category], uri]
-            };
-            setImages(updated);
-            await saveImagesToStorage(updated);
+            const imageID = await addClothingImage(uri);
+            if (imageID && user.$id){
+                await addClothingDocument({
+                    clothingID: imageID,
+                    type: category,
+                    userID: user.$id,
+                });
+                const updated = {
+                    ...images,
+                    [category]: [...images[category], uri]
+                };
+                setImages(updated);
+                console.log(updated)
+                await saveImagesToStorage(updated);
+            }
         }
     };
 

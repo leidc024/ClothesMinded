@@ -19,7 +19,7 @@ export default function App() {
     const [isCountingDown, setIsCountingDown] = useState(false);
     const [countdown, setCountdown] = useState(timer);
     const cameraRef = useRef<CameraView>(null);
-    const countdownInterval = useRef<NodeJS.Timeout>();
+    const countdownInterval = useRef<number>(null);
 
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -43,10 +43,12 @@ export default function App() {
             countdownInterval.current = setInterval(() => {
                 setCountdown((prev) => {
                     if (prev <= 1) {
-                        clearInterval(countdownInterval.current);
-                        setIsCountingDown(false);
-                        takePicture(); // Call your photo capture function
-                        return timer; // Reset countdown
+                        if (countdownInterval.current) {
+                            clearInterval(countdownInterval.current);
+                            setIsCountingDown(false);
+                            takePicture(); // Call your photo capture function
+                            return timer; // Reset countdown
+                        }
                     }
                     return prev - 1;
                 });

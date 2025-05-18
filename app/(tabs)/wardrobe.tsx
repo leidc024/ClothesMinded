@@ -11,6 +11,14 @@ import { useUser } from '@/contexts/UserContext'
 
 const STORAGE_KEY = 'wardrobe_images';
 
+interface ImagesCollection {
+  [key: string]: string[]; // All string keys will return string arrays
+}
+
+interface scrollComponent {
+  [key: string]: number; // All string keys will return string arrays
+}
+
 const saveImagesToStorage = async (images: Record<string, string[]>) => {
     try {
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
@@ -31,7 +39,7 @@ const loadImagesFromStorage = async (): Promise<Record<string, string[]> | null>
 
 const Wardrobe = () => {
     const { current: user } = useUser();
-    const [images, setImages] = useState({
+    const [images, setImages] = useState<ImagesCollection>({
         Shirts: [],
         Jackets: [],
         Dress: [],
@@ -39,7 +47,7 @@ const Wardrobe = () => {
         Pants: []
     });
 
-    const [scrollPosition, setScrollPosition] = useState({
+    const [scrollPosition, setScrollPosition] = useState<scrollComponent>({
         Shirts: 0,
         Jackets: 0,
         Dress: 0,

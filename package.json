@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
-    "@lottiefiles/dotlottie-react": "^0.13.5",
+    "@lottiefiles/dotlottie-react": "^0.6.5",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/slider": "4.5.6",
     "@react-navigation/native": "^7.1.6",
@@ -45,6 +45,7 @@
     "react-dom": "19.0.0",
     "react-native": "0.79.2",
     "react-native-appwrite": "^0.7.0",
+    "react-native-background-remover": "^0.3.2",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-heroicons": "^4.0.0",
     "react-native-image-picker": "^7.1.2",
@@ -67,6 +68,16 @@
     "metro": "^0.82.0",
     "react-test-renderer": "18.2.0",
     "typescript": "~5.8.3"
+  },
+  "overrides": {
+    "@lottiefiles/dotlottie-react": {
+      "react": "19.0.0",
+      "react-dom": "19.0.0"
+    },
+    "react-test-renderer": {
+      "react": "19.0.0",
+      "react-dom": "19.0.0"
+    }
   },
   "private": true
 }

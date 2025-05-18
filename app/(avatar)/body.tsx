@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Asset } from 'expo-asset';
 import { addAvatarDocument, addUserAvatar } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
+import { removeBackground } from "react-native-background-remover"
 
 export default function App() {
     const timer = 5;
@@ -22,6 +23,7 @@ export default function App() {
     const countdownInterval = useRef<number>(null);
 
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isBackgroundRemoved, setIsBackgroundRemoved] = useState(false);
 
     const { current: user, updatePreferences } = useUser();
 
@@ -82,23 +84,36 @@ export default function App() {
     };
 
     const handleProceed = async () => {
+        if (!photoUri) {
+            console.error('No photo URI available');
+            return;
+        }
         // Handle the proceed action (e.g., navigate to another screen)
         setIsProcessing(true);
         console.log("processing")
-        // const result = await removeBackground(photoUri as string);
-        // console.log('Proceeding with photo:', result);
-        // addRemovedBackground(result);
-        const avatarID = await addUserAvatar(photoUri as string);
-        if (avatarID && user.$id) {
-            updatePreferences('hasAvatar', true);
-            await addAvatarDocument({
-                userID: user.$id,
-                avatarID: avatarID,
-            });
-            setIsProcessing(false);
-            router.replace('/(tabs)/home');
+
+
+        if (!isBackgroundRemoved) {
+            console.log("Removing background");
+            const result = await removeBackground(photoUri as string);
+            setPhotoUri(result);
+            setIsBackgroundRemoved(true);
+        }else{
+            console.log('Proceeding with photo:', photoUri);
+            const avatarID = await addUserAvatar(photoUri as string);
+            if (avatarID && user.$id) {
+                updatePreferences('hasAvatar', true);
+                await addAvatarDocument({
+                    userID: user.$id,
+                    avatarID: avatarID,
+                });
+                setIsBackgroundRemoved(false);
+                setIsProcessing(false);
+                router.replace('/(tabs)/home');
+            }
         }
-        // setPhotoUri(result);
+        // addRemovedBackground(result);
+        setIsProcessing(false);
     }
 
     const handleCameraPress = () => {
@@ -107,6 +122,11 @@ export default function App() {
 
     const handleFacing = () => {
         setFacing((prev) => (prev === 'back' ? 'front' : 'back'));
+    }
+
+    const handleRetry = () => {
+        setIsBackgroundRemoved(false);
+        setPhotoUri(undefined)
     }
 
     if (!permission) {
@@ -170,7 +190,7 @@ export default function App() {
                         <Text style={styles.instructions}>Proceed</Text>
                     </TouchableOpacity>
                     
-                    <TouchableOpacity style={styles.retryButton} onPress={() => setPhotoUri(undefined)} activeOpacity={0.7}>
+                    <TouchableOpacity style={styles.retryButton} onPress={handleRetry} activeOpacity={0.7}>
                         <Text style={styles.instructions}>Retake</Text>
                     </TouchableOpacity>
                 </>

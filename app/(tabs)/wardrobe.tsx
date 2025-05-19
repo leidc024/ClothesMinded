@@ -160,15 +160,13 @@ const CategorySection = ({
     onAddImage: () => void;
     onDeleteImage: (indexToDelete: number) => void;
 }) => {
-    const slotCount = 10;
-
     return (
         <View className="mb-6">
             <Text className="text-xl font-semibold">{title}</Text>
 
             <ScrollView
                 horizontal
-                showsHorizontalScrollIndicator={false}
+                showsHorizontalScrollIndicator={true}
                 onScroll={(e) => {
                     let offset = e.nativeEvent.contentOffset.x;
                     let totalWidth = e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width;
@@ -176,40 +174,37 @@ const CategorySection = ({
                 }}
                 scrollEventThrottle={16}
                 className="mt-2"
+                contentContainerStyle={{
+                    paddingRight: 20,
+                    minWidth: '100%',
+                }}
             >
                 <TouchableOpacity onPress={onAddImage}>
-                    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-2 border-black">
+                    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-2 border-black bg-white">
                         <Text className="text-4xl">+</Text>
                     </View>
                 </TouchableOpacity>
 
-                {Array.from({ length: slotCount }).map((_, i) =>
-                    imagesByCategory[i] ? (
-                        <ClothingItem
-                            key={i}
-                            image={imagesByCategory[i]}
-                            onDelete={() => {
-                                Alert.alert(
-                                    'Delete Image',
-                                    'Are you sure you want to delete this image?',
-                                    [
-                                        { text: 'Cancel', style: 'cancel' },
-                                        {
-                                            text: 'Delete',
-                                            style: 'destructive',
-                                            onPress: () => onDeleteImage(i)
-                                        }
-                                    ]
-                                );
-                            }}
-                        />
-                    ) : (
-                        <View
-                            key={i}
-                            className="mx-2 h-32 w-24 rounded-2xl border bg-white"
-                        />
-                    )
-                )}
+                {imagesByCategory.map((img, i) => (
+                    <ClothingItem
+                        key={i}
+                        image={img}
+                        onDelete={() => {
+                            Alert.alert(
+                                'Delete Image',
+                                'Are you sure you want to delete this image?',
+                                [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    {
+                                        text: 'Delete',
+                                        style: 'destructive',
+                                        onPress: () => onDeleteImage(i)
+                                    }
+                                ]
+                            );
+                        }}
+                    />
+                ))}
             </ScrollView>
 
             <View className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-300">
@@ -221,6 +216,8 @@ const CategorySection = ({
         </View>
     );
 };
+
+
 
 const ClothingItem = ({ image, onDelete }: { image: string, onDelete: () => void }) => (
     <TouchableOpacity onLongPress={onDelete}>

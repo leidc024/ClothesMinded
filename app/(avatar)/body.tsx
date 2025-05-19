@@ -1,5 +1,5 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Image, ImageSourcePropType } from 'react-native';
 import Loader from '@/components/Loader';
 import { router } from 'expo-router';
@@ -30,6 +30,8 @@ export default function App() {
     const assetPaths = [
         require('@/assets/poses/pose0.png'),
     ];
+
+
 
     useEffect(() => {
         const loadAssets = async () => {

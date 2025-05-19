@@ -85,6 +85,18 @@ export function UserProvider(props) {
     }
   }
 
+  async function getPreferences() {
+    try {
+      const prefs = await account.getPrefs();
+      console.log('Fetched preferences:', prefs);
+      return prefs;
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+      toast('Failed to fetch preferences. Please try again.');
+      return null;
+    }
+  }
+
   async function init() {
     try {
       const loggedIn = await account.get();
@@ -100,7 +112,7 @@ export function UserProvider(props) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ current: user, login, logout, register, toast, init, updatePreferences }}>
+    <UserContext.Provider value={{ current: user, login, logout, register, toast, init, updatePreferences, getPreferences }}>
       {props.children}
     </UserContext.Provider>
   );

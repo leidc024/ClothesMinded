@@ -5,6 +5,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import NewUserNamePop from "../../components/Popups/NewUserNamePop";
 import ChooseGenerate from "../modal/chooseGenerate";
+import Avatar from '../../components/Avatar';
+
+const { height } = Dimensions.get('window'); // Get screen height
 
 const Home = () => {
   const router = useRouter();
@@ -69,11 +72,15 @@ const Home = () => {
           onGenerateOutfit={handleGenerateOutfit}
         />
       </View>
+      <View className="items-center justify-center">
+        <Avatar />
+      </View>
 
       <StatusBar style="dark" />
       <NewUserNamePop />
     </SafeAreaView>
   );
 };
+
 
 export default Home;

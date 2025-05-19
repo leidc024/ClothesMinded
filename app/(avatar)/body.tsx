@@ -117,7 +117,7 @@ export default function App() {
     }
 
     const handleCameraPress = () => {
-        setIsCountingDown(true); // Start countdown)
+        setIsCountingDown(true); // Start countdown
     };
 
     const handleFacing = () => {

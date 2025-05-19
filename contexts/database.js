@@ -52,6 +52,26 @@ const getClothingURI = async (fileId) => {
   }
 };
 
+const getAvatarUriByUserID = async (userID) => {
+  try {
+    // Get file metadata first (optional)
+    const avatarID = await getAvatarInfoByUserID(userID)
+    console.log('Avatar ID:', avatarID[0].avatarID);
+    const file = await storage.getFile(avatarStorageID, avatarID[0].avatarID);
+    console.log('File metadata:', file);
+    // Get the file preview/URI
+    const result = await storage.getFileView(avatarStorageID, avatarID[0].avatarID);
+    console.log(result);
+    // OR for download URL:
+    // const result = storage.getFileDownload(bucketId, fileId);
+    
+    return result.href; // This is the URI/URL you can use
+  } catch (error) {
+    console.error('Error getting file URI:', error);
+    return null;
+  }
+};
+
 const addUserAvatar = async ( filePath ) => {
   const id = ID.unique();
   console.log(filePath);
@@ -174,4 +194,24 @@ const getClothingItemsByUserID = async (userID) => {
   }
 }
 
-export { addUserDocument, addCategoryDocument, addClothingDocument, getCategoryDocumentsByUserId, getClothingItemsByUserID, addAvatarDocument, addUserAvatar, addClothingImage, getClothingURI };
+const getAvatarInfoByUserID = async (userID) => {
+  try {
+      const response = await databases.listDocuments(
+          databaseID,
+          avatarCollectionID,
+          [
+              Query.equal('userID', userID)
+          ]
+      );
+
+      const results = response.documents;
+      console.log('Documents with userID:', results);
+      return results;
+      // response.documents will be an array of document objects that have the specified userID.
+  } catch (error) {
+      console.error('Error getting documents:', error);
+      // Handle the error appropriately.
+  }
+}
+
+export { addUserDocument, addCategoryDocument, addClothingDocument, getCategoryDocumentsByUserId, getClothingItemsByUserID, addAvatarDocument, addUserAvatar, addClothingImage, getClothingURI, getAvatarUriByUserID };

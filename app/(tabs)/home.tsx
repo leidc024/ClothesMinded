@@ -55,6 +55,10 @@ const Home = () => {
           </TouchableOpacity>
         </View>
       </View>
+      {/* Avatar Section */}
+      <View className="items-center justify-center">
+        <Avatar />
+      </View>
 
       {/* Bottom Section with Generate Button */}
       <View className="px-5 pb-5">
@@ -71,9 +75,6 @@ const Home = () => {
           onSelectOutfit={handleSelectOutfit}
           onGenerateOutfit={handleGenerateOutfit}
         />
-      </View>
-      <View className="items-center justify-center">
-        <Avatar />
       </View>
 
       <StatusBar style="dark" />

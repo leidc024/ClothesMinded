@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+﻿import React, { useState, useContext, useEffect, useRef } from 'react';
 import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
 
@@ -39,8 +39,8 @@ const ItemList = ({ keyword }: ItemListProps) => {
         .sort((a: { id: string; title: string }, b: { id: string; title: string }) => a.title.localeCompare(b.title));
 
     return (
-        <View className='h-4/5 justify-center items-center'>
-            <View className="flex-1 pb-16 w-full">
+        <View className='h-4/5 items-center justify-center'>
+            <View className="w-full flex-1 pb-16">
                 <FlatList
                     data={filteredAndSortedList}
                     keyExtractor={(item) => item.id}
@@ -60,7 +60,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         marginRight: 5,
-                                        backgroundColor: '#ddd',
+                                        backgroundColor: '#ff8080',
                                         borderRadius: 10,
                                     }}
                                     onPress={() => {
@@ -74,7 +74,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                     />
                                 </TouchableOpacity>
                             )}
-                            <TouchableOpacity className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4"
+                            <TouchableOpacity className="h-full w-3/4 flex-row items-center justify-center rounded-3xl border-2 bg-[#D2B48C] px-4"
                                 onPress={() => {
                                     if (editCategory) {
                                         // Perform edit action
@@ -87,7 +87,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                     }
                                 }}
                             >
-                                <View style={{ aspectRatio: 1 }} className="rounded-2xl h-3/4 border-2 justify-center items-center">
+                                <View style={{ aspectRatio: 1 }} className="h-3/4 items-center justify-center rounded-2xl border-2">
                                     <Image
                                         source={require('../assets/icons/Union.png')}
                                         className="h-1/4"
@@ -95,7 +95,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         resizeMode="contain"
                                     />
                                 </View>
-                                <Text className="flex-1 text-lg font-bold ml-4">{item.title}</Text>
+                                <Text className="ml-4 flex-1 text-lg font-bold">{item.title}</Text>
 
                                 {editCategory && (
                                     <AntDesign 

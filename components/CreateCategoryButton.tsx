@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Dimensions, Image} from 'react-native'
+﻿import { View, Text, TouchableOpacity, Dimensions, Image} from 'react-native'
 import { useContext } from 'react';
 
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
@@ -13,13 +13,13 @@ const CreateCategoryButton = () => {
     return(
         <View style={{ height: ITEM_HEIGHT }} className='w-full items-center justify-center'>
             <TouchableOpacity
-                className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4"
+                className="h-full w-3/4 flex-row items-center justify-center rounded-3xl border-2 bg-white px-4"
                 onPress={() => {
                     setCreateCategory(true); 
                     setEditCategory(false);
                 } }
             >
-                <View style={{ aspectRatio: 1 }} className="rounded-2xl h-3/4 border-2 justify-center items-center">
+                <View style={{ aspectRatio: 1 }} className="h-3/4 items-center justify-center rounded-2xl border-2">
                     <Image
                         source={require('../assets/icons/Union.png')} // Local image
                         className="h-1/4"
@@ -27,7 +27,7 @@ const CreateCategoryButton = () => {
                         resizeMode="contain"
                     />
                 </View>
-                <Text className="flex-1 text-lg font-bold ml-4">Create Category</Text>
+                <Text className="ml-4 flex-1 text-lg font-bold">Create Category</Text>
             </TouchableOpacity>
         </View>
     );

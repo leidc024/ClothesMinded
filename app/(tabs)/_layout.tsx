@@ -67,7 +67,7 @@ const Tabslayout: React.FC = () => {
         <Tabs>
             <Tabs.Screen name="wardrobe" options={commonOptions('Wardrobe', icons.wardrobe)} />
             <Tabs.Screen name="home" options={commonOptions('Home', icons.home)} />
-            <Tabs.Screen name="categories" options={commonOptions('Categories', icons.camera)} />
+            <Tabs.Screen name="categories" options={commonOptions('Categories', icons.categories)} />
         </Tabs>
     );
 };

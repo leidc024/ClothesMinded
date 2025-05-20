@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+﻿import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import { useState, useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -31,7 +31,7 @@ const CategoriesComponent = () => {
         <SafeAreaView >
             <StatusBar style='dark' />
             <View className='flex-row justify-between'>
-                <TouchableOpacity className="border border-black rounded-lg px-4">
+                <TouchableOpacity className="rounded-lg border border-black px-4">
                     <Text 
                         className="font-semibold"
                         onPress={toggleEditCategory}
@@ -47,13 +47,13 @@ const CategoriesComponent = () => {
 
             {/* Search and Filter */}
             <View className="my-4 flex-row items-center justify-center">
-                <View className="w-[70%] flex-row items-center rounded-full  bg-white px-4 py-3 shadow-md">
+                <View className="w-[70%] flex-row items-center rounded-full bg-white px-4 shadow-md">
                     <FontAwesome name="search" size={18} color="gray" />
                     <TextInput
                         placeholder="Search"
                         value = {keyword}
                         onChangeText = {setKeyWord}
-                        className="flex-1 ml-3 text-lg"
+                        className="ml-3 flex-1 text-lg"
                     />
                     <TouchableOpacity onPress={() => setKeyWord('')}>
                         <FontAwesome name="close" size={18} color="gray" />

@@ -105,7 +105,7 @@ const Wardrobe = () => {
             </View>
 
             <View className="mt-4 flex-row items-center justify-center">
-                <View className="w-[70%] flex-row items-center rounded-full border border-gray-300 bg-white px-4 py-3 shadow-md">
+                <View className="w-[70%] flex-row items-center rounded-full border border-gray-300 bg-white px-4 shadow-md">
                     <FontAwesome name="search" size={18} color="gray" />
                     <TextInput placeholder="Search" className="ml-3 flex-1 text-lg" />
                 </View>

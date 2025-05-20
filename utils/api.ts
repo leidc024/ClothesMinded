@@ -17,6 +17,8 @@ export const get = async () =>{
   });
   return "None"
 }
+/*
+THIS IS SEPERATE FROM THE REACT NATIVE PACKAGE
 
 export const removeBackground = async (imageUri: string) => {
   const formData = new FormData();
@@ -67,3 +69,5 @@ export const removeBackground = async (imageUri: string) => {
     throw error;
   }
 };
+
+*/

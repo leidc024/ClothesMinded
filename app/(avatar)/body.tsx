@@ -8,6 +8,7 @@ import { Asset } from 'expo-asset';
 import { addAvatarDocument, addUserAvatar } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 import { removeBackground } from "react-native-background-remover"
+import * as ImageManipulator from 'expo-image-manipulator';
 
 export default function App() {
     const timer = 5;
@@ -90,19 +91,32 @@ export default function App() {
             console.error('No photo URI available');
             return;
         }
-        // Handle the proceed action (e.g., navigate to another screen)
         setIsProcessing(true);
         console.log("processing")
 
+        let processedUri = photoUri;
 
         if (!isBackgroundRemoved) {
+            console.log("Converting image to PNG");
+            try {
+                const manipulated = await ImageManipulator.manipulateAsync(
+                    photoUri,
+                    [], // no resize, just format change
+                    { compress: 1, format: ImageManipulator.SaveFormat.PNG }
+                );
+                processedUri = manipulated.uri;
+            } catch (manipError) {
+                console.error('Image conversion error:', manipError);
+                setIsProcessing(false);
+                return;
+            }
             console.log("Removing background");
-            const result = await removeBackground(photoUri as string);
+            const result = await removeBackground(processedUri as string);
             setPhotoUri(result);
             setIsBackgroundRemoved(true);
-        }else{
-            console.log('Proceeding with photo:', photoUri);
-            const avatarID = await addUserAvatar(photoUri as string);
+        } else {
+            console.log('Proceeding with photo:', processedUri);
+            const avatarID = await addUserAvatar(processedUri as string);
             if (avatarID && user.$id) {
                 updatePreferences('hasAvatar', true);
                 await addAvatarDocument({
@@ -114,7 +128,6 @@ export default function App() {
                 router.replace('/(tabs)/home');
             }
         }
-        // addRemovedBackground(result);
         setIsProcessing(false);
     }
 

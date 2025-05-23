@@ -18,7 +18,9 @@ const ItemList = ({ keyword }: ItemListProps) => {
         setCategoryList,
         editCategory,
         getCategoryId,
-        setCreateCategory,
+        setCreateCategory,          
+        setCategorySelectionPop,
+        getCategoryTitle,
     } = useContext(CreateCategoryContext);
 
     const { height, width } = Dimensions.get('window');
@@ -83,6 +85,8 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         console.log('Edit action triggered for:', item.title);
                                     } else {
                                         // Perform default action
+                                        setCategorySelectionPop(true);
+                                        getCategoryTitle(item.title);
                                         console.log('Default action triggered for:', item.title);
                                     }
                                 }}

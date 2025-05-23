@@ -79,7 +79,7 @@ export default function ProfileModal() {
                     {image ? (
                         <Image source={{ uri: image }} className="h-full w-full" resizeMode="cover" />
                     ) : (
-                        <Text className="text-4xl">👤</Text>
+                        <Text className="text-4xl">+</Text>
                     )}
                 </Pressable>
 

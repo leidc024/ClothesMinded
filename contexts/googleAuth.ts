@@ -34,7 +34,7 @@ export const handleGoogleAuth = async (init: any) => {
         )
 
         //Console log browserResult to see what it returns
-        // console.log(browserResult);
+        console.log(browserResult);
         
         //browserResult will be equal to { type: 'dismiss'} when the user closes the browser (which even includes verifying their account via email) 
         //if account already exists, it will still throw this error

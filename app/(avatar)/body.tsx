@@ -115,11 +115,11 @@ export default function App() {
             const result = await removeBackground(processedUri);
             console.log(result);
 
-            console.log("Converting to PNG");
-            const pngResult = await convertToPNG(result);
-            console.log(pngResult);
+            // console.log("Converting to PNG");
+            // const pngResult = await convertToPNG(result);
+            // console.log(pngResult);
             
-            setPhotoUri(pngResult);
+            // setPhotoUri(pngResult);
             setIsBackgroundRemoved(true);
         } else {
             console.log('Proceeding with photo:', processedUri);

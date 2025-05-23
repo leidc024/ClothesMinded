@@ -23,6 +23,7 @@ const LoadingScreen = () => {
             if (index === textSequence.length) clearInterval(interval);
         }, 1500);
         const timer = setTimeout(() => {            
+            console.log(user)
             if (user == null){
                 router.push("/sign-in");                 // Navigate using Expo Router
             }else if(!user.prefs?.hasAvatar || user.prefs?.hasAvatar === undefined){

@@ -79,21 +79,24 @@ const Wardrobe = () => {
 
         if (!result.canceled) {
             const uri = result.assets[0].uri;
-            const imageID = await addClothingImage(uri);
-            if (imageID && user.$id){
-                await addClothingDocument({
-                    clothingID: imageID,
-                    type: category,
-                    userID: user.$id,
-                });
-                const updated = {
-                    ...images,
-                    [category]: [...images[category], uri]
-                };
-                setImages(updated);
-                console.log(updated)
-                await saveImagesToStorage(updated);
+            if(user){
+                const imageID = await addClothingImage(uri);
+                if (imageID && user.$id){
+                    await addClothingDocument({
+                        clothingID: imageID,
+                        type: category,
+                        userID: user.$id,
+                    });
+                }
             }
+            
+            const updated = {
+                ...images,
+                [category]: [...images[category], uri]
+            };
+            setImages(updated);
+            console.log(updated)
+            await saveImagesToStorage(updated);
         }
     };
 

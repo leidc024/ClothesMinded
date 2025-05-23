@@ -56,9 +56,9 @@ const Home = () => {
         </View>
       </View>
       {/* Avatar Section */}
-      <View className="items-center justify-center">
+      {/* <View className="items-center justify-center">
         <Avatar />
-      </View>
+      </View> */}
 
       {/* Bottom Section with Generate Button */}
       <View className="px-5 pb-5">

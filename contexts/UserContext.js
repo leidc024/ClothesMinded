@@ -52,6 +52,7 @@ export function UserProvider(props) {
     } catch (err) {
       toast('Failed to log out. Please try again.');
       console.error("Logout failed:", err);
+      setUser(null);
       // Optionally: setUser(null) here too if you want to force local logout
     }
   }

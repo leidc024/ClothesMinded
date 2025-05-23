@@ -80,8 +80,8 @@ const addUserAvatar = async ( filePath ) => {
       '6825d9f500066a3dc28e', // bucketId
       id, // fileId
       {
-        name: 'image2.jpg',
-        type: 'image/webp',
+        name: 'image2.png',
+        type: 'image/png',
         size: 1234567,
         uri: filePath
       }, // file

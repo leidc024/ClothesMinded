@@ -10,6 +10,21 @@ export const saveImagesToStorage = async (images: Record<string, string[]>) => {
     }
 };
 
+export const removeImagesStored = async () => {
+    const images = {
+                Shirts: [],
+                Jackets: [],
+                Dress: [],
+                Shorts: [],
+                Pants: []
+            };
+    try {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
+    } catch (error) {
+        console.error('Failed to save images', error);
+    }
+};
+
 export const loadImagesFromStorage = async (): Promise<Record<string, string[]> | null> => {
     try {
         const json = await AsyncStorage.getItem(STORAGE_KEY);

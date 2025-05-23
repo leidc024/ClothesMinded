@@ -8,6 +8,7 @@ import { Asset } from 'expo-asset';
 import { addAvatarDocument, addUserAvatar } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 import { removeBackground } from "react-native-background-remover"
+import { convertToPNG } from '@/utils/pngConverter';
 
 export default function App() {
     const timer = 5;
@@ -97,8 +98,14 @@ export default function App() {
 
         if (!isBackgroundRemoved) {
             console.log("Removing background");
-            const result = await removeBackground(photoUri as string);
-            setPhotoUri(result);
+            const result = await removeBackground(photoUri);
+            console.log(result);
+
+            console.log("Converting to PNG");
+            const pngResult = await convertToPNG(result);
+            console.log(pngResult);
+            
+            setPhotoUri(pngResult);
             setIsBackgroundRemoved(true);
         }else{
             console.log('Proceeding with photo:', photoUri);

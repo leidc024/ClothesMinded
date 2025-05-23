@@ -79,7 +79,7 @@ export const handleGoogleAuth = async (init: any) => {
                     return {type, uri};
                 })
             );
-            console.log(clothingImages)
+            // console.log(clothingImages)
             // Save images to storage
             const images: ImagesCollection = {
                 Shirts: [],

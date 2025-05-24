@@ -12,6 +12,8 @@ const clothingCollectionID = "67d3c99a0027096bb0c2";
 const avatarStorageID = "6825d9f500066a3dc28e"; // Storage ID
 const clothesStorageID = "6828105b000b23c42ebe"; // Clothes Storage ID
 
+export const generateID = () => ID.unique();
+
 const addClothingImage = async ( filePath ) =>  {
   const id = ID.unique();
   console.log(filePath);
@@ -80,7 +82,7 @@ const addUserAvatar = async ( filePath ) => {
       '6825d9f500066a3dc28e', // bucketId
       id, // fileId
       {
-        name: 'image2.png',
+        name: 'image.png',
         type: 'image/png',
         size: 1234567,
         uri: filePath
@@ -139,12 +141,12 @@ const addUserDocument = async ( data ) => {
   }
 };
 
-const addCategoryDocument = async ( data ) => {
+const addCategoryDocument = async ( id, data ) => {
   try {
     const response = await databases.createDocument(
       databaseID,
       categoryCollectionID,
-      "unique()", // Auto-generate document ID
+      id, // Auto-generate document ID
       data
     );
     console.log("Document added:", response);

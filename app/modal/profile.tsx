@@ -3,7 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
-import { removeImagesStored } from '@/utils/localStorage';
+import { removeImagesStored, removeCategoriesStored } from '@/utils/localStorage';
 import Loader from '@/components/Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -34,6 +34,7 @@ export default function ProfileModal() {
             await logout(); // Call the logout function from context
             await removeImagesStored();
             await AsyncStorage.removeItem('profileImage'); // Clear saved image
+            await removeCategoriesStored();
             setLoading(false);
             router.replace('/'); // Redirect to home screen after logout
         } catch (error) {

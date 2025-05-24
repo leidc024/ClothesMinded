@@ -35,7 +35,6 @@ const CategoriesComponent = () => {
             <StatusBar style='dark' />
             <View className='flex-row justify-between'>
 
-
             </View>
 
             {/* Header */}

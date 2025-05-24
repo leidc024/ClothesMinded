@@ -118,8 +118,9 @@ export default function App() {
             // console.log("Converting to PNG");
             // const pngResult = await convertToPNG(result);
             // console.log(pngResult);
-            
             // setPhotoUri(pngResult);
+            
+            setPhotoUri(result);
             setIsBackgroundRemoved(true);
         } else {
             console.log('Proceeding with photo:', processedUri);
@@ -130,10 +131,10 @@ export default function App() {
                     userID: user.$id,
                     avatarID: avatarID,
                 });
-                setIsBackgroundRemoved(false);
-                setIsProcessing(false);
-                router.replace('/(tabs)/home');
             }
+            setIsBackgroundRemoved(false);
+            setIsProcessing(false);
+            router.replace('/(tabs)/home');
         }
         setIsProcessing(false);
     }

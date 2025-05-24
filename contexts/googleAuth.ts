@@ -1,12 +1,12 @@
 import { account } from "@/lib/appwrite";
-import { addUserDocument } from '@/contexts/database.js';
+import { addUserDocument, getCategoryDocumentsByUserId } from '@/contexts/database.js';
 import { OAuthProvider } from 'react-native-appwrite';
 import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { getRedirectUri } from "@/utils/redirectUri";
 import { router } from 'expo-router';
 import { getClothingItemsByUserID, getClothingURI } from "@/contexts/database.js";
-import { saveImagesToStorage } from "@/utils/localStorage";
+import { saveCategoriesToStorage, saveImagesToStorage } from "@/utils/localStorage";
 
 
 interface ImagesCollection {
@@ -90,15 +90,28 @@ export const handleGoogleAuth = async (init: any) => {
             };
 
 
-            clothingImages.forEach((uri: any, index: number) => {
+            clothingImages.forEach((item: any, index: number) => {
                 const category = clothesData[index].type;
                 if (images[category]) {
-                    images[category].push(uri.uri);
+                    images[category].push(item.uri);
                 }
             });
-            console.log(images)
+            console.log(images);
             saveImagesToStorage(images);
         }
+
+        const categoryData = await getCategoryDocumentsByUserId(user.$id);
+        const categoryInfoToStoreInLocalStorage: Array<{id: string; title: string}> = []
+        if(categoryData){
+            categoryData.forEach((item) => {
+                categoryInfoToStoreInLocalStorage.push({
+                    id: item.$id,
+                    title: item.categoryId
+                });
+            });
+            saveCategoriesToStorage(categoryInfoToStoreInLocalStorage);
+        }
+        
 
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)

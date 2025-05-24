@@ -1,6 +1,9 @@
 ﻿import React, { useState, useContext, useEffect, useRef } from 'react';
 import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
+import { saveCategoriesToStorage, loadCategoriesFromStorage } from '@/utils/localStorage';
+import { addCategoryDocument, generateID } from '@/contexts/database';
+import { useUser } from '@/contexts/UserContext';
 
 //icons
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -10,7 +13,7 @@ type ItemListProps = {
 };
 
 const ItemList = ({ keyword }: ItemListProps) => {
-
+    const {current: user} = useUser();
     const { 
         titleCategory, //current title of the category
         setTitleCategory, 
@@ -28,13 +31,35 @@ const ItemList = ({ keyword }: ItemListProps) => {
     const DELETE_BUTTON_WIDTH = width * 0.15;
 
     useEffect(() => {
+        const load = async () => {
+            const savedCategories = await loadCategoriesFromStorage();
+            console.log(savedCategories);
+            setCategoryList(savedCategories);
+        };
+        load();
+    }, []);
 
+    // Handle adding to list
+    useEffect(() => {
         if (titleCategory.trim() !== '') {
-            const newItem = { id: Date.now().toString(), title: titleCategory.trim() };
+            const newItem = { id: generateID(), title: titleCategory.trim() };
             setCategoryList((prev: { id: string; title: string }[]) => [...prev, newItem]);
+            if(user != null){
+                addCategoryDocument(newItem.id, {categoryId: newItem.title, userID: user.$id});
+            }
             setTitleCategory('');
         }
     }, [titleCategory]);
+
+    // Separate effect to handle saving when categoryList changes
+    useEffect(() => {
+        const saveCategories = async () => {
+            if (categoryList.length > 0) { // Avoid saving empty array
+                await saveCategoriesToStorage(categoryList);
+            }
+        };
+        saveCategories();
+    }, [categoryList]); // Runs whenever categoryList changes
 
     const filteredAndSortedList = categoryList
         .filter((item: { id: string; title: string }) => item.title.toLowerCase().includes(keyword.toLowerCase()))

@@ -11,7 +11,6 @@ export const CreateCategoryProvider = ({ children }) => {
     const [categoryId, getCategoryId] = useState(''); // String state for the ID of the category we want to access
     const [categorySelectionPop, setCategorySelectionPop] = useState(false); // A bool which indicates whether the category selection modal is open or closed
     const [categoryTitle, getCategoryTitle] = useState(''); // String state for the title of the category we want to access
-
     return (
         <CreateCategoryContext.Provider value={{ 
             createCategory, 

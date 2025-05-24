@@ -95,7 +95,7 @@ const Wardrobe = () => {
                 [category]: [...images[category], uri]
             };
             setImages(updated);
-            console.log(updated)
+            console.log(updated);
             await saveImagesToStorage(updated);
         }
     };

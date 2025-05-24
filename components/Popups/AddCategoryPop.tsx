@@ -12,7 +12,7 @@ const AddCategoryPop = () => {
         categoryList,
         categoryId,
         editCategory,
-        setCategoryList
+        setCategoryList,
     } = useContext(CreateCategoryContext);
 
     const [title, setTitle] = useState(() => {
@@ -36,6 +36,7 @@ const AddCategoryPop = () => {
                 prev.map((item) =>
                     item.id === categoryId ? { ...item, title: title.trim() } : item
                 )
+
             );
         } else if (!isDuplicate && title.trim() !== '') {
             setTitleCategory(title.trim());

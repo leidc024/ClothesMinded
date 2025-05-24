@@ -2,7 +2,7 @@
 import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
 import { saveCategoriesToStorage, loadCategoriesFromStorage } from '@/utils/localStorage';
-import { addCategoryDocument, generateID } from '@/contexts/database';
+import { addCategoryDocument, generateID, removeCategoryDocument } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 
 //icons
@@ -54,9 +54,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
     // Separate effect to handle saving when categoryList changes
     useEffect(() => {
         const saveCategories = async () => {
-            if (categoryList.length > 0) { // Avoid saving empty array
-                await saveCategoriesToStorage(categoryList);
-            }
+            await saveCategoriesToStorage(categoryList);
         };
         saveCategories();
     }, [categoryList]); // Runs whenever categoryList changes
@@ -91,6 +89,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         borderRadius: 10,
                                     }}
                                     onPress={() => {
+                                        removeCategoryDocument(item.id);
                                         setCategoryList((prevList: { id: string; title: string }[]) => prevList.filter(listItem => listItem.id !== item.id));
                                     }}
                                 >

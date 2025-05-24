@@ -216,4 +216,18 @@ const getAvatarInfoByUserID = async (userID) => {
   }
 }
 
+const removeCategoryDocument = async (id) => {
+  // Delete a document
+  databases.deleteDocument(
+    databaseID,    // Your database ID
+    categoryCollectionID,  // Your collection ID
+    id     // ID of document to delete
+  ).then(response => {
+    console.log('Document deleted:', response);
+  }).catch(error => {
+    console.error('Error deleting document:', error);
+  });
+}
+
 export { addUserDocument, addCategoryDocument, addClothingDocument, getCategoryDocumentsByUserId, getClothingItemsByUserID, addAvatarDocument, addUserAvatar, addClothingImage, getClothingURI, getAvatarUriByUserID };
+export { removeCategoryDocument }

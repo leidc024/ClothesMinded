@@ -112,7 +112,6 @@ export const handleGoogleAuth = async (init: any) => {
             saveCategoriesToStorage(categoryInfoToStoreInLocalStorage);
         }
         
-
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)
             await account.updatePrefs({ firstLogin: false, hasAvatar: false });

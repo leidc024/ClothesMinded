@@ -1,4 +1,4 @@
-﻿import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+﻿import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native'
 import { useState, useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
@@ -7,12 +7,15 @@ import { FontAwesome } from '@expo/vector-icons'
 import ItemList from '../../components/ItemList'
 import AddCategoryPop from '../../components/Popups/AddCategoryPop'
 import CreateCategoryButton from '../../components/CreateCategoryButton'
+import CategorySelection from '../../components/Popups/CategorySelectionPop'
+
 import { CreateCategoryContext, CreateCategoryProvider } from '../../contexts/CreateCategoryContext';
 
 const CategoriesComponent = () => {
 
     const [keyword, setKeyWord] = useState('');
     const [editMode, setEditMode] = useState(false);
+
     const { setEditCategory } = useContext(CreateCategoryContext);
 
     const toggleEditCategory = () => {
@@ -67,6 +70,7 @@ const CategoriesComponent = () => {
                 />
                 <AddCategoryPop />
             </View>
+            <CategorySelection/>
         </SafeAreaView>
     )
 }

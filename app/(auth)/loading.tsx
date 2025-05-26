@@ -13,6 +13,10 @@ const LoadingScreen = () => {
         const textSequence = [
             "Manage your Outfits...",
             "Generate your own avatar...",
+            "Virtually try-on clothes...",
+            "Boost your confidence...",
+            "Manage your Outfits...",
+            "Generate your own avatar...",
             "Virtually try-on clothes..."
         ];
 

@@ -1,7 +1,7 @@
 ﻿import React, { useState, useContext, useEffect, useRef } from 'react';
 import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
-import { saveCategoriesToStorage, loadCategoriesFromStorage } from '@/utils/localStorage';
+import { saveCategoriesToStorage, loadCategoriesFromStorage, insertCategoryToStorage } from '@/utils/localStorage';
 import { addCategoryDocument, generateID, removeCategoryDocument } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 
@@ -44,6 +44,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
         if (titleCategory.trim() !== '') {
             const newItem = { id: generateID(), title: titleCategory.trim() };
             setCategoryList((prev: { id: string; title: string }[]) => [...prev, newItem]);
+            insertCategoryToStorage(newItem.id);
             if(user != null){
                 addCategoryDocument(newItem.id, {categoryId: newItem.title, userID: user.$id});
             }

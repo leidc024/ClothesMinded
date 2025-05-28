@@ -1,13 +1,23 @@
 import { account } from "@/lib/appwrite";
-import { addUserDocument } from '@/contexts/database.js';
+import { addUserDocument, getCategoryDocumentsByUserId } from '@/contexts/database.js';
 import { OAuthProvider } from 'react-native-appwrite';
 import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import { getRedirectUri } from "@/utils/redirectUri";
 import { router } from 'expo-router';
+import { getClothingItemsByUserID, getClothingURI } from "@/contexts/database.js";
+import { saveCategoriesToStorage, saveImagesToStorage } from "@/utils/localStorage";
 
-export const handleGoogleAuth = async () => {
+
+interface ImagesCollection {
+  [key: string]: string[]; // All string keys will return string arrays
+}
+
+
+export const handleGoogleAuth = async (init: any) => {
     try {
-        const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
+        // const redirectUri = Linking.createURL('/'); // Redirect to back to the app at index screen
+        const redirectUri = getRedirectUri(); // Redirect to back to the app at index screen
 
         const response = await account.createOAuth2Token(
             OAuthProvider.Google,
@@ -24,7 +34,7 @@ export const handleGoogleAuth = async () => {
         )
 
         //Console log browserResult to see what it returns
-        // console.log(browserResult);
+        console.log(browserResult);
         
         //browserResult will be equal to { type: 'dismiss'} when the user closes the browser (which even includes verifying their account via email) 
         //if account already exists, it will still throw this error
@@ -43,14 +53,65 @@ export const handleGoogleAuth = async () => {
         if (!secret || !userId) {
             throw new Error('Failed to login(2)');
         }
-
+        
+        try{
+            if (await account.getSession('current')) {
+                await account.deleteSession("current");
+            }
+        }catch (error) {
+            console.log("No active session, user needs to authenticate.");
+        }
         const session = await account.createSession(userId, secret);
+
 
         if (!session) {
             throw new Error('Failed to create session');
         }
 
         const user = await account.get(); //Fetch user details
+        
+        const clothesData = await getClothingItemsByUserID(user.$id); //Fetch clothing data
+        if (clothesData) {
+            const clothingImages = await Promise.all(
+                clothesData.map(async (item: any) => {
+                    const type = item.type;
+                    const uri = await getClothingURI(item.clothingID);
+                    return {type, uri};
+                })
+            );
+            // console.log(clothingImages)
+            // Save images to storage
+            const images: ImagesCollection = {
+                Shirts: [],
+                Jackets: [],
+                Dress: [],
+                Shorts: [],
+                Pants: []
+            };
+
+
+            clothingImages.forEach((item: any, index: number) => {
+                const category = clothesData[index].type;
+                if (images[category]) {
+                    images[category].push(item.uri);
+                }
+            });
+            console.log(images);
+            saveImagesToStorage(images);
+        }
+
+        const categoryData = await getCategoryDocumentsByUserId(user.$id);
+        const categoryInfoToStoreInLocalStorage: Array<{id: string; title: string}> = []
+        if(categoryData){
+            categoryData.forEach((item) => {
+                categoryInfoToStoreInLocalStorage.push({
+                    id: item.$id,
+                    title: item.categoryId
+                });
+            });
+            saveCategoriesToStorage(categoryInfoToStoreInLocalStorage);
+        }
+        
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)
             await account.updatePrefs({ firstLogin: false, hasAvatar: false });
@@ -60,14 +121,15 @@ export const handleGoogleAuth = async () => {
                 email: user.email,
             });
             // Redirect to '/head'
-            router.push('/(avatar)/head');
-        } else if (user.prefs?.hasAvatar === false) {
+            router.push('/(avatar)/body');
+        } else if (user.prefs?.hasAvatar === false || user.prefs?.hasAvatar === undefined) {
             // Redirect to '/head'
-            router.push('/(avatar)/head');
+            router.push('/(avatar)/body');
         }else {
             // Redirect to '/home'
             router.push('/home');
         }
+        init()
         return true;
 
     } catch (error) {

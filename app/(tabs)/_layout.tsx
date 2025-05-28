@@ -1,9 +1,7 @@
-import React, { Children, memo } from 'react';
+﻿import React, { memo, useContext } from 'react';
 import { Tabs } from 'expo-router';
 import icons from '@/assets/icons';
 import { View, Image, ImageSourcePropType } from 'react-native';
-import { CreateCategoryProvider } from '../../contexts/CreateCategoryContext'
-
 
 type TabIconProps = {
     icon: ImageSourcePropType; // Icon source type
@@ -22,7 +20,8 @@ const TabIcon: React.FC<TabIconProps> = memo(({ icon, focused }) => (
                 justifyContent: 'center',
                 alignItems: 'center',
                 borderWidth: 2, // Optional: Add border for styling
-                borderColor: 'black', // Border color
+                borderColor: 'black',
+                marginTop:30// Border color
             }}
         >
             <Image
@@ -31,7 +30,8 @@ const TabIcon: React.FC<TabIconProps> = memo(({ icon, focused }) => (
                 style={{
                     width: 24,
                     height: 24,
-                    tintColor: focused ? 'white' : 'black', // Icon color changes on focus
+                    tintColor: focused ? 'white' : 'black',
+                    // Icon color changes on focus
                 }}
             />
         </View>
@@ -48,21 +48,26 @@ const Tabslayout: React.FC = () => {
         tabBarShowLabel: false,
         tabBarStyle: {
             backgroundColor: '#DBC0A4',
-            height: 75, // Adjust the height of the tab bar
+            height: 70, // Adjust the height of the tab bar
             paddingHorizontal: 30, // Widen the tab bar
             borderTopLeftRadius: 25, // Round the top-left corner
             borderTopRightRadius: 25, // Round the top-right corner
             position: 'absolute', // Make it float if needed
             bottom: 0, // Ensure it's at the bottom of the screen
         },
+
+        tabBarItemStyle: {
+            
+            justifyContent: "center", // ✅ vertically center the icon
+            alignItems: "center",
+        },
     });
 
     return (
-        
         <Tabs>
             <Tabs.Screen name="wardrobe" options={commonOptions('Wardrobe', icons.wardrobe)} />
             <Tabs.Screen name="home" options={commonOptions('Home', icons.home)} />
-            <Tabs.Screen name="categories" options={commonOptions('Categories', icons.camera)} />
+            <Tabs.Screen name="categories" options={commonOptions('Categories', icons.categories)} />
         </Tabs>
     );
 };

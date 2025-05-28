@@ -5,8 +5,9 @@ const CATEGORIES_KEY = 'category_data';
 const CATEGORY_ELEMENTS_KEY = 'category_element_data'
 
 type data = { id: string; title: string; uri: string };
+type image = {id: string; uri: string}
 
-export const saveImagesToStorage = async (images: Record<string, string[]>) => {
+export const saveImagesToStorage = async (images: Record<string, image[]>) => {
     try {
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
     } catch (error) {
@@ -29,7 +30,7 @@ export const removeImagesStored = async () => {
     }
 };
 
-export const loadImagesFromStorage = async (): Promise<Record<string, string[]> | null> => {
+export const loadImagesFromStorage = async (): Promise<Record<string, image[]> | null> => {
     try {
         const json = await AsyncStorage.getItem(STORAGE_KEY);
         return json != null ? JSON.parse(json) : null;
@@ -76,6 +77,26 @@ export const saveCategoryElementsToStorage = async (categoryElements: Array<{id:
     }
 }
 
+// function that takes only 
+export const saveOneCategoryElementsToStorage = async (categoryElements: {id: string; elements: data[]}) => {
+    try {
+        const existing = await loadAllCategoryElementsFromStorage();
+        console.log(existing);
+        // Update the array
+        const updated = existing.map(item => 
+                item.id === categoryElements.id 
+                    ? { ...item, elements: categoryElements.elements }
+                    : item
+            );
+
+        console.log(updated);
+        console.log('Updated array:', JSON.stringify(updated, null, 2));
+        await saveCategoryElementsToStorage(updated);
+    } catch (error){
+        console.error('Failed to save category elements', error);
+    }
+}
+
 // function for inserting a new category with empty elements given title. Used when creating new categories
 export const insertCategoryToStorage = async (categoryId: string) => {
     try{
@@ -108,7 +129,6 @@ export const loadCategoryElementsFromStorage = async (id: string): Promise<data[
 export const loadAllCategoryElementsFromStorage = async (): Promise<Array<{id: string; elements: data[]}>> => {
     try {
         const json = await AsyncStorage.getItem(CATEGORY_ELEMENTS_KEY);
-        // console.log(json)
         return json != null ? JSON.parse(json) : [];
     } catch (error) {
         console.error('Failed to load categories', error);

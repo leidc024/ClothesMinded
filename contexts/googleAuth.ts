@@ -6,12 +6,14 @@ import * as Linking from 'expo-linking';
 import { getRedirectUri } from "@/utils/redirectUri";
 import { router } from 'expo-router';
 import { getClothingItemsByUserID, getClothingURI } from "@/contexts/database.js";
-import { saveCategoriesToStorage, saveImagesToStorage } from "@/utils/localStorage";
+import { saveCategoriesToStorage, saveImagesToStorage, saveCategoryElementsToStorage } from "@/utils/localStorage";
 
 
 interface ImagesCollection {
-  [key: string]: string[]; // All string keys will return string arrays
+  [key: string]: image[]; // All string keys will return string arrays
 }
+
+interface image{id: string; uri: string};
 
 
 export const handleGoogleAuth = async (init: any) => {
@@ -74,9 +76,10 @@ export const handleGoogleAuth = async (init: any) => {
         if (clothesData) {
             const clothingImages = await Promise.all(
                 clothesData.map(async (item: any) => {
+                    const id = item.$id;
                     const type = item.type;
                     const uri = await getClothingURI(item.clothingID);
-                    return {type, uri};
+                    return {id, type, uri};
                 })
             );
             // console.log(clothingImages)
@@ -91,9 +94,12 @@ export const handleGoogleAuth = async (init: any) => {
 
 
             clothingImages.forEach((item: any, index: number) => {
-                const category = clothesData[index].type;
+                const category = item.type;
                 if (images[category]) {
-                    images[category].push(item.uri);
+                    images[category].push({
+                        id: item.id,
+                        uri: item.uri
+                    });
                 }
             });
             console.log(images);
@@ -102,14 +108,20 @@ export const handleGoogleAuth = async (init: any) => {
 
         const categoryData = await getCategoryDocumentsByUserId(user.$id);
         const categoryInfoToStoreInLocalStorage: Array<{id: string; title: string}> = []
+        const categoryElementsToStore: Array<{id: string; elements: []}> = [];
         if(categoryData){
             categoryData.forEach((item) => {
                 categoryInfoToStoreInLocalStorage.push({
                     id: item.$id,
                     title: item.categoryId
                 });
+                categoryElementsToStore.push({
+                    id: item.$id,
+                    elements: []
+                });
             });
             saveCategoriesToStorage(categoryInfoToStoreInLocalStorage);
+            saveCategoryElementsToStorage(categoryElementsToStore);
         }
         
         if (user.prefs?.firstLogin === undefined) {

@@ -14,8 +14,8 @@ const clothesStorageID = "6828105b000b23c42ebe"; // Clothes Storage ID
 
 export const generateID = () => ID.unique();
 
-const addClothingImage = async ( filePath ) =>  {
-  const id = ID.unique();
+const addClothingImage = async ( id = ID.unique(), filePath ) =>  {
+  // const id = ID.unique();
   console.log(filePath);
   try {
     const result = await storage.createFile(

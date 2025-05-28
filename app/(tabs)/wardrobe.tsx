@@ -6,20 +6,25 @@ import { FontAwesome } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addClothingImage, addClothingDocument } from '@/contexts/database'
+import { addClothingImage, addClothingDocument, generateID } from '@/contexts/database'
 import { useUser } from '@/contexts/UserContext'
 
 const STORAGE_KEY = 'wardrobe_images';
 
 interface ImagesCollection {
-  [key: string]: string[]; // All string keys will return string arrays
+  [key: string]: image[]; // All string keys will return string arrays
+}
+
+interface image {
+    id: string;
+    uri: string;
 }
 
 interface scrollComponent {
   [key: string]: number; // All string keys will return string arrays
 }
 
-const saveImagesToStorage = async (images: Record<string, string[]>) => {
+const saveImagesToStorage = async (images: Record<string, image[]>) => {
     try {
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
     } catch (error) {
@@ -27,7 +32,7 @@ const saveImagesToStorage = async (images: Record<string, string[]>) => {
     }
 };
 
-const loadImagesFromStorage = async (): Promise<Record<string, string[]> | null> => {
+const loadImagesFromStorage = async (): Promise<Record<string, image[]> | null> => {
     try {
         const json = await AsyncStorage.getItem(STORAGE_KEY);
         return json != null ? JSON.parse(json) : null;
@@ -58,7 +63,7 @@ const Wardrobe = () => {
     useEffect(() => {
         const load = async () => {
             const stored = await loadImagesFromStorage();
-            console.log(stored)
+            // console.log(stored.values())
             if (stored) setImages(stored);
         };
         load();
@@ -79,8 +84,9 @@ const Wardrobe = () => {
 
         if (!result.canceled) {
             const uri = result.assets[0].uri;
+            const imageID = generateID()
             if(user){
-                const imageID = await addClothingImage(uri);
+                await addClothingImage(imageID, uri);
                 if (imageID && user.$id){
                     await addClothingDocument({
                         clothingID: imageID,
@@ -92,7 +98,7 @@ const Wardrobe = () => {
             
             const updated = {
                 ...images,
-                [category]: [...images[category], uri]
+                [category]: [...images[category], {id: imageID, uri: uri}]
             };
             setImages(updated);
             console.log(updated);
@@ -157,7 +163,7 @@ const CategorySection = ({
     onDeleteImage
 }: {
     title: string;
-    imagesByCategory: string[];
+    imagesByCategory: image[];
     scrollPosition: number;
     setScrollPosition: (val: number) => void;
     onAddImage: () => void;
@@ -191,7 +197,7 @@ const CategorySection = ({
                 {imagesByCategory.map((img, i) => (
                     <ClothingItem
                         key={i}
-                        image={img}
+                        image={img.uri}
                         onDelete={() => {
                             Alert.alert(
                                 'Delete Image',

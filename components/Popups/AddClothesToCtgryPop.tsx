@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, Dimensions, Modal, StyleSheet, 
 import { Ionicons } from '@expo/vector-icons';
 import Search from '../Search';
 import { loadImagesFromStorage } from '@/utils/localStorage';
+import { generateID } from '@/contexts/database';
 
 const { width } = Dimensions.get('window');
 const numColumns = 2;
@@ -39,7 +40,7 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
       if (clothingItems){
         const mergedUrls = Object.values(clothingItems).flat();
         mergedUrls.forEach( (item, index) => {
-          temp.push({id: Date.now.toString(), title: `Item ${index}`, uri: item});
+          temp.push({id: item.id, title: `Item ${index}`, uri: item.uri});
         });
         setAllPossibleItems(temp);
       }

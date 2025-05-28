@@ -7,7 +7,7 @@ import Search from '../../components/Search';
 import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loadCategoryElementsFromStorage } from "@/utils/localStorage";
+import { loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage } from "@/utils/localStorage";
 
 const { width } = Dimensions.get('window');
 const numColumns = 3;
@@ -34,6 +34,7 @@ const CategorySelection = () => {
     }, [keyword, items]);
 
     const handleDeleteItem = (id: string) => {
+        console.log(id)
         setItems(prev => prev.filter(item => item.id !== id));
     };
 
@@ -62,6 +63,7 @@ const CategorySelection = () => {
                 console.log("hey");
                 console.log(items);
                 // AsyncStorage.setItem(`category-items-${categoryId}`, JSON.stringify(items));
+                saveOneCategoryElementsToStorage({id: categoryId as string, elements: items});
             };
         }, [items, categoryId])
     );
@@ -115,7 +117,7 @@ const CategorySelection = () => {
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                 }}
-                                activeOpacity={0.7}
+                                activeOpacity={1}
                             >
                                 {deleteMode && (
                                     <TouchableOpacity

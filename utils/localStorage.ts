@@ -4,6 +4,8 @@ const STORAGE_KEY = 'wardrobe_images';
 const CATEGORIES_KEY = 'category_data';
 const CATEGORY_ELEMENTS_KEY = 'category_element_data'
 
+type data = { id: string; title: string; uri: string };
+
 export const saveImagesToStorage = async (images: Record<string, string[]>) => {
     try {
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
@@ -66,7 +68,7 @@ export const removeCategoriesStored = async () => {
 
 
 // function for saving all categories containing their each own elements
-export const saveCategoryElementsToStorage = async (categoryElements: Array<{id: string; elements: string[]}>) => {
+export const saveCategoryElementsToStorage = async (categoryElements: Array<{id: string; elements: data[]}>) => {
     try{
         await AsyncStorage.setItem(CATEGORY_ELEMENTS_KEY, JSON.stringify(categoryElements));
     } catch (error){
@@ -86,7 +88,7 @@ export const insertCategoryToStorage = async (categoryId: string) => {
 }
 
 // function for loading the elements of a given category
-export const loadCategoryElementsFromStorage = async (id: string): Promise<Array<string>> => {
+export const loadCategoryElementsFromStorage = async (id: string): Promise<data[]> => {
     try{
         const existingCategories = await loadAllCategoryElementsFromStorage();
         if (existingCategories){
@@ -103,15 +105,27 @@ export const loadCategoryElementsFromStorage = async (id: string): Promise<Array
 }
 
 // function for loading all of the elements for all categories
-export const loadAllCategoryElementsFromStorage = async (): Promise<Array<{id: string; elements: string[]}>> => {
+export const loadAllCategoryElementsFromStorage = async (): Promise<Array<{id: string; elements: data[]}>> => {
     try {
         const json = await AsyncStorage.getItem(CATEGORY_ELEMENTS_KEY);
+        // console.log(json)
         return json != null ? JSON.parse(json) : [];
     } catch (error) {
         console.error('Failed to load categories', error);
         return [];
     }
 };
+
+export const removeACategoryWithElements = async (id: string) => {
+    try{
+        const existing = await loadAllCategoryElementsFromStorage();
+        const filtered = existing.filter((item) => item.id != id);
+        await saveCategoryElementsToStorage(filtered);
+
+    }catch(error){
+        console.error("Failed to remove category", error);
+    }
+}
 
 // function for removing the categories 
 export const removeCategoryElementsStored = async () => {

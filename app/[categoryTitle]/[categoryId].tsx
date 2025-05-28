@@ -1,5 +1,5 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, TouchableOpacity, FlatList, Dimensions } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Dimensions, Image, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useMemo } from 'react';
@@ -7,19 +7,19 @@ import Search from '../../components/Search';
 import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loadCategoryElementsFromStorage } from "@/utils/localStorage";
 
 const { width } = Dimensions.get('window');
 const numColumns = 3;
 const itemMargin = 8;
 const itemSize = (width - (numColumns + 1) * itemMargin) / numColumns;
 
-const data: { id: string; title: string }[] = [];
+type data = { id: string; title: string; uri: string };
 
 const CategorySelection = () => {
-    
     const { categoryTitle, categoryId } = useLocalSearchParams();
     const router = useRouter();
-    const [items, setItems] = useState<{ id: string; title: string }[]>(data);
+    const [items, setItems] = useState<data[]>([]);
     const [deleteMode, setDeleteMode] = useState(false);
     const [keyword, setKeyWord] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
@@ -37,16 +37,17 @@ const CategorySelection = () => {
         setItems(prev => prev.filter(item => item.id !== id));
     };
 
-    const handleAddItem = (item: { id: string; title: string }) => {
+    const handleAddItem = (item: data) => {
         setItems((prev) => [...prev, item]);
     };
 
     React.useEffect(() => {
         const loadItems = async () => {
             try {
-                const saved = await AsyncStorage.getItem(`category-items-${categoryId}`);
-                if (saved) {
-                    setItems(JSON.parse(saved));
+                // const saved = await AsyncStorage.getItem(`category-items-${categoryId}`);
+                const savedClothingItems = await loadCategoryElementsFromStorage(categoryId as string);
+                if (savedClothingItems) {
+                    setItems(savedClothingItems);
                 }
             } catch (e) {
                 // handle error
@@ -58,7 +59,9 @@ const CategorySelection = () => {
     useFocusEffect(
         React.useCallback(() => {
             return () => {
-                AsyncStorage.setItem(`category-items-${categoryId}`, JSON.stringify(items));
+                console.log("hey");
+                console.log(items);
+                // AsyncStorage.setItem(`category-items-${categoryId}`, JSON.stringify(items));
             };
         }, [items, categoryId])
     );
@@ -107,7 +110,7 @@ const CategorySelection = () => {
                                 style={{
                                     width: itemSize,
                                     height: itemSize,
-                                    backgroundColor: '#e5e7eb',
+                                    backgroundColor: '#transparent',
                                     borderRadius: 12,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -122,6 +125,11 @@ const CategorySelection = () => {
                                         <Ionicons name="close-circle" size={28} color="red" />
                                     </TouchableOpacity>
                                 )}
+                                <Image
+                                    source={{uri: item.uri}}
+                                    style={styles.image}
+                                    resizeMode="contain"    
+                                />
                             </TouchableOpacity>
                         </View>
                         <Text className="text-base font-semibold text-center mt-2">{item.title}</Text>
@@ -132,5 +140,14 @@ const CategorySelection = () => {
 
     );
 }
+
+const styles = StyleSheet.create({
+    image:{ 
+        aspectRatio: 1,    // Ensures square shape (width = height)
+        height:'100%',    
+        resizeMode: 'contain'
+    }
+
+});
 
 export default CategorySelection;

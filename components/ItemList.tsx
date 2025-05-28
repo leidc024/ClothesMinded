@@ -1,13 +1,14 @@
 ﻿import React, { useState, useContext, useEffect, useRef } from 'react';
 import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
-import { saveCategoriesToStorage, loadCategoriesFromStorage, insertCategoryToStorage } from '@/utils/localStorage';
+import { saveCategoriesToStorage, loadCategoriesFromStorage, insertCategoryToStorage, removeACategoryWithElements } from '@/utils/localStorage';
 import { addCategoryDocument, generateID, removeCategoryDocument } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 import { router } from "expo-router";
 
 //icons
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { RelativePathString } from 'expo-router';
 
 type ItemListProps = {
     keyword: string;
@@ -91,7 +92,10 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         borderRadius: 10,
                                     }}
                                     onPress={() => {
-                                        removeCategoryDocument(item.id);
+                                        if (user != null){
+                                            removeCategoryDocument(item.id);
+                                        }
+                                        removeACategoryWithElements(item.id);
                                         setCategoryList((prevList: { id: string; title: string }[]) => prevList.filter(listItem => listItem.id !== item.id));
                                     }}
                                 >
@@ -111,7 +115,8 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         console.log('Edit action triggered for:', item.title);
                                     } else {
                                         // IDK WHY THIS IS GIVING AN ERROR BUT IT WORKS AHAHAHAHAHAHA
-                                        router.push(`/${item.title}/${item.id}`);
+                                        const path = `/${item.title}/${item.id}` as RelativePathString;
+                                        router.push(path);
                                         getCategoryTitle(item.title);
                                         console.log('Default action triggered for:', item.title);
                                     }

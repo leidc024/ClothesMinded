@@ -36,10 +36,6 @@ export default function App() {
 
 
     useEffect(() => {
-        
-        setIsBackgroundRemoved(false);
-        setIsProcessing(false);
-        router.replace('/(tabs)/home');
         const loadAssets = async () => {
             await Asset.loadAsync(assetPaths);
             setLoadedAssets(assetPaths.map(module => Asset.fromModule(module)));

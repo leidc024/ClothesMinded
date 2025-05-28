@@ -4,6 +4,7 @@ import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
 import { saveCategoriesToStorage, loadCategoriesFromStorage, insertCategoryToStorage } from '@/utils/localStorage';
 import { addCategoryDocument, generateID, removeCategoryDocument } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
+import { router } from "expo-router";
 
 //icons
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -109,8 +110,8 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         setCreateCategory(true);
                                         console.log('Edit action triggered for:', item.title);
                                     } else {
-                                        // Perform default action
-                                        setCategorySelectionPop(true);
+                                        // IDK WHY THIS IS GIVING AN ERROR BUT IT WORKS AHAHAHAHAHAHA
+                                        router.push(`/${item.title}/${item.id}`);
                                         getCategoryTitle(item.title);
                                         console.log('Default action triggered for:', item.title);
                                     }

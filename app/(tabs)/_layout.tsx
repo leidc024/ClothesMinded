@@ -1,4 +1,4 @@
-﻿import React, { memo } from 'react';
+﻿import React, { memo, useContext } from 'react';
 import { Tabs } from 'expo-router';
 import icons from '@/assets/icons';
 import { View, Image, ImageSourcePropType } from 'react-native';

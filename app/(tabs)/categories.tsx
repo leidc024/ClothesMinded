@@ -8,6 +8,7 @@ import ItemList from '../../components/ItemList'
 import AddCategoryPop from '../../components/Popups/AddCategoryPop'
 import CreateCategoryButton from '../../components/CreateCategoryButton'
 import CategorySelection from '../../components/Popups/CategorySelectionPop'
+import Search from '../../components/Search';
 
 import { CreateCategoryContext, CreateCategoryProvider } from '../../contexts/CreateCategoryContext';
 
@@ -43,25 +44,7 @@ const CategoriesComponent = () => {
             </View>
 
             {/* Search and Filter */}
-            <View className="my-4 flex-row items-center justify-center">
-                <View className="w-[70%] flex-row items-center rounded-full bg-white px-4 shadow-md">
-                    <FontAwesome name="search" size={18} color="gray" />
-                    <TextInput
-                        placeholder="Search"
-                        value={keyword}
-                        onChangeText={setKeyWord}
-                        className="ml-3 flex-1 text-lg"
-                    />
-
-                </View>
-
-                <TouchableOpacity className="ml-3 rounded-lg border border-gray-400 bg-[#D2B48C] px-4 py-3 shadow-md" onPress={toggleEditCategory}>
-                    <FontAwesome name="pencil" size={20} color="white" />
-                </TouchableOpacity>
-
-            </View>
-
-
+            <Search keyword={keyword} setKeyWord={setKeyWord} toggleEditCategory={toggleEditCategory} />
             <View className = "mt-4">
                 <CreateCategoryButton />
                 <ItemList

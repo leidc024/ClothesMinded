@@ -72,7 +72,7 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={{ flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' }}>
-        <View style={{ width: modalWidth, maxHeight: modalHeight }} className="bg-[#D2B48C] rounded-2xl p-4">
+        <View style={{ width: modalWidth, height: "80%" }} className="bg-[#D2B48C] rounded-2xl p-4">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-2xl font-bold">Add Items</Text>
             <TouchableOpacity onPress={onClose}>
@@ -107,7 +107,7 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
                     resizeMode = "contain"
                   />
                 </TouchableOpacity>
-                <Text className="text-base font-semibold text-center mt-2">{item.title}</Text>
+                <Text className="text-base font-semibold text-center mt-2"> </Text>
               </View>
             )}
           />

@@ -8,7 +8,8 @@ import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage } from "@/utils/localStorage";
-
+import { addClothesCategoriesDocument, removeClothesCategoriesDocumentWithClothingID } from "@/contexts/database";
+import { useUser } from "@/contexts/UserContext";
 const { width } = Dimensions.get('window');
 const numColumns = 3;
 const itemMargin = 8;
@@ -23,6 +24,7 @@ const CategorySelection = () => {
     const [deleteMode, setDeleteMode] = useState(false);
     const [keyword, setKeyWord] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
+    const {current: user} = useUser();
 
     // Filter items based on keyword and sort alphanumerically
     const filteredItems = useMemo(() => {
@@ -34,11 +36,22 @@ const CategorySelection = () => {
     }, [keyword, items]);
 
     const handleDeleteItem = (id: string) => {
-        console.log(id)
+        if(user){
+            removeClothesCategoriesDocumentWithClothingID(categoryId as string, id);
+        }
         setItems(prev => prev.filter(item => item.id !== id));
     };
 
     const handleAddItem = (item: data) => {
+        const data = {
+            categoryID: categoryId as string,
+            clothingDocumentID: item.id,
+            title: item.title,
+            uri: item.uri
+        }
+        if(user){
+            addClothesCategoriesDocument(data);
+        }
         setItems((prev) => [...prev, item]);
     };
 
@@ -134,7 +147,7 @@ const CategorySelection = () => {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <Text className="text-base font-semibold text-center mt-2">{item.title}</Text>
+                        <Text className="text-base font-semibold text-center mt-2"> </Text>
                     </View>
                 )}
             />

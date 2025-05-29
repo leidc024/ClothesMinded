@@ -6,7 +6,7 @@ import { FontAwesome } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addClothingImage, addClothingDocument, generateID } from '@/contexts/database'
+import { addClothingImage, addClothingDocument, generateID, removeClothingImageByID, removeClothingDocument } from '@/contexts/database'
 import { useUser } from '@/contexts/UserContext'
 
 const STORAGE_KEY = 'wardrobe_images';
@@ -84,9 +84,12 @@ const Wardrobe = () => {
 
         if (!result.canceled) {
             const uri = result.assets[0].uri;
-            const imageID = generateID()
+            const imageID = generateID();
+
+            let finalUri = uri;
+
             if(user){
-                await addClothingImage(imageID, uri);
+                const result = await addClothingImage(imageID, uri);
                 if (imageID && user.$id){
                     await addClothingDocument({
                         clothingID: imageID,
@@ -94,11 +97,15 @@ const Wardrobe = () => {
                         userID: user.$id,
                     });
                 }
+
+                if (result){
+                    finalUri = result.uri as string;
+                }
             }
             
             const updated = {
                 ...images,
-                [category]: [...images[category], {id: imageID, uri: uri}]
+                [category]: [...images[category], {id: imageID, uri: finalUri}]
             };
             setImages(updated);
             console.log(updated);
@@ -136,7 +143,7 @@ const Wardrobe = () => {
                             setScrollPosition(prev => ({ ...prev, [category]: val }))
                         }
                         onAddImage={() => handleAddImage(category)}
-                        onDeleteImage={(indexToDelete: number) => {
+                        onDeleteImage={(indexToDelete: number, id: string) => {
                             const updatedCategory = images[category].filter((_, idx) => idx !== indexToDelete);
                             const updatedImages = {
                                 ...images,
@@ -144,6 +151,8 @@ const Wardrobe = () => {
                             };
                             setImages(updatedImages);
                             saveImagesToStorage(updatedImages);
+                            // removeClothingDocument(id);
+                            // removeClothingImageByID(id);
                         }}
                     />
                 ))}
@@ -167,7 +176,7 @@ const CategorySection = ({
     scrollPosition: number;
     setScrollPosition: (val: number) => void;
     onAddImage: () => void;
-    onDeleteImage: (indexToDelete: number) => void;
+    onDeleteImage: (indexToDelete: number, id: string) => void;
 }) => {
     return (
         <View className="mb-6">
@@ -207,7 +216,7 @@ const CategorySection = ({
                                     {
                                         text: 'Delete',
                                         style: 'destructive',
-                                        onPress: () => onDeleteImage(i)
+                                        onPress: () => onDeleteImage(i, img.uri)
                                     }
                                 ]
                             );

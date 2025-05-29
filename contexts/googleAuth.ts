@@ -5,12 +5,16 @@ import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { getRedirectUri } from "@/utils/redirectUri";
 import { router } from 'expo-router';
-import { getClothingItemsByUserID, getClothingURI } from "@/contexts/database.js";
+import { getClothingItemsByUserID, getClothingURI, getClothesCategoriesItemsByCategoryIDs } from "@/contexts/database.js";
 import { saveCategoriesToStorage, saveImagesToStorage, saveCategoryElementsToStorage } from "@/utils/localStorage";
 
 
 interface ImagesCollection {
   [key: string]: image[]; // All string keys will return string arrays
+}
+
+interface ClothesCategoryCollection {
+    [key: string]: Array<{id: string; title: string; uri: string }>
 }
 
 interface image{id: string; uri: string};
@@ -108,18 +112,26 @@ export const handleGoogleAuth = async (init: any) => {
 
         const categoryData = await getCategoryDocumentsByUserId(user.$id);
         const categoryInfoToStoreInLocalStorage: Array<{id: string; title: string}> = []
-        const categoryElementsToStore: Array<{id: string; elements: []}> = [];
+        const categoryIDs: string[] = []
+        const categoryElementsToStore: Array<{id: string; elements: {id: string; title: string; uri: string }[]}> = [];
         if(categoryData){
             categoryData.forEach((item) => {
                 categoryInfoToStoreInLocalStorage.push({
                     id: item.$id,
                     title: item.categoryId
                 });
-                categoryElementsToStore.push({
-                    id: item.$id,
-                    elements: []
-                });
+                categoryIDs.push(item.$id);
             });
+            const clothesCategoryData: ClothesCategoryCollection = await getClothesCategoriesItemsByCategoryIDs(categoryIDs);
+            if (clothesCategoryData){
+                categoryIDs.forEach((item) => {
+                    categoryElementsToStore.push({
+                        id: item,
+                        elements: clothesCategoryData[item]
+                    })
+                })
+            }
+            console.log(categoryElementsToStore);
             saveCategoriesToStorage(categoryInfoToStoreInLocalStorage);
             saveCategoryElementsToStorage(categoryElementsToStore);
         }

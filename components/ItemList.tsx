@@ -1,23 +1,21 @@
-﻿import React, { useState, useContext, useEffect, useRef } from 'react';
-import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
+﻿import React, { useState, useContext, useEffect } from 'react';
+import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
 import { saveCategoriesToStorage, loadCategoriesFromStorage, insertCategoryToStorage, removeACategoryWithElements } from '@/utils/localStorage';
 import { addCategoryDocument, generateID, removeCategoryDocument } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 import { router } from "expo-router";
-
-//icons
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { RelativePathString } from 'expo-router';
 
-type ItemListProps = {
-    keyword: string;
-};
+type Category = { id: string; title: string; iconUri?: string };
+type ItemListProps = { keyword: string };
 
 const ItemList = ({ keyword }: ItemListProps) => {
     const {current: user} = useUser();
     const { 
-        titleCategory, //current title of the category
+        titleCategory,
         setTitleCategory, 
         categoryList, 
         setCategoryList,
@@ -35,8 +33,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
     useEffect(() => {
         const load = async () => {
             const savedCategories = await loadCategoriesFromStorage();
-            console.log(savedCategories);
-            setCategoryList(savedCategories);
+            setCategoryList(savedCategories || []);
         };
         load();
     }, []);
@@ -44,8 +41,8 @@ const ItemList = ({ keyword }: ItemListProps) => {
     // Handle adding to list
     useEffect(() => {
         if (titleCategory.trim() !== '') {
-            const newItem = { id: generateID(), title: titleCategory.trim() };
-            setCategoryList((prev: { id: string; title: string }[]) => [...prev, newItem]);
+            const newItem: Category = { id: generateID(), title: titleCategory.trim() };
+            setCategoryList((prev: Category[]) => [...prev, newItem]);
             insertCategoryToStorage(newItem.id);
             if(user != null){
                 addCategoryDocument(newItem.id, {categoryId: newItem.title, userID: user.$id});
@@ -54,17 +51,36 @@ const ItemList = ({ keyword }: ItemListProps) => {
         }
     }, [titleCategory]);
 
-    // Separate effect to handle saving when categoryList changes
+    // Save categories when categoryList changes
     useEffect(() => {
         const saveCategories = async () => {
             await saveCategoriesToStorage(categoryList);
         };
         saveCategories();
-    }, [categoryList]); // Runs whenever categoryList changes
+    }, [categoryList]);
+
+    // Image picker logic
+    const pickImage = async (categoryId: string) => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const uri = result.assets[0].uri;
+            setCategoryList((prev: Category[]) =>
+                prev.map(cat =>
+                    cat.id === categoryId ? { ...cat, iconUri: uri } : cat
+                )
+            );
+        }
+    };
 
     const filteredAndSortedList = categoryList
-        .filter((item: { id: string; title: string }) => item.title.toLowerCase().includes(keyword.toLowerCase()))
-        .sort((a: { id: string; title: string }, b: { id: string; title: string }) => a.title.localeCompare(b.title));
+        .filter((item: Category) => item.title.toLowerCase().includes(keyword.toLowerCase()))
+        .sort((a: Category, b: Category) => a.title.localeCompare(b.title));
 
     return (
         <View className='h-4/5 items-center justify-center'>
@@ -79,7 +95,6 @@ const ItemList = ({ keyword }: ItemListProps) => {
                             }}
                             className="mt-5 flex-row items-center justify-center"
                         >
-                            
                             {editCategory && (
                                 <TouchableOpacity
                                     style={{
@@ -96,7 +111,7 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                             removeCategoryDocument(item.id);
                                         }
                                         removeACategoryWithElements(item.id);
-                                        setCategoryList((prevList: { id: string; title: string }[]) => prevList.filter(listItem => listItem.id !== item.id));
+                                        setCategoryList((prevList: Category[]) => prevList.filter(listItem => listItem.id !== item.id));
                                     }}
                                 >
                                     <AntDesign 
@@ -109,29 +124,36 @@ const ItemList = ({ keyword }: ItemListProps) => {
                             <TouchableOpacity className="h-full w-3/4 flex-row items-center justify-center rounded-3xl border-2 bg-[#D2B48C] px-4"
                                 onPress={() => {
                                     if (editCategory) {
-                                        // Perform edit action
                                         getCategoryId(item.id);
                                         setCreateCategory(true);
-                                        console.log('Edit action triggered for:', item.title);
                                     } else {
-                                        // IDK WHY THIS IS GIVING AN ERROR BUT IT WORKS AHAHAHAHAHAHA
                                         const path = `/${item.title}/${item.id}` as RelativePathString;
                                         router.push(path);
                                         getCategoryTitle(item.title);
-                                        console.log('Default action triggered for:', item.title);
                                     }
                                 }}
                             >
-                                <View style={{ aspectRatio: 1 }} className="h-3/4 items-center justify-center rounded-2xl border-2">
-                                    <Image
-                                        source={require('../assets/icons/Union.png')}
-                                        className="h-1/4"
-                                        style={{ aspectRatio: 1 }}
-                                        resizeMode="contain"
-                                    />
-                                </View>
+                                <TouchableOpacity
+                                    onPress={() => pickImage(item.id)}
+                                    style={{ aspectRatio: 1 }}
+                                    className="h-3/4 items-center justify-center rounded-2xl border-2 overflow-hidden bg-white"
+                                >
+                                    {item.iconUri ? (
+                                        <Image
+                                            source={{ uri: item.iconUri }}
+                                            style={{ width: '100%', height: '100%' }}
+                                            resizeMode="cover"
+                                        />
+                                    ) : (
+                                        <Image
+                                            source={require('../assets/icons/Union.png')}
+                                            className="h-1/4"
+                                            style={{ aspectRatio: 1 }}
+                                            resizeMode="contain"
+                                        />
+                                    )}
+                                </TouchableOpacity>
                                 <Text className="ml-4 flex-1 text-lg font-bold">{item.title}</Text>
-
                                 {editCategory && (
                                     <AntDesign 
                                         name="edit" 
@@ -139,7 +161,6 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         color="black" 
                                     />
                                 )}
-
                             </TouchableOpacity>
                         </TouchableOpacity>
                     )}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Dimensions, Modal, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Dimensions, Modal, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Search from '../Search';
 import { loadImagesFromStorage } from '@/utils/localStorage';
@@ -10,51 +10,41 @@ const numColumns = 3;
 const itemMargin = 14;
 
 type data = { id: string; title: string; uri: string };
-//const uri = "https://cloud.appwrite.io/v1/storage/buckets/6828105b000b23c42ebe/files/682841e40013e79ea00d/view?project=67ad0aec0002e74ec57d"
-// THIS IS THE MASTER LIST OF ALL POSSIBLE ITEMS
-/*
-const allPossibleItems: data[] = [
-  { id: '1', title: 'Item 1', uri: uri },
-  { id: '2', title: 'Item 2', uri: uri },
-  { id: '3', title: 'Item 3', uri: uri },
-  { id: '4', title: 'Item 4', uri: uri },
-  { id: '5', title: 'Item 5', uri: uri },
-  { id: '6', title: 'Item 6', uri: uri },
-];
-*/
 
 interface AddClothesToCtgryPopProps {
   visible: boolean;
   onClose: () => void;
   selectedItems: data[];
   onAddItem: (item: data) => void;
+  category: string;
 }
 
-const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, onClose, selectedItems, onAddItem }) => {
+const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, onClose, selectedItems, onAddItem, category }) => {
   const [keyword, setKeyWord] = useState('');
   const [allPossibleItems, setAllPossibleItems] = useState<data[]>([]);
+  const [customName, setCustomName] = useState('');
 
-  useEffect(()=>{
+  useEffect(() => {
     const loadImages = async () => {
-      const temp: data[] = []
+      const temp: data[] = [];
       const clothingItems = await loadImagesFromStorage();
-      if (clothingItems){
+      if (clothingItems) {
         const mergedUrls = Object.values(clothingItems).flat();
-        mergedUrls.forEach( (item, index) => {
-          temp.push({id: item.id, title: `Item ${index}`, uri: item.uri});
+        mergedUrls.forEach((item) => {
+          temp.push({ id: item.id, title: '', uri: item.uri }); // leave title blank
         });
         setAllPossibleItems(temp);
       }
-    }
+    };
     loadImages();
-  }, [])
+  }, [category]);
 
   // Only show items not already selected
   const availableItems = useMemo(() => {
     return allPossibleItems.filter(
       (item) => !selectedItems.some((selected) => selected.id === item.id)
     );
-  }, [selectedItems]);
+  }, [selectedItems, allPossibleItems]);
 
   // Modal width/height relative to window
   const modalWidth = width * 0.85;
@@ -69,6 +59,14 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
     // Sort alphanumerically by title
     return result.slice().sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }));
   }, [keyword, availableItems]);
+
+  // Set the title based on the number of items already in the category
+  const handleAddItem = (item: data) => {
+    const newIndex = selectedItems.length + 1;
+    const newItem = { ...item, title: `${category} ${newIndex}` };
+    onAddItem(newItem);
+    setCustomName('');
+  };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -92,15 +90,14 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
                 <TouchableOpacity
                   className='w-24 h-32 bg-white rounded-2xl justify-center items-center '
                   activeOpacity={0.7}
-                  onPress={() => onAddItem(item)}
+                  onPress={() => handleAddItem(item)}
                 >
                   <Image
-                    source = {{uri: item.uri}}
+                    source={{ uri: item.uri }}
                     className='w-full h-full rounded-2xl border-2'
-                    resizeMode = "contain"
+                    resizeMode="contain"
                   />
                 </TouchableOpacity>
-                <Text className="text-base font-semibold text-center mt-2"> </Text>
               </View>
             )}
           />

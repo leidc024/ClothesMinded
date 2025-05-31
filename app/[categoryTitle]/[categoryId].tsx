@@ -108,7 +108,7 @@ const CategorySelection = () => {
                     <View style={{ alignItems: 'center', width: itemSize }} className="mb-2">
                         <View style={{ position: 'relative', width: itemSize, alignItems: 'center' }}>
                             <TouchableOpacity
-                                className="w-24 h-32 bg-white rounded-2xl justify-center items-center border"
+                                className="w-24 h-32 bg-white rounded-2xl justify-center items-center "
                                 activeOpacity={1}
                             >
                                 {deleteMode && (
@@ -121,7 +121,7 @@ const CategorySelection = () => {
                                 )}
                                 <Image
                                     source={{ uri: item.uri }}
-                                    className="w-full h-full rounded-2xl"
+                                    className="w-full h-full rounded-2xl border-2"
                                     resizeMode="cover"
                                 />
                             </TouchableOpacity>

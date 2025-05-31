@@ -7,6 +7,7 @@ import Search from '../../components/Search';
 import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
 import { loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage } from "@/utils/localStorage";
+import ImageViewing from 'react-native-image-viewing';
 
 const { width } = Dimensions.get('window');
 const numColumns = 3;
@@ -22,6 +23,8 @@ const CategorySelection = () => {
     const [deleteMode, setDeleteMode] = useState(false);
     const [keyword, setKeyWord] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [viewerVisible, setViewerVisible] = useState(false);
 
     // Filter items based on keyword and sort alphanumerically
     const filteredItems = useMemo(() => {
@@ -110,6 +113,10 @@ const CategorySelection = () => {
                             <TouchableOpacity
                                 className="w-24 h-32 bg-white rounded-2xl justify-center items-center "
                                 activeOpacity={1}
+                                onPress={() => {
+                                    setCurrentIndex(filteredItems.findIndex(i => i.id === item.id));
+                                    setViewerVisible(true);
+                                }}
                             >
                                 {deleteMode && (
                                     <TouchableOpacity
@@ -129,6 +136,13 @@ const CategorySelection = () => {
                         <Text className="text-base font-semibold text-center mt-2">{item.title}</Text>
                     </View>
                 )}
+            />
+            
+            <ImageViewing
+                images={filteredItems.map(item => ({ uri: item.uri }))}
+                imageIndex={currentIndex}
+                visible={viewerVisible}
+                onRequestClose={() => setViewerVisible(false)}
             />
         </SafeAreaView>
 

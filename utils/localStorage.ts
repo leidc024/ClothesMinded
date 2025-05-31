@@ -3,9 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const STORAGE_KEY = 'wardrobe_images';
 const CATEGORIES_KEY = 'category_data';
 const CATEGORY_ELEMENTS_KEY = 'category_element_data'
+const CLOTHES_MAP_KEY = 'clothes_map_key'
 
-type data = { id: string; title: string; uri: string };
+type data = {id: string; title: string; uri: string };
 type image = {id: string; uri: string}
+type ClothesMap = {[id: string]: {categoryID: string; index: number}[]}
 
 export const saveImagesToStorage = async (images: Record<string, image[]>) => {
     try {
@@ -88,8 +90,6 @@ export const saveOneCategoryElementsToStorage = async (categoryElements: {id: st
                     ? { ...item, elements: categoryElements.elements }
                     : item
             );
-
-        console.log(updated);
         console.log('Updated array:', JSON.stringify(updated, null, 2));
         await saveCategoryElementsToStorage(updated);
     } catch (error){
@@ -155,3 +155,29 @@ export const removeCategoryElementsStored = async () => {
         console.error('Failed to remove categories', error);
     }
 };
+
+export const loadClothesMap = async (): Promise<ClothesMap | null> => {
+    try {
+        const json = await AsyncStorage.getItem(CLOTHES_MAP_KEY);
+        return json != null ? JSON.parse(json) : null;
+    } catch (error) {
+        console.error('Failed to load categories', error);
+        return null;
+    }
+}
+
+export const saveClothesMap = async(clothesMap: ClothesMap) => {
+    try {
+        await AsyncStorage.setItem(CLOTHES_MAP_KEY, JSON.stringify(clothesMap));
+    } catch (error) {
+        console.error('Failed to save clothes map', error);
+    }
+}
+
+export const removeClothesMap = async () => {
+    try{
+        await AsyncStorage.setItem(CLOTHES_MAP_KEY, JSON.stringify({}))
+    } catch (error) {
+        console.log('Failed to remove clothes map', error);
+    }
+}

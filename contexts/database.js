@@ -9,6 +9,7 @@ const categoryCollectionID = "67d3c85800348c24a27b";
 const avatarCollectionID = "67d3c8cd002354dcef59";
 const clothingCollectionID = "67d3c99a0027096bb0c2";
 const clothesCategoriesCollectionID = "6827fcc800130b16ad1a";
+const clothesMapCollectionID = "6838c13a003b95047b96";
 
 const avatarStorageID = "6825d9f500066a3dc28e"; // Storage ID
 const clothesStorageID = "6828105b000b23c42ebe"; // Clothes Storage ID

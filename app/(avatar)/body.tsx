@@ -12,7 +12,7 @@ import { convertToPNG } from '@/utils/pngConverter';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 export default function App() {
-    const timer = 5;
+    const timer = 0;
     const [facing, setFacing] = useState<CameraType>('front'); // Use the front camera by default
     const [loadedAssets, setLoadedAssets] = useState<Asset[]>([]);
     const [poseNumber, setPoseNumber] = useState(0);
@@ -69,6 +69,10 @@ export default function App() {
     }, [isCountingDown]);
 
     const takePicture = async () => {
+        setIsBackgroundRemoved(false);
+        setIsProcessing(false);
+        router.replace('/(tabs)/home');
+        
         if (cameraRef.current) {
             try {
                 const photo = await cameraRef.current.takePictureAsync({

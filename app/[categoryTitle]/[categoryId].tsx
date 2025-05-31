@@ -6,7 +6,6 @@ import React, { useState, useMemo } from 'react';
 import Search from '../../components/Search';
 import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage } from "@/utils/localStorage";
 
 const { width } = Dimensions.get('window');
@@ -109,14 +108,7 @@ const CategorySelection = () => {
                     <View style={{ alignItems: 'center', width: itemSize }} className="mb-2">
                         <View style={{ position: 'relative', width: itemSize, alignItems: 'center' }}>
                             <TouchableOpacity
-                                style={{
-                                    width: itemSize,
-                                    height: itemSize,
-                                    backgroundColor: '#transparent',
-                                    borderRadius: 12,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
+                                className="w-24 h-32 bg-white rounded-2xl justify-center items-center border"
                                 activeOpacity={1}
                             >
                                 {deleteMode && (
@@ -128,9 +120,9 @@ const CategorySelection = () => {
                                     </TouchableOpacity>
                                 )}
                                 <Image
-                                    source={{uri: item.uri}}
-                                    style={styles.image}
-                                    resizeMode="contain"    
+                                    source={{ uri: item.uri }}
+                                    className="w-full h-full rounded-2xl"
+                                    resizeMode="cover"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -142,14 +134,5 @@ const CategorySelection = () => {
 
     );
 }
-
-const styles = StyleSheet.create({
-    image:{ 
-        aspectRatio: 1,    // Ensures square shape (width = height)
-        height:'100%',    
-        resizeMode: 'contain'
-    }
-
-});
 
 export default CategorySelection;

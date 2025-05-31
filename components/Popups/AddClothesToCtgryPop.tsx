@@ -6,7 +6,7 @@ import { loadImagesFromStorage } from '@/utils/localStorage';
 import { generateID } from '@/contexts/database';
 
 const { width } = Dimensions.get('window');
-const numColumns = 2;
+const numColumns = 3;
 const itemMargin = 8;
 
 type data = { id: string; title: string; uri: string };
@@ -89,21 +89,13 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
             renderItem={({ item }) => (
               <View style={{ alignItems: 'center', width: itemSizeLocal }} className="mb-2">
                 <TouchableOpacity
-                  style={{
-                    width: itemSizeLocal,
-                    height: itemSizeLocal,
-                    backgroundColor: '#transparent',
-                    borderRadius: 12,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    overflow: 'hidden'
-                  }}
+                  className='w-24 h-32 bg-white rounded-2xl justify-center items-center border'
                   activeOpacity={0.7}
                   onPress={() => onAddItem(item)}
                 >
                   <Image
                     source = {{uri: item.uri}}
-                    style = {styles.image}
+                    className='w-full h-full rounded-2xl'
                     resizeMode = "contain"
                   />
                 </TouchableOpacity>
@@ -118,12 +110,3 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
 };
 
 export default AddClothesToCtgryPop;
-
-
-const styles = StyleSheet.create({
-    image:{ 
-        aspectRatio: 1,    // Ensures square shape (width = height)
-        height:'100%',    
-        resizeMode: 'contain'
-    }
-});

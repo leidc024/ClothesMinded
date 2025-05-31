@@ -1,243 +1,278 @@
-﻿import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Alert } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { StatusBar } from 'expo-status-bar'
-import { FontAwesome } from '@expo/vector-icons'
+﻿import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+  Modal
+} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addClothingImage, addClothingDocument, generateID } from '@/contexts/database'
-import { useUser } from '@/contexts/UserContext'
+import { addClothingImage, addClothingDocument, generateID } from '@/contexts/database';
+import { useUser } from '@/contexts/UserContext';
+import ImageViewing from 'react-native-image-viewing';
 
 const STORAGE_KEY = 'wardrobe_images';
 
 interface ImagesCollection {
-  [key: string]: image[]; // All string keys will return string arrays
+  [key: string]: image[];
 }
 
 interface image {
-    id: string;
-    uri: string;
+  id: string;
+  uri: string;
 }
 
 interface scrollComponent {
-  [key: string]: number; // All string keys will return string arrays
+  [key: string]: number;
 }
 
 const saveImagesToStorage = async (images: Record<string, image[]>) => {
-    try {
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
-    } catch (error) {
-        console.error('Failed to save images', error);
-    }
+  try {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(images));
+  } catch (error) {
+    console.error('Failed to save images', error);
+  }
 };
 
 const loadImagesFromStorage = async (): Promise<Record<string, image[]> | null> => {
-    try {
-        const json = await AsyncStorage.getItem(STORAGE_KEY);
-        return json != null ? JSON.parse(json) : null;
-    } catch (error) {
-        console.error('Failed to load images', error);
-        return null;
-    }
+  try {
+    const json = await AsyncStorage.getItem(STORAGE_KEY);
+    return json != null ? JSON.parse(json) : null;
+  } catch (error) {
+    console.error('Failed to load images', error);
+    return null;
+  }
 };
 
 const Wardrobe = () => {
-    const { current: user } = useUser();
-    const [images, setImages] = useState<ImagesCollection>({
-        Shirts: [],
-        Jackets: [],
-        Dress: [],
-        Shorts: [],
-        Pants: []
-    });
+  const { current: user } = useUser();
+  const [images, setImages] = useState<ImagesCollection>({
+    Shirts: [],
+    Jackets: [],
+    Dress: [],
+    Shorts: [],
+    Pants: []
+  });
 
-    const [scrollPosition, setScrollPosition] = useState<scrollComponent>({
-        Shirts: 0,
-        Jackets: 0,
-        Dress: 0,
-        Shorts: 0,
-        Pants: 0
-    });
+  const [scrollPosition, setScrollPosition] = useState<scrollComponent>({
+    Shirts: 0,
+    Jackets: 0,
+    Dress: 0,
+    Shorts: 0,
+    Pants: 0
+  });
 
-    useEffect(() => {
-        const load = async () => {
-            const stored = await loadImagesFromStorage();
-            // console.log(stored.values())
-            if (stored) setImages(stored);
-        };
-        load();
-    }, []);
+  const [viewerVisible, setViewerVisible] = useState(false);
+  const [viewerImages, setViewerImages] = useState<{ uri: string }[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-    const handleAddImage = async (category: string) => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permissionResult.granted) {
-            Alert.alert("Permission required", "Please allow access to your photos.");
-            return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
-        });
-
-        if (!result.canceled) {
-            const uri = result.assets[0].uri;
-            const imageID = generateID()
-            if(user){
-                await addClothingImage(imageID, uri);
-                if (imageID && user.$id){
-                    await addClothingDocument({
-                        clothingID: imageID,
-                        type: category,
-                        userID: user.$id,
-                    });
-                }
-            }
-            
-            const updated = {
-                ...images,
-                [category]: [...images[category], {id: imageID, uri: uri}]
-            };
-            setImages(updated);
-            console.log(updated);
-            await saveImagesToStorage(updated);
-        }
+  useEffect(() => {
+    const load = async () => {
+      const stored = await loadImagesFromStorage();
+      if (stored) setImages(stored);
     };
+    load();
+  }, []);
 
-    return (
-        <SafeAreaView className="flex-1 bg-[#F5EEDC] px-4">
-            <StatusBar style="dark" />
-            <View className="mt-4">
-                <Text className="text-center text-2xl font-bold">Wardrobe</Text>
-            </View>
+  const handleAddImage = async (category: string) => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert("Permission required", "Please allow access to your photos.");
+      return;
+    }
 
-            <View className="mt-4 flex-row items-center justify-center">
-                <View className="w-[70%] flex-row items-center rounded-full border border-gray-300 bg-white px-4 shadow-md">
-                    <FontAwesome name="search" size={18} color="gray" />
-                    <TextInput placeholder="Search" className="ml-3 flex-1 text-lg" />
-                </View>
-                <TouchableOpacity
-                    onPress={() => router.push('/camera')}
-                    className="ml-3 rounded-lg border border-gray-400 bg-[#D2B48C] px-4 py-3 shadow-md">
-                    <FontAwesome name="camera" size={18} color="white" />
-                </TouchableOpacity>
-            </View>
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
 
-            <ScrollView className="mt-6" showsVerticalScrollIndicator={false}>
-                {Object.keys(images).map((category) => (
-                    <CategorySection
-                        key={category}
-                        title={category}
-                        imagesByCategory={images[category]}
-                        scrollPosition={scrollPosition[category]}
-                        setScrollPosition={(val: number) =>
-                            setScrollPosition(prev => ({ ...prev, [category]: val }))
-                        }
-                        onAddImage={() => handleAddImage(category)}
-                        onDeleteImage={(indexToDelete: number) => {
-                            const updatedCategory = images[category].filter((_, idx) => idx !== indexToDelete);
-                            const updatedImages = {
-                                ...images,
-                                [category]: updatedCategory
-                            };
-                            setImages(updatedImages);
-                            saveImagesToStorage(updatedImages);
-                        }}
-                    />
-                ))}
-                <View className="h-20" />
-            </ScrollView>
-            
-        </SafeAreaView>
-    );
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      const imageID = generateID();
+      if (user) {
+        await addClothingImage(imageID, uri);
+        if (imageID && user.$id) {
+          await addClothingDocument({
+            clothingID: imageID,
+            type: category,
+            userID: user.$id,
+          });
+        }
+      }
+
+      const updated = {
+        ...images,
+        [category]: [...images[category], { id: imageID, uri }]
+      };
+      setImages(updated);
+      await saveImagesToStorage(updated);
+    }
+  };
+
+  const handleViewImage = (category: string, index: number) => {
+    const selected = images[category].map(img => ({ uri: img.uri }));
+    setViewerImages(selected);
+    setCurrentIndex(index);
+    setViewerVisible(true);
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-[#F5EEDC] px-4">
+      <StatusBar style="dark" />
+      <View className="mt-4">
+        <Text className="text-center text-2xl font-bold">Wardrobe</Text>
+      </View>
+
+      <View className="mt-4 flex-row items-center justify-center">
+        <View className="w-[70%] flex-row items-center rounded-full border border-gray-300 bg-white px-4 shadow-md">
+          <FontAwesome name="search" size={18} color="gray" />
+          <TextInput placeholder="Search" className="ml-3 flex-1 text-lg" />
+        </View>
+        <TouchableOpacity
+          onPress={() => router.push('/camera')}
+          className="ml-3 rounded-lg border border-gray-400 bg-[#D2B48C] px-4 py-3 shadow-md">
+          <FontAwesome name="camera" size={18} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView className="mt-6" showsVerticalScrollIndicator={false}>
+        {Object.keys(images).map((category) => (
+          <CategorySection
+            key={category}
+            title={category}
+            imagesByCategory={images[category]}
+            scrollPosition={scrollPosition[category]}
+            setScrollPosition={(val: number) =>
+              setScrollPosition(prev => ({ ...prev, [category]: val }))
+            }
+            onAddImage={() => handleAddImage(category)}
+            onDeleteImage={(indexToDelete: number) => {
+              const updatedCategory = images[category].filter((_, idx) => idx !== indexToDelete);
+              const updatedImages = {
+                ...images,
+                [category]: updatedCategory
+              };
+              setImages(updatedImages);
+              saveImagesToStorage(updatedImages);
+            }}
+            onViewImage={(index: number) => handleViewImage(category, index)}
+          />
+        ))}
+        <View className="h-20" />
+      </ScrollView>
+
+      <ImageViewing
+        images={viewerImages}
+        imageIndex={currentIndex}
+        visible={viewerVisible}
+        onRequestClose={() => setViewerVisible(false)}
+      />
+    </SafeAreaView>
+  );
 };
 
 const CategorySection = ({
-    title,
-    imagesByCategory,
-    scrollPosition,
-    setScrollPosition,
-    onAddImage,
-    onDeleteImage
+  title,
+  imagesByCategory,
+  scrollPosition,
+  setScrollPosition,
+  onAddImage,
+  onDeleteImage,
+  onViewImage
 }: {
-    title: string;
-    imagesByCategory: image[];
-    scrollPosition: number;
-    setScrollPosition: (val: number) => void;
-    onAddImage: () => void;
-    onDeleteImage: (indexToDelete: number) => void;
+  title: string;
+  imagesByCategory: image[];
+  scrollPosition: number;
+  setScrollPosition: (val: number) => void;
+  onAddImage: () => void;
+  onDeleteImage: (indexToDelete: number) => void;
+  onViewImage: (index: number) => void;
 }) => {
-    return (
-        <View className="mb-6">
-            <Text className="text-xl font-semibold">{title}</Text>
+  return (
+    <View className="mb-6">
+      <Text className="text-xl font-semibold">{title}</Text>
 
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={true}
-                onScroll={(e) => {
-                    let offset = e.nativeEvent.contentOffset.x;
-                    let totalWidth = e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width;
-                    setScrollPosition((offset / totalWidth) * 100 || 0);
-                }}
-                scrollEventThrottle={16}
-                className="mt-2"
-                contentContainerStyle={{
-                    paddingRight: 20,
-                    minWidth: '100%',
-                }}
-            >
-                <TouchableOpacity onPress={onAddImage}>
-                    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-2 border-black bg-white">
-                        <Text className="text-4xl">+</Text>
-                    </View>
-                </TouchableOpacity>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={true}
+        onScroll={(e) => {
+          let offset = e.nativeEvent.contentOffset.x;
+          let totalWidth = e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width;
+          setScrollPosition((offset / totalWidth) * 100 || 0);
+        }}
+        scrollEventThrottle={16}
+        className="mt-2"
+        contentContainerStyle={{
+          paddingRight: 20,
+          minWidth: '100%',
+        }}
+      >
+        <TouchableOpacity onPress={onAddImage}>
+          <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border-2 border-black bg-white">
+            <Text className="text-4xl">+</Text>
+          </View>
+        </TouchableOpacity>
 
-                {imagesByCategory.map((img, i) => (
-                    <ClothingItem
-                        key={i}
-                        image={img.uri}
-                        onDelete={() => {
-                            Alert.alert(
-                                'Delete Image',
-                                'Are you sure you want to delete this image?',
-                                [
-                                    { text: 'Cancel', style: 'cancel' },
-                                    {
-                                        text: 'Delete',
-                                        style: 'destructive',
-                                        onPress: () => onDeleteImage(i)
-                                    }
-                                ]
-                            );
-                        }}
-                    />
-                ))}
-            </ScrollView>
+        {imagesByCategory.map((img, i) => (
+          <ClothingItem
+            key={i}
+            image={img.uri}
+            onDelete={() => {
+              Alert.alert(
+                'Delete Image',
+                'Are you sure you want to delete this image?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => onDeleteImage(i)
+                  }
+                ]
+              );
+            }}
+            onPress={() => onViewImage(i)}
+          />
+        ))}
+      </ScrollView>
 
-            <View className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-300">
-                <View
-                    style={{ width: `${scrollPosition}%` }}
-                    className="h-full rounded-full bg-black"
-                />
-            </View>
-        </View>
-    );
+      <View className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-300">
+        <View
+          style={{ width: `${scrollPosition}%` }}
+          className="h-full rounded-full bg-black"
+        />
+      </View>
+    </View>
+  );
 };
 
-
-
-const ClothingItem = ({ image, onDelete }: { image: string, onDelete: () => void }) => (
-    <TouchableOpacity onLongPress={onDelete}>
-        <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border bg-white">
-            <Image
-                source={{ uri: image }}
-                className="h-full w-full rounded-2xl"
-                resizeMode="contain"
-            />
-        </View>
-    </TouchableOpacity>
+const ClothingItem = ({
+  image,
+  onDelete,
+  onPress
+}: {
+  image: string;
+  onDelete: () => void;
+  onPress: () => void;
+}) => (
+  <TouchableOpacity onPress={onPress} onLongPress={onDelete}>
+    <View className="mx-2 flex h-32 w-24 items-center justify-center rounded-2xl border bg-white">
+      <Image
+        source={{ uri: image }}
+        className="h-full w-full rounded-2xl"
+        resizeMode="cover"
+      />
+    </View>
+  </TouchableOpacity>
 );
 
 export default Wardrobe;

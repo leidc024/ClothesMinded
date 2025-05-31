@@ -1,25 +1,32 @@
-import { SafeAreaView, View, Text, Dimensions, TouchableOpacity } from "react-native";
+import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Alert } from "react-native";
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import NewUserNamePop from "../../components/Popups/NewUserNamePop";
 import ChooseGenerate from "../modal/chooseGenerate";
-import Avatar from '../../components/Avatar';
+import Avatar from "../../components/Avatar";
+import { useUser } from "@/contexts/UserContext"; // ✅ import context
 
-const { height } = Dimensions.get('window'); // Get screen height
+const { height } = Dimensions.get("window");
 
 const Home = () => {
   const router = useRouter();
+  const { current } = useUser(); // ✅ get current user
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleOpenModal = () => {
+    if (!current) {
+      Alert.alert("Account Required", "Please sign in to use this feature.");
+      return;
+    }
     setModalVisible(true);
   };
 
   const handleCloseModal = () => {
     setModalVisible(false);
   };
+
   const handleSelectClothingItem = () => {
     console.log("Select clothing item pressed");
     setModalVisible(false);
@@ -39,10 +46,10 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary flex-1 ">
+    <SafeAreaView className="bg-primary flex-1">
       {/* Top Section */}
       <View className="flex-1 p-5">
-        {/* Profile Button (top right corner) */}
+        {/* Profile Button */}
         <View className="flex-row justify-end p-5">
           <TouchableOpacity
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -55,7 +62,8 @@ const Home = () => {
           </TouchableOpacity>
         </View>
       </View>
-      {/* Avatar Section */}
+
+      {/* Avatar Section (optional) */}
       {/* <View className="items-center justify-center">
         <Avatar />
       </View> */}
@@ -64,7 +72,7 @@ const Home = () => {
       <View className="px-5 pb-5">
         <TouchableOpacity
           className="bg-secondary p-4 rounded-lg items-center justify-center"
-          onPress={handleOpenModal} // Move onPress here only
+          onPress={handleOpenModal}
         >
           <Text className="text-white font-bold text-lg">Generate</Text>
         </TouchableOpacity>
@@ -82,6 +90,5 @@ const Home = () => {
     </SafeAreaView>
   );
 };
-
 
 export default Home;

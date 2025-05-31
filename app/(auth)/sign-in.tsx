@@ -75,7 +75,7 @@ const Signin = () => {
         >
           <View className="flex flex-row items-center justify-center">
             <Text className="font-roboto-medium text-black-300 ml-2 text-lg">
-              Home.tsx
+              Continue as Guest
             </Text>
           </View>
         </TouchableOpacity>

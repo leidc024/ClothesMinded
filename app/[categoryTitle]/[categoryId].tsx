@@ -6,7 +6,7 @@ import React, { useState, useMemo } from 'react';
 import Search from '../../components/Search';
 import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
-import { loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage } from "@/utils/localStorage";
+import { type ClothesMap, loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage,  saveClothesMap, loadClothesMap} from "@/utils/localStorage";
 import { addClothesCategoriesDocument, removeClothesCategoriesDocumentWithClothingID } from "@/contexts/database";
 import { useUser } from "@/contexts/UserContext";
 import ImageViewing from 'react-native-image-viewing';
@@ -28,6 +28,7 @@ const CategorySelection = () => {
     const {current: user} = useUser();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [viewerVisible, setViewerVisible] = useState(false);
+    const [clothesMap, setClothesMap] = useState<ClothesMap>({});
 
     // Filter items based on keyword and sort alphanumerically
     const filteredItems = useMemo(() => {
@@ -38,14 +39,39 @@ const CategorySelection = () => {
         return result.slice().sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }));
     }, [keyword, items]);
 
-    const handleDeleteItem = (id: string) => {
+    const handleDeleteItem = async (id: string) => {
         if(user){
             removeClothesCategoriesDocumentWithClothingID(categoryId as string, id);
         }
+        removeCategoryFromClothesMap(id, categoryId as string);
         setItems(prev => prev.filter(item => item.id !== id));
     };
 
-    const handleAddItem = (item: data) => {
+    const addCategoryToClothesMap = (itemId: string, categoryId: string) => {
+        setClothesMap(prevMap => {
+            const updated = {
+                ...prevMap,
+                [itemId]: [...(prevMap[itemId] || []), categoryId]
+            }
+            saveClothesMap(updated)
+            return updated;
+        });
+    };
+
+    const removeCategoryFromClothesMap = (itemId: string, categoryIdToRemove: string) => {
+        setClothesMap(prevMap => {
+            const updated = {
+                ...prevMap,
+                [itemId]: (prevMap[itemId] || []).filter(
+                    categoryId => categoryId !== categoryIdToRemove
+                ),
+            }
+            saveClothesMap(updated);
+            return updated
+        });
+    };
+
+    const handleAddItem = async (item: data) => {
         const data = {
             categoryID: categoryId as string,
             clothingDocumentID: item.id,
@@ -55,6 +81,7 @@ const CategorySelection = () => {
         if(user){
             addClothesCategoriesDocument(data);
         }
+        addCategoryToClothesMap(item.id, categoryId as string);
         setItems((prev) => [...prev, item]);
     };
 
@@ -62,10 +89,14 @@ const CategorySelection = () => {
         const loadItems = async () => {
             try {
                 // const saved = await AsyncStorage.getItem(`category-items-${categoryId}`);
-                const savedClothingItems = await loadCategoryElementsFromStorage(categoryId as string);
-                if (savedClothingItems) {
-                    setItems(savedClothingItems);
-                }
+                const [savedClothingItems, savedClothesMap] = await Promise.all([
+                    loadCategoryElementsFromStorage(categoryId as string),
+                    loadClothesMap()
+                ]);
+
+                if (savedClothingItems) setItems(savedClothingItems);
+                if (savedClothesMap) setClothesMap(savedClothesMap);
+
             } catch (e) {
                 // handle error
             }

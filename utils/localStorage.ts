@@ -6,8 +6,9 @@ const CATEGORY_ELEMENTS_KEY = 'category_element_data'
 const CLOTHES_MAP_KEY = 'clothes_map_key'
 
 type data = {id: string; title: string; uri: string };
-type image = {id: string; uri: string}
-type ClothesMap = {[id: string]: {categoryID: string; index: number}[]}
+type image = {id: string; uri: string};
+// mapping of clothes to the categories they were stored
+export type ClothesMap = {[id: string]: string[]};
 
 export const saveImagesToStorage = async (images: Record<string, image[]>) => {
     try {
@@ -69,7 +70,6 @@ export const removeCategoriesStored = async () => {
     }
 };
 
-
 // function for saving all categories containing their each own elements
 export const saveCategoryElementsToStorage = async (categoryElements: Array<{id: string; elements: data[]}>) => {
     try{
@@ -83,14 +83,14 @@ export const saveCategoryElementsToStorage = async (categoryElements: Array<{id:
 export const saveOneCategoryElementsToStorage = async (categoryElements: {id: string; elements: data[]}) => {
     try {
         const existing = await loadAllCategoryElementsFromStorage();
-        console.log(existing);
+        console.log('Existing array:', JSON.stringify(existing, null, 2));
         // Update the array
         const updated = existing.map(item => 
                 item.id === categoryElements.id 
                     ? { ...item, elements: categoryElements.elements }
                     : item
             );
-        console.log('Updated array:', JSON.stringify(updated, null, 2));
+        // console.log('Updated array:', JSON.stringify(updated, null, 2));
         await saveCategoryElementsToStorage(updated);
     } catch (error){
         console.error('Failed to save category elements', error);
@@ -114,7 +114,7 @@ export const loadCategoryElementsFromStorage = async (id: string): Promise<data[
         const existingCategories = await loadAllCategoryElementsFromStorage();
         if (existingCategories){
             const filtered = existingCategories.filter((item) => item.id === id);
-            if (filtered){
+            if (filtered && filtered[0]){
                 return (filtered[0].elements);
             }else return [];
         }
@@ -141,11 +141,52 @@ export const removeACategoryWithElements = async (id: string) => {
         const existing = await loadAllCategoryElementsFromStorage();
         const filtered = existing.filter((item) => item.id != id);
         await saveCategoryElementsToStorage(filtered);
-
     }catch(error){
         console.error("Failed to remove category", error);
     }
 }
+
+// Modified function
+export const removeElementEverywhere = async (elementID: string) => {
+    const existing = await loadAllCategoryElementsFromStorage();
+    
+    // Pre-allocate array and use for-loop (faster than map+filter)
+    const updatedCategories = [];
+    for (let i = 0; i < existing.length; i++) {
+        const category = existing[i];
+        const elements = [];
+        
+        // Manual filter (avoids .filter() closure overhead)
+        for (let j = 0; j < category.elements.length; j++) {
+            if (category.elements[j].id !== elementID) {
+                elements.push(category.elements[j]);
+            }
+        }
+        updatedCategories.push({ ...category, elements });
+    }
+
+    await saveCategoryElementsToStorage(updatedCategories);
+};
+
+export const removeElementFromCategories = async (elementID: string, categoryIDs: string[] ) => {
+    if (!categoryIDs?.length) return; // Exit early if no categories to update
+
+    // 1. Load only if needed
+    const existing = await loadAllCategoryElementsFromStorage();
+
+    // 2. Update SPECIFIC categories (no full scan)
+    const updatedCategories = existing.map(category => 
+        categoryIDs.includes(category.id)
+        ? {
+            ...category,
+            elements: category.elements.filter(e => e.id !== elementID)
+        }
+        : category // Unaffected categories pass through
+    );
+
+    // 3. Save changes
+    await saveCategoryElementsToStorage(updatedCategories);
+};
 
 // function for removing the categories 
 export const removeCategoryElementsStored = async () => {

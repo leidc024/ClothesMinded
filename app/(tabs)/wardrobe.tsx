@@ -10,6 +10,7 @@
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -18,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addClothingImage, addClothingDocument, generateID, removeClothingImageByID, removeClothingDocument } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 import ImageViewing from 'react-native-image-viewing';
+import { type ClothesMap, saveClothesMap, loadClothesMap, removeElementFromCategories, removeElementEverywhere } from '@/utils/localStorage';
 
 const STORAGE_KEY = 'wardrobe_images';
 
@@ -62,6 +64,8 @@ const Wardrobe = () => {
     Pants: []
   });
 
+  const [clothesMap, setClothesMap] = useState<ClothesMap>({});
+
   const [scrollPosition, setScrollPosition] = useState<scrollComponent>({
     Shirts: 0,
     Jackets: 0,
@@ -76,11 +80,26 @@ const Wardrobe = () => {
 
   useEffect(() => {
     const load = async () => {
-      const stored = await loadImagesFromStorage();
+      const [stored] = await Promise.all([
+        loadImagesFromStorage(), // Both run at the same time
+
+      ]);
+
       if (stored) setImages(stored);
     };
     load();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(()=>{
+      const fetchClothesMap = async () => {
+        const existingClothesMap = await loadClothesMap();
+        if (existingClothesMap) setClothesMap(existingClothesMap);
+        console.log(existingClothesMap);
+      }
+      fetchClothesMap();
+    }, [])
+  );
 
   const handleAddImage = async (category: string) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -95,36 +114,48 @@ const Wardrobe = () => {
       quality: 1,
     });
 
-        if (!result.canceled) {
-            const uri = result.assets[0].uri;
-            const imageID = generateID();
+    if (!result.canceled) {
+        const uri = result.assets[0].uri;
+        const imageID = generateID();
 
-            let finalUri = uri;
+        let finalUri = uri;
 
-            if(user){
-                const result = await addClothingImage(imageID, uri);
-                if (imageID && user.$id){
-                    await addClothingDocument({
-                        clothingID: imageID,
-                        type: category,
-                        userID: user.$id,
-                    });
-                }
+        if(user){
+          const result = await addClothingImage(imageID, uri);
+          if (imageID && user.$id){
+              await addClothingDocument({
+                  clothingID: imageID,
+                  type: category,
+                  userID: user.$id,
+              });
+          }
 
-                if (result){
-                    finalUri = result.uri as string;
-                }
-            }
-            
-            const updated = {
-                ...images,
-                [category]: [...images[category], {id: imageID, uri: finalUri}]
-            };
-            setImages(updated);
-            console.log(updated);
-            await saveImagesToStorage(updated);
+          if (result){
+              finalUri = result.uri as string;
+          }
         }
-    };
+        
+        const updated = {
+            ...images,
+            [category]: [...images[category], {id: imageID, uri: finalUri}]
+        }
+
+        const updatedMaps = {
+          ...clothesMap,
+          [imageID]: []
+        }
+
+        setImages(updated);
+        setClothesMap(updatedMaps);
+        console.log(updated);
+        console.log(updatedMaps);
+ 
+        await Promise.all([
+          saveImagesToStorage(updated),
+          saveClothesMap(updatedMaps)
+        ]);
+    }
+  };
     
   const handleViewImage = (category: string, index: number) => {
     const selected = images[category].map(img => ({ uri: img.uri }));
@@ -163,7 +194,7 @@ const Wardrobe = () => {
               setScrollPosition(prev => ({ ...prev, [category]: val }))
             }
             onAddImage={() => handleAddImage(category)}
-            onDeleteImage={(indexToDelete: number, id: string) => {
+            onDeleteImage={ async (indexToDelete: number, id: string) => {
               const updatedCategory = images[category].filter((_, idx) => idx !== indexToDelete);
               const updatedImages = {
                 ...images,
@@ -171,8 +202,20 @@ const Wardrobe = () => {
               };
               setImages(updatedImages);
               saveImagesToStorage(updatedImages);
-                            // removeClothingDocument(id);
-                            // removeClothingImageByID(id);
+
+              const updatedMaps = { ...clothesMap };
+              const toDelete = updatedMaps[id] || []; // return value is array of categories the clothing has been categorized
+              removeElementFromCategories(id, toDelete);
+              delete updatedMaps[id]; // Remove the ID from the map
+              
+              setClothesMap(updatedMaps);
+              saveClothesMap(updatedMaps);
+              
+              if(user){
+                // removeClothingDocument(id);
+                // removeClothingImageByID(id);
+              }
+              
             }}
             onViewImage={(index: number) => handleViewImage(category, index)}
           />
@@ -245,7 +288,7 @@ const CategorySection = ({
                   {
                     text: 'Delete',
                     style: 'destructive',
-                    onPress: () => onDeleteImage(i, img.uri)
+                    onPress: () => onDeleteImage(i, img.id)
                   }
                 ]
               );

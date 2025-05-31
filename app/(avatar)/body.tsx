@@ -69,6 +69,7 @@ export default function App() {
     }, [isCountingDown]);
 
     const takePicture = async () => {
+
         if (cameraRef.current) {
             try {
                 const photo = await cameraRef.current.takePictureAsync({

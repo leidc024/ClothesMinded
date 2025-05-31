@@ -6,21 +6,22 @@ import { loadImagesFromStorage } from '@/utils/localStorage';
 import { generateID } from '@/contexts/database';
 
 const { width } = Dimensions.get('window');
-const numColumns = 2;
-const itemMargin = 8;
+const numColumns = 3;
+const itemMargin = 14;
 
 type data = { id: string; title: string; uri: string };
-const uri = "https://cloud.appwrite.io/v1/storage/buckets/6828105b000b23c42ebe/files/682841e40013e79ea00d/view?project=67ad0aec0002e74ec57d"
+//const uri = "https://cloud.appwrite.io/v1/storage/buckets/6828105b000b23c42ebe/files/682841e40013e79ea00d/view?project=67ad0aec0002e74ec57d"
 // THIS IS THE MASTER LIST OF ALL POSSIBLE ITEMS
-
+/*
 const allPossibleItems: data[] = [
-  // { id: '1', title: 'Item 1', uri: uri },
+  { id: '1', title: 'Item 1', uri: uri },
   { id: '2', title: 'Item 2', uri: uri },
   { id: '3', title: 'Item 3', uri: uri },
   { id: '4', title: 'Item 4', uri: uri },
   { id: '5', title: 'Item 5', uri: uri },
   { id: '6', title: 'Item 6', uri: uri },
 ];
+*/
 
 interface AddClothesToCtgryPopProps {
   visible: boolean;
@@ -89,21 +90,13 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
             renderItem={({ item }) => (
               <View style={{ alignItems: 'center', width: itemSizeLocal }} className="mb-2">
                 <TouchableOpacity
-                  style={{
-                    width: itemSizeLocal,
-                    height: itemSizeLocal,
-                    backgroundColor: '#transparent',
-                    borderRadius: 12,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    overflow: 'hidden'
-                  }}
+                  className='w-24 h-32 bg-white rounded-2xl justify-center items-center '
                   activeOpacity={0.7}
                   onPress={() => onAddItem(item)}
                 >
                   <Image
                     source = {{uri: item.uri}}
-                    style = {styles.image}
+                    className='w-full h-full rounded-2xl border-2'
                     resizeMode = "contain"
                   />
                 </TouchableOpacity>
@@ -118,12 +111,3 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
 };
 
 export default AddClothesToCtgryPop;
-
-
-const styles = StyleSheet.create({
-    image:{ 
-        aspectRatio: 1,    // Ensures square shape (width = height)
-        height:'100%',    
-        resizeMode: 'contain'
-    }
-});

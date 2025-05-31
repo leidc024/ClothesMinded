@@ -6,10 +6,11 @@ import React, { useState, useMemo } from 'react';
 import Search from '../../components/Search';
 import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage } from "@/utils/localStorage";
 import { addClothesCategoriesDocument, removeClothesCategoriesDocumentWithClothingID } from "@/contexts/database";
 import { useUser } from "@/contexts/UserContext";
+import ImageViewing from 'react-native-image-viewing';
+
 const { width } = Dimensions.get('window');
 const numColumns = 3;
 const itemMargin = 8;
@@ -25,6 +26,8 @@ const CategorySelection = () => {
     const [keyword, setKeyWord] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
     const {current: user} = useUser();
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [viewerVisible, setViewerVisible] = useState(false);
 
     // Filter items based on keyword and sort alphanumerically
     const filteredItems = useMemo(() => {
@@ -122,15 +125,12 @@ const CategorySelection = () => {
                     <View style={{ alignItems: 'center', width: itemSize }} className="mb-2">
                         <View style={{ position: 'relative', width: itemSize, alignItems: 'center' }}>
                             <TouchableOpacity
-                                style={{
-                                    width: itemSize,
-                                    height: itemSize,
-                                    backgroundColor: '#transparent',
-                                    borderRadius: 12,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
+                                className="w-24 h-32 bg-white rounded-2xl justify-center items-center "
                                 activeOpacity={1}
+                                onPress={() => {
+                                    setCurrentIndex(filteredItems.findIndex(i => i.id === item.id));
+                                    setViewerVisible(true);
+                                }}
                             >
                                 {deleteMode && (
                                     <TouchableOpacity
@@ -141,9 +141,9 @@ const CategorySelection = () => {
                                     </TouchableOpacity>
                                 )}
                                 <Image
-                                    source={{uri: item.uri}}
-                                    style={styles.image}
-                                    resizeMode="contain"    
+                                    source={{ uri: item.uri }}
+                                    className="w-full h-full rounded-2xl border-2"
+                                    resizeMode="cover"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -151,18 +151,16 @@ const CategorySelection = () => {
                     </View>
                 )}
             />
+            
+            <ImageViewing
+                images={filteredItems.map(item => ({ uri: item.uri }))}
+                imageIndex={currentIndex}
+                visible={viewerVisible}
+                onRequestClose={() => setViewerVisible(false)}
+            />
         </SafeAreaView>
 
     );
 }
-
-const styles = StyleSheet.create({
-    image:{ 
-        aspectRatio: 1,    // Ensures square shape (width = height)
-        height:'100%',    
-        resizeMode: 'contain'
-    }
-
-});
 
 export default CategorySelection;

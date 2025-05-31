@@ -4,7 +4,7 @@
     "slug": "ClothesMinded-v1",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -13,8 +13,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#fcf9e8"
       },
       "package": "com.leidc024.ClothesMindedv1"
     },

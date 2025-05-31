@@ -9,6 +9,7 @@ const { width } = Dimensions.get('window');
 const numColumns = 3;
 const itemMargin = 14;
 
+
 type data = { id: string; title: string; uri: string };
 //const uri = "https://cloud.appwrite.io/v1/storage/buckets/6828105b000b23c42ebe/files/682841e40013e79ea00d/view?project=67ad0aec0002e74ec57d"
 // THIS IS THE MASTER LIST OF ALL POSSIBLE ITEMS
@@ -28,11 +29,13 @@ interface AddClothesToCtgryPopProps {
   onClose: () => void;
   selectedItems: data[];
   onAddItem: (item: data) => void;
+  category: string;
 }
 
-const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, onClose, selectedItems, onAddItem }) => {
+const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, onClose, selectedItems, onAddItem, category }) => {
   const [keyword, setKeyWord] = useState('');
   const [allPossibleItems, setAllPossibleItems] = useState<data[]>([]);
+  const [customName, setCustomName] = useState('');
 
   useEffect(()=>{
     const loadImages = async () => {
@@ -41,13 +44,19 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
       if (clothingItems){
         const mergedUrls = Object.values(clothingItems).flat();
         mergedUrls.forEach( (item, index) => {
-          temp.push({id: item.id, title: `Item ${index}`, uri: item.uri});
+          temp.push({id: item.id, title: `${category} ${index+1}`, uri: item.uri});
         });
         setAllPossibleItems(temp);
       }
     }
     loadImages();
-  }, [])
+  }, [category])
+
+   const handleAddItem = (item: data) => {
+    const newItem = { ...item, title: customName.trim() !== '' ? customName : item.title };
+    onAddItem(newItem);
+    setCustomName('');
+  };
 
   // Only show items not already selected
   const availableItems = useMemo(() => {
@@ -100,7 +109,7 @@ const AddClothesToCtgryPop: React.FC<AddClothesToCtgryPopProps> = ({ visible, on
                     resizeMode = "contain"
                   />
                 </TouchableOpacity>
-                <Text className="text-base font-semibold text-center mt-2">{item.title}</Text>
+                
               </View>
             )}
           />

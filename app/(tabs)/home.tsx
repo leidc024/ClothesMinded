@@ -1,4 +1,4 @@
-import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Alert } from "react-native";
+import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,10 +14,11 @@ const Home = () => {
   const router = useRouter();
   const { current } = useUser(); // ✅ get current user
   const [modalVisible, setModalVisible] = useState(false);
+  const [permissionModalVisible, setPermissionModalVisible] = useState(false);
 
   const handleOpenModal = () => {
     if (!current) {
-      Alert.alert("Account Required", "Please sign in to use this feature.");
+      setPermissionModalVisible(true);
       return;
     }
     setModalVisible(true);
@@ -84,6 +85,49 @@ const Home = () => {
           onGenerateOutfit={handleGenerateOutfit}
         />
       </View>
+
+      {/* Custom Permission Modal */}
+      <Modal
+        visible={permissionModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setPermissionModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "transparent",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#f5eedc",
+              borderRadius: 20,
+              padding: 30,
+              alignItems: "center",
+              width: 300,
+            }}
+          >
+            <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 15 }}>Oops</Text>
+            <Text style={{ fontSize: 14, color: "#333", textAlign: "center", marginBottom: 30 }}>
+              Account Required{"\n"}Please sign in to use this feature.
+            </Text>
+            <TouchableOpacity
+              onPress={() => setPermissionModalVisible(false)}
+              style={{
+                backgroundColor: "#4b2e1e",
+                paddingHorizontal: 24,
+                paddingVertical: 10,
+                borderRadius: 20,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <StatusBar style="dark" />
       <NewUserNamePop />

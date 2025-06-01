@@ -76,7 +76,7 @@ const Home = () => {
       </View>
 
       {/* Avatar Section (optional) */}
-      <View className="items-center justify-center h-[70vh]">
+      <View className="items-center justify-center h-[60vh]">
         <Avatar />
       </View> 
 

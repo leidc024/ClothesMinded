@@ -7,7 +7,7 @@ import Search from '../../components/Search';
 import AddClothesToCtgryPop from '../../components/Popups/AddClothesToCtgryPop';
 import { useFocusEffect } from '@react-navigation/native';
 import { type ClothesMap, loadCategoryElementsFromStorage, saveOneCategoryElementsToStorage,  saveClothesMap, loadClothesMap} from "@/utils/localStorage";
-import { addClothesCategoriesDocument, removeClothesCategoriesDocumentWithClothingID } from "@/contexts/database";
+import { addClothesCategoriesDocument, removeClothesCategoriesDocumentWithClothingID, addClothesMapDocument, removeClothesMapDocument, removeClothingDocument } from "@/contexts/database";
 import { useUser } from "@/contexts/UserContext";
 import ImageViewing from 'react-native-image-viewing';
 
@@ -48,6 +48,11 @@ const CategorySelection = () => {
     };
 
     const addCategoryToClothesMap = (itemId: string, categoryId: string) => {
+        if(user) addClothesMapDocument({
+            clothingImageID: itemId,
+            categoryID: categoryId
+        });
+
         setClothesMap(prevMap => {
             const updated = {
                 ...prevMap,
@@ -59,6 +64,8 @@ const CategorySelection = () => {
     };
 
     const removeCategoryFromClothesMap = (itemId: string, categoryIdToRemove: string) => {
+        if (user) removeClothesMapDocument(itemId, categoryId);
+        
         setClothesMap(prevMap => {
             const updated = {
                 ...prevMap,

@@ -16,10 +16,10 @@ import { FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addClothingImage, addClothingDocument, generateID, removeClothingImageByID, removeClothingDocument } from '@/contexts/database';
+import { addClothingImage, addClothingDocument, generateID, removeClothingFromCategories, removeClothingImageByID, removeClothingDocument, removeAllClothesMapDocumentsWithClothingID } from '@/contexts/database';
 import { useUser } from '@/contexts/UserContext';
 import ImageViewing from 'react-native-image-viewing';
-import { type ClothesMap, saveClothesMap, loadClothesMap, removeElementFromCategories, removeElementEverywhere } from '@/utils/localStorage';
+import { type ClothesMap, saveClothesMap, loadClothesMap, removeElementFromCategories } from '@/utils/localStorage';
 
 const STORAGE_KEY = 'wardrobe_images';
 
@@ -123,11 +123,11 @@ const Wardrobe = () => {
         if(user){
           const result = await addClothingImage(imageID, uri);
           if (imageID && user.$id){
-              await addClothingDocument({
-                  clothingID: imageID,
-                  type: category,
-                  userID: user.$id,
-              });
+            await addClothingDocument({
+                clothingID: imageID,
+                type: category,
+                userID: user.$id,
+            });
           }
 
           if (result){
@@ -210,12 +210,16 @@ const Wardrobe = () => {
               
               setClothesMap(updatedMaps);
               saveClothesMap(updatedMaps);
-              
-              if(user){
-                // removeClothingDocument(id);
-                // removeClothingImageByID(id);
+              console.log(id);
+              if(user) {
+                console.log("TO DELETE", toDelete, toDelete.length)
+                if (toDelete.length > 0){
+                  void removeClothingFromCategories(id, toDelete);
+                  void removeAllClothesMapDocumentsWithClothingID(id).catch(e => console.error('Map cleanup failed:', e));
+                }
+                void removeClothingImageByID(id).catch(e => console.error('Image delete failed:', e));
+                void removeClothingDocument(id).catch(e => console.error('Delete failed:', e));
               }
-              
             }}
             onViewImage={(index: number) => handleViewImage(category, index)}
           />

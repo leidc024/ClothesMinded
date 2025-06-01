@@ -59,9 +59,9 @@ const getClothingURI = async (fileId) => {
   }
 };
 
-const removeClothingImageByID = async (fileId) => {
+const removeClothingImageByID = async (clothingImageID) => {
   try {
-    await storage.deleteFile(bucketId, fileId);
+    await storage.deleteFile(clothesStorageID, clothingImageID);
     console.log('File deleted successfully');
     return true;
   } catch (error) {
@@ -187,6 +187,21 @@ const addClothesCategoriesDocument = async (data) => {
   }
 }
 
+const addClothesMapDocument = async (data) => {
+    try {
+    const response = await databases.createDocument(
+      databaseID,
+      clothesMapCollectionID,
+      "unique()", // Auto-generate document ID
+      data
+    );
+    console.log("Document added:", response);
+    return response;
+  } catch (error) {
+    console.error("Error adding clothesMap document:", error);
+  }
+}
+
 const getCategoryDocumentsByUserId = async (targetUserId) => {
   try {
       const response = await databases.listDocuments(
@@ -202,7 +217,7 @@ const getCategoryDocumentsByUserId = async (targetUserId) => {
       return results;
       // response.documents will be an array of document objects that have the specified userID.
   } catch (error) {
-      console.error('Error getting documents:', error);
+      console.error('Error getting category documents by user id:', error);
       // Handle the error appropriately.
   }
 }
@@ -303,6 +318,7 @@ const getClothesCategoriesItemsByCategoryIDs = async (categoryIDs) => {
         throw error;
     }
 }
+
 const getIDofClothesCategoriesItem = async(categoryID, clothingUri) => {
     try {
       const response = await databases.listDocuments(
@@ -325,6 +341,36 @@ const getIDofClothesCategoriesItem = async(categoryID, clothingUri) => {
   }
 }
 
+const getClothesMapWithClothingIDs = async (clothingIDs) => {
+  try {
+    const response = await databases.listDocuments(
+      databaseID,
+      clothesMapCollectionID,
+      [
+        Query.equal('clothingImageID', clothingIDs),
+        Query.limit(100)
+      ]
+    );
+
+    // Initialize with all requested IDs mapped to empty arrays
+    const initialResult = clothingIDs.reduce((acc, id) => {
+      acc[id] = [];
+      return acc;
+    }, {});
+
+    // Merge with actual results
+    return response.documents.reduce((acc, document) => {
+      const imageId = document.clothingImageID;
+      acc[imageId].push(document);
+      return acc;
+    }, initialResult);
+    
+  } catch (error) {
+    console.error('Error getting clothingMaps documents:', error);
+    throw error;
+  }
+}
+
 const removeCategoryDocument = async (id) => {
   // Delete a document
   databases.deleteDocument(
@@ -338,8 +384,55 @@ const removeCategoryDocument = async (id) => {
   });
 }
 
-const removeClothingDocument = async (categoryID) => {
-  const clothingDocument = await getClothingItemsByClothingImageID(categoryID);
+const removeClothingFromCategories = async (clothingID, categoryIDs) => {
+  try {
+    // Get all existing documents that match clothingID and any of the categoryIDs
+    const response = await databases.listDocuments(
+      databaseID,
+      clothesCategoriesCollectionID,
+      [
+        Query.equal('clothingDocumentID', clothingID),
+        Query.equal('categoryID', categoryIDs) // Array of categoryIDs
+      ]
+    );
+
+    if (response.documents.length === 0) {
+      console.log('No existing mappings found to delete');
+      return { success: true, deletedCount: 0 };
+    }
+
+    console.log(response.documents)
+    // Delete all matching documents
+    const deletePromises = response.documents.map(doc => 
+      databases.deleteDocument(
+        databaseID,
+        clothesCategoriesCollectionID,
+        doc.$id
+      )
+    );
+
+    const results = await Promise.allSettled(deletePromises);
+    const deletedCount = results.filter(r => r.status === 'fulfilled').length;
+    
+    console.log(`Deleted ${deletedCount} category mappings`);
+
+    const verifyDeletion = await databases.listDocuments(
+      databaseID,
+      clothesCategoriesCollectionID,
+      [Query.equal('$id', response.documents[0].$id)]
+    );
+    console.log('Verification:', verifyDeletion.documents.length);
+
+    return { success: true, deletedCount };
+    
+  } catch (error) {
+    console.error('Error removing clothing from categories:', error);
+    return { success: false, error: error.message, deletedCount: 0 };
+  }
+};
+
+const removeClothingDocument = async (clothingID) => {
+  const clothingDocument = await getClothingItemsByClothingImageID(clothingID);
   const item = clothingDocument.pop();
   if (!item){
     return;
@@ -372,5 +465,87 @@ const removeClothesCategoriesDocumentWithClothingID = async (categoryID, clothin
   });
 }
 
-export { addUserDocument, addCategoryDocument, addClothingDocument, getCategoryDocumentsByUserId, getClothingItemsByUserID, addAvatarDocument, addUserAvatar, addClothingImage, getClothingURI, getAvatarUriByUserID, addClothesCategoriesDocument, getClothesCategoriesItemsByCategoryIDs };
-export { removeCategoryDocument, removeClothingImageByID, removeClothingDocument, removeClothesCategoriesDocumentWithClothingID }
+const removeClothesMapDocument = async (clothingID, categoryID) => {
+  try {
+    // Find the specific document
+    const response = await databases.listDocuments(
+      databaseID,
+      clothesMapCollectionID,
+      [
+        Query.equal('clothingImageID', clothingID),
+        Query.equal('categoryID', categoryID),
+        Query.limit(1)
+      ]
+    );
+
+    if (response.documents.length === 0) {
+      console.log('No matching document found');
+      return { success: false, error: 'Document not found' };
+    }
+
+    // Delete the document
+    await databases.deleteDocument(
+      databaseID,
+      clothesMapCollectionID,
+      response.documents[0].$id
+    );
+
+    console.log('Successfully removed document');
+    return { success: true };
+    
+  } catch (error) {
+    console.error('Error removing clothesMap document:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// For deleting all instances of a clothingID
+const removeAllClothesMapDocumentsWithClothingID = async (clothingID) => {
+  console.log(`[ClothesMap] Starting removal for clothingID: ${clothingID}`);
+  
+  try {
+    console.log(`[ClothesMap] Querying documents for clothingID: ${clothingID}`);
+    const response = await databases.listDocuments(
+      databaseID,
+      clothesMapCollectionID,
+      [Query.equal('clothingImageID', clothingID)]
+    );
+
+    const documentCount = response.documents.length;
+    console.log(`[ClothesMap] Found ${documentCount} documents to remove`);
+
+    if (documentCount === 0) {
+      console.warn(`[ClothesMap] No documents found for clothingID: ${clothingID}`);
+      return { success: false, error: 'No documents found', count: 0 };
+    }
+
+    // Log document IDs being deleted
+    console.log(`[ClothesMap] Removing documents with IDs:`, 
+      response.documents.map(doc => doc.$id));
+
+    const deletePromises = response.documents.map(doc => {
+      console.log(`[ClothesMap] Initiating delete for document: ${doc.$id}`);
+      return databases.deleteDocument(
+        databaseID,
+        clothesMapCollectionID,
+        doc.$id
+      );
+    });
+
+    await Promise.all(deletePromises);
+    console.log(`[ClothesMap] Successfully removed ${documentCount} documents`);
+    
+    return { success: true, count: documentCount };
+    
+  } catch (error) {
+    console.error(`[ClothesMap] ERROR removing documents for ${clothingID}:`, error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      count: 0 
+    };
+  }
+};
+
+export { addUserDocument, addCategoryDocument, addClothingDocument, getCategoryDocumentsByUserId, getClothingItemsByUserID, addAvatarDocument, addUserAvatar, addClothingImage, getClothingURI, getAvatarUriByUserID, addClothesCategoriesDocument, getClothesCategoriesItemsByCategoryIDs, addClothesMapDocument, getClothesMapWithClothingIDs };
+export { removeCategoryDocument, removeClothingImageByID, removeClothingDocument, removeClothesCategoriesDocumentWithClothingID, removeClothesMapDocument, removeAllClothesMapDocumentsWithClothingID, removeClothingFromCategories }

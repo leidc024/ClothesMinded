@@ -5,8 +5,8 @@ import { openAuthSessionAsync } from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { getRedirectUri } from "@/utils/redirectUri";
 import { router } from 'expo-router';
-import { getClothingItemsByUserID, getClothingURI, getClothesCategoriesItemsByCategoryIDs } from "@/contexts/database.js";
-import { saveCategoriesToStorage, saveImagesToStorage, saveCategoryElementsToStorage } from "@/utils/localStorage";
+import { getClothingItemsByUserID, getClothingURI, getClothesCategoriesItemsByCategoryIDs, getClothesMapWithClothingIDs } from "@/contexts/database.js";
+import { saveCategoriesToStorage, saveImagesToStorage, saveCategoryElementsToStorage, saveClothesMap } from "@/utils/localStorage";
 
 
 interface ImagesCollection {
@@ -67,6 +67,7 @@ export const handleGoogleAuth = async (init: any) => {
         }catch (error) {
             console.log("No active session, user needs to authenticate.");
         }
+
         const session = await account.createSession(userId, secret);
 
 
@@ -77,10 +78,11 @@ export const handleGoogleAuth = async (init: any) => {
         const user = await account.get(); //Fetch user details
         
         const clothesData = await getClothingItemsByUserID(user.$id); //Fetch clothing data
+        const clothingIDs: string[] = []
         if (clothesData) {
             const clothingImages = await Promise.all(
                 clothesData.map(async (item: any) => {
-                    const id = item.$id;
+                    const id = item.clothingID;
                     const type = item.type;
                     const uri = await getClothingURI(item.clothingID);
                     return {id, type, uri};
@@ -105,12 +107,19 @@ export const handleGoogleAuth = async (init: any) => {
                         uri: item.uri
                     });
                 }
+                clothingIDs.push(item.id)
             });
             console.log(images);
             saveImagesToStorage(images);
         }
+        
+        const [categoryData, clothesMapData] = await Promise.all([
+            getCategoryDocumentsByUserId(user.$id),
+            getClothesMapWithClothingIDs(clothingIDs)
+        ]);
 
-        const categoryData = await getCategoryDocumentsByUserId(user.$id);
+        console.log(clothesMapData);
+
         const categoryInfoToStoreInLocalStorage: Array<{id: string; title: string}> = []
         const categoryIDs: string[] = []
         const categoryElementsToStore: Array<{id: string; elements: {id: string; title: string; uri: string }[]}> = [];
@@ -122,6 +131,7 @@ export const handleGoogleAuth = async (init: any) => {
                 });
                 categoryIDs.push(item.$id);
             });
+
             const clothesCategoryData: ClothesCategoryCollection = await getClothesCategoriesItemsByCategoryIDs(categoryIDs);
             if (clothesCategoryData){
                 categoryIDs.forEach((item) => {
@@ -131,9 +141,13 @@ export const handleGoogleAuth = async (init: any) => {
                     })
                 })
             }
+
             console.log(categoryElementsToStore);
-            saveCategoriesToStorage(categoryInfoToStoreInLocalStorage);
-            saveCategoryElementsToStorage(categoryElementsToStore);
+            await Promise.all ([
+                saveClothesMap(clothesMapData),
+                saveCategoriesToStorage(categoryInfoToStoreInLocalStorage),
+                saveCategoryElementsToStorage(categoryElementsToStore)
+            ]);
         }
         
         if (user.prefs?.firstLogin === undefined) {

@@ -83,7 +83,7 @@ export const saveCategoryElementsToStorage = async (categoryElements: Array<{id:
 export const saveOneCategoryElementsToStorage = async (categoryElements: {id: string; elements: data[]}) => {
     try {
         const existing = await loadAllCategoryElementsFromStorage();
-        console.log('Existing array:', JSON.stringify(existing, null, 2));
+        // console.log('Existing array:', JSON.stringify(existing, null, 2));
         // Update the array
         const updated = existing.map(item => 
                 item.id === categoryElements.id 

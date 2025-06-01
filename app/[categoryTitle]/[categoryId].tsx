@@ -77,6 +77,7 @@ const CategorySelection = () => {
                 onClose={() => setShowAddModal(false)}
                 selectedItems={items}
                 onAddItem={handleAddItem}
+                category={categoryTitle as string}
             />
             <View className="flex-row items-center p-4 justify-between">
                 <View className="flex-row items-center">

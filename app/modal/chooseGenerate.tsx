@@ -32,6 +32,10 @@ const ChooseGenerate: React.FC<ChooseGenerateProps> = ({
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
+          {/* Exit Button */}
+          <TouchableOpacity style={styles.exitButton} onPress={onClose}>
+            <Text style={styles.exitButtonText}>×</Text>
+          </TouchableOpacity>
           <Text style={styles.title}>Choose</Text>
 
           <TouchableOpacity
@@ -98,6 +102,29 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "500",
     fontSize: 16,
+  },
+  exitButton: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    zIndex: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  exitButtonText: {
+    fontSize: 24,
+    color: "#4b2d10",
+    fontWeight: "bold",
+    lineHeight: 28,
   },
 });
 

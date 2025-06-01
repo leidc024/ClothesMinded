@@ -1,7 +1,7 @@
 import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import NewUserNamePop from "../../components/Popups/NewUserNamePop";
 import ChooseGenerate from "../modal/chooseGenerate";
@@ -47,44 +47,41 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary flex-1">
-      {/* Top Section */}
-      <View className="flex-1 p-5">
-        {/* Profile Button */}
-        <View className="flex-row justify-end p-5">
-          <TouchableOpacity
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            onPress={() => {
-              console.log("Pressed!");
-              router.push("../modal/profile");
-            }}
-          >
-            <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView className="bg-[#F5EEDC] flex-1">
+
+      {/* Profile Button */}
+      <View className="mt-10">
+        <Text className="text-center text-2xl font-bold">Home</Text>
+      </View>
+
+      <View className="flex-row justify-end mt-10 mr-10">
+        <TouchableOpacity
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          onPress={() => {
+            console.log("Pressed!");
+            router.push("../modal/profile");
+          }}
+        >
+          <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
+        </TouchableOpacity>
+      </View>
+
+      <View className="flex-row justify-end mt-2 mb-4 mr-10">
+        <TouchableOpacity
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          onPress={handleOpenModal}
+        >
+          <Entypo name="arrow-with-circle-down" size={36} color="#4D2A0A" />
+        </TouchableOpacity>
       </View>
 
       {/* Avatar Section (optional) */}
-      {/* <View className="items-center justify-center">
+      <View className="items-center justify-center h-[70vh]">
         <Avatar />
-      </View> */}
+      </View> 
 
       {/* Bottom Section with Generate Button */}
-      <View className="px-5 pb-5">
-        <TouchableOpacity
-          className="bg-secondary p-4 rounded-lg items-center justify-center"
-          onPress={handleOpenModal}
-        >
-          <Text className="text-white font-bold text-lg">Generate</Text>
-        </TouchableOpacity>
-        <ChooseGenerate
-          isVisible={modalVisible}
-          onClose={handleCloseModal}
-          onSelectClothingItem={handleSelectClothingItem}
-          onSelectOutfit={handleSelectOutfit}
-          onGenerateOutfit={handleGenerateOutfit}
-        />
-      </View>
+
 
       {/* Custom Permission Modal */}
       <Modal
@@ -131,6 +128,14 @@ const Home = () => {
 
       <StatusBar style="dark" />
       <NewUserNamePop />
+
+      <ChooseGenerate
+        isVisible={modalVisible}
+        onClose={handleCloseModal}
+        onSelectClothingItem={handleSelectClothingItem}
+        onSelectOutfit={handleSelectOutfit}
+        onGenerateOutfit={handleGenerateOutfit}
+      />
     </SafeAreaView>
   );
 };

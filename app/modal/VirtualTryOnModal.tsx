@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -8,9 +8,7 @@ import {
   FlatList,
   Image,
 } from "react-native";
-import { useUser } from "@/contexts/UserContext";
-import { Storage } from "react-native-appwrite";
-import { client } from "@/lib/appwrite";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface VirtualTryOnModalProps {
   visible: boolean;
@@ -19,6 +17,8 @@ interface VirtualTryOnModalProps {
   category: string;
 }
 
+const STORAGE_KEY = "wardrobe_images";
+
 const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
   visible,
   onClose,
@@ -26,27 +26,22 @@ const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
   category,
 }) => {
   const [items, setItems] = useState<string[]>([]);
-  const { getPreferences } = useUser();
-  const storage = new Storage(client);
-  const bucketId = "6825d9f500066a3dc28e";
 
   const loadWardrobeItems = async () => {
     try {
-      const prefs = await getPreferences();
-      if (prefs?.wardrobeItems?.[category]) {
-        const urls = await Promise.all(
-          prefs.wardrobeItems[category].map(async (fileId: string) => {
-            return storage.getFileView(bucketId, fileId).href;
-          })
-        );
-        setItems(urls);
+      const json = await AsyncStorage.getItem(STORAGE_KEY);
+      if (json) {
+        const stored = JSON.parse(json);
+        if (stored && stored[category]) {
+          setItems(stored[category]);
+        }
       }
     } catch (error) {
       console.error("Error loading wardrobe items:", error);
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
       loadWardrobeItems();
     }
@@ -63,19 +58,25 @@ const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
         <View style={styles.modalView}>
           <Text style={styles.title}>Select {category}</Text>
 
-          <FlatList
-            data={items}
-            numColumns={2}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.itemContainer}
-                onPress={() => onSelect(item)}
-              >
-                <Image source={{ uri: item }} style={styles.itemImage} />
-              </TouchableOpacity>
-            )}
-          />
+          {items.length > 0 ? (
+            <FlatList
+              data={items}
+              numColumns={2}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.itemContainer}
+                  onPress={() => onSelect(item)}
+                >
+                  <Image source={{ uri: item }} style={styles.itemImage} />
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <Text style={styles.emptyText}>
+              No items found in this category
+            </Text>
+          )}
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.buttonText}>Close</Text>
@@ -131,6 +132,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "500",
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#4b2d10",
+    marginVertical: 20,
   },
 });
 

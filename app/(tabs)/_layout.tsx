@@ -41,7 +41,7 @@ const Tabslayout: React.FC = () => {
   const commonOptions = (title: string, icon: ImageSourcePropType) => ({
     title,
     tabBarIcon: ({ focused }: { color: string; focused: boolean }) => (
-      <TabIcon icon={icon} focused={focused} />
+      <TabIcon icon={icon} focused={focused} name={""} />
     ),
     headerShown: false,
     tabBarShowLabel: false,
@@ -51,7 +51,7 @@ const Tabslayout: React.FC = () => {
       paddingHorizontal: 30, // Widen the tab bar
       borderTopLeftRadius: 25, // Round the top-left corner
       borderTopRightRadius: 25, // Round the top-right corner
-      position: "absolute", // Make it float if needed
+      position: "absolute" as const, // Make it float if needed
       bottom: 0, // Ensure it's at the bottom of the screen
     },
   });

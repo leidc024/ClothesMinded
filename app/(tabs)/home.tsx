@@ -1,14 +1,12 @@
 import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import NewUserNamePop from "../../components/Popups/NewUserNamePop";
 import ChooseGenerate from "../modal/chooseGenerate";
 import Avatar from "../../components/Avatar";
 import { useUser } from "@/contexts/UserContext"; // ✅ import context
-
-const { height } = Dimensions.get("window");
 
 const Home = () => {
   const router = useRouter();
@@ -54,7 +52,7 @@ const Home = () => {
         <Text className="text-center text-2xl font-bold">Home</Text>
       </View>
 
-      <View className="flex-row justify-end mt-10 mr-10">
+      <View className="flex-row justify-end pt-10 pr-10">
         <TouchableOpacity
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           onPress={() => {
@@ -66,12 +64,12 @@ const Home = () => {
         </TouchableOpacity>
       </View>
 
-      <View className="flex-row justify-end mt-2 mb-4 mr-10">
+      <View className="flex-row justify-end py-2 pr-10">
         <TouchableOpacity
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           onPress={handleOpenModal}
         >
-          <Entypo name="arrow-with-circle-down" size={36} color="#4D2A0A" />
+          <Ionicons name="arrow-down-circle-outline" size={40} color="#4D2A0A" />
         </TouchableOpacity>
       </View>
 

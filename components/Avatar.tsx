@@ -21,21 +21,19 @@ const Avatar = () => {
         
     }, []);
 
-    return (
-        <View>
-            {imageUrl ? (
-                <Image  
-                    source={{ uri: imageUrl }}
-                    className="h-[90vh] aspect-square mt-24"
-                    resizeMode='contain'
-                />
-            ) : (
-                <ActivityIndicator size="large" />
-            )}
-        </View>
-    );
+  return (
+    <View>
+      {imageUrl ? (
+        <Image
+          source={{ uri: imageUrl }}
+          className="h-[90vh] aspect-square mt-24"
+          resizeMode="contain"
+        />
+      ) : (
+        <ActivityIndicator size="large" />
+      )}
+    </View>
+  );
 };
 
 export default Avatar;
-
-

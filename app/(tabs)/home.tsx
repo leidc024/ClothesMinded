@@ -1,11 +1,24 @@
 import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import {
+  generateVirtualTryOn,
+  convertImageToBase64,
+} from "../../utils/old_klingApi";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+} from "react-native";
 import { useRouter } from "expo-router";
-import NewUserNamePop from "../../components/Popups/NewUserNamePop";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 import ChooseGenerate from "../modal/chooseGenerate";
+import VirtualTryOnModal from "../modal/VirtualTryOnModal";
 import Avatar from "../../components/Avatar";
+import Constants from "expo-constants";
 import { useUser } from "@/contexts/UserContext"; // ✅ import context
 
 const { height } = Dimensions.get("window");
@@ -14,6 +27,21 @@ const Home = () => {
   const router = useRouter();
   const { current } = useUser(); // ✅ get current user
   const [modalVisible, setModalVisible] = useState(false);
+  const [tryOnModalVisible, setTryOnModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]); // Changed to array
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastSelectedClothing, setLastSelectedClothing] = useState<
+    string | null
+  >(null);
+
+  // Get Kling API configuration from environment variables
+  const config = {
+    KLING_API_KEY_ID: Constants.expoConfig?.extra?.KLING_API_KEY_ID,
+    KLING_API_SECRET: Constants.expoConfig?.extra?.KLING_API_SECRET,
+  };
+
   const [permissionModalVisible, setPermissionModalVisible] = useState(false);
 
   const handleOpenModal = () => {
@@ -29,25 +57,88 @@ const Home = () => {
   };
 
   const handleSelectClothingItem = () => {
-    console.log("Select clothing item pressed");
     setModalVisible(false);
-    // Add your logic here
+    setSelectedCategory("Shirts"); // Default category
+    setTryOnModalVisible(true);
   };
 
-  const handleSelectOutfit = () => {
-    console.log("Select outfit pressed");
-    setModalVisible(false);
-    // Add your logic here
+  const handleClothingSelect = async (clothingImageUrl: string) => {
+    setTryOnModalVisible(false);
+    setIsLoading(true);
+    setLastSelectedClothing(clothingImageUrl);
+
+    try {
+      if (!config.KLING_API_KEY_ID || !config.KLING_API_SECRET) {
+        throw new Error("Please configure API credentials in app.json");
+      }
+
+      if (!avatarUrl) {
+        throw new Error("Please select an avatar first");
+      }
+
+      let humanImage = avatarUrl;
+      let clothImage = clothingImageUrl;
+
+      // Convert to base64 if they are URLs
+      if (avatarUrl.startsWith("http")) {
+        humanImage = await convertImageToBase64(avatarUrl);
+      }
+      if (clothingImageUrl.startsWith("http")) {
+        clothImage = await convertImageToBase64(clothingImageUrl);
+      }
+
+      const results = await generateVirtualTryOn(
+        humanImage,
+        clothImage,
+        config
+      );
+      setGeneratedImages(results); // Now setting an array of images
+    } catch (error) {
+      console.error("Virtual try-on error:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to generate outfit"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGenerateOutfit = () => {
-    console.log("Generate outfit pressed");
-    setModalVisible(false);
-    // Add your logic here
+  // const convertImageToBase64 = async (uri: string): Promise<string> => {
+  //   const response = await fetch(uri);
+  //   const blob = await response.blob();
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onerror = reject;
+  //     reader.onload = () => {
+  //       if (typeof reader.result === "string") {
+  //         const base64String = reader.result.split(",")[1] || reader.result;
+  //         resolve(base64String);
+  //       } else {
+  //         reject(new Error("Failed to read image as base64"));
+  //       }
+  //     };
+  //     reader.readAsDataURL(blob);
+  //   });
+  // };
+
+  const handleRetry = async () => {
+    if (lastSelectedClothing && avatarUrl) {
+      await handleClothingSelect(lastSelectedClothing);
+    }
   };
 
   return (
     <SafeAreaView className="bg-[#F5EEDC] flex-1">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <View className="absolute inset-0 bg-black/50 justify-center items-center z-10">
+          <ActivityIndicator size="large" color="#4b2d10" />
+          <Text className="text-white mt-4 text-lg">
+            Generating your outfit...
+          </Text>
+        </View>
+      )}
 
       {/* Profile Button */}
       <View className="mt-10">
@@ -80,63 +171,66 @@ const Home = () => {
         <Avatar />
       </View> 
 
-      {/* Bottom Section with Generate Button */}
-
-
-      {/* Custom Permission Modal */}
-      <Modal
-        visible={permissionModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setPermissionModalVisible(false)}
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "transparent",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+      {/* Generate Button */}
+      <View className="items-center justify-center p-5">
+        <TouchableOpacity
+          className={`bg-secondary p-4 rounded-lg items-center justify-center ${
+            isLoading ? "opacity-50" : ""
+          }`}
+          onPress={() => setModalVisible(true)}
+          disabled={isLoading}
         >
-          <View
-            style={{
-              backgroundColor: "#f5eedc",
-              borderRadius: 20,
-              padding: 30,
-              alignItems: "center",
-              width: 300,
-            }}
+          <Text className="text-white font-bold text-lg">Generate</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Results Display */}
+      <View className="items-center justify-center flex-1">
+        {generatedImages.length > 0 ? (
+          <ScrollView horizontal className="w-full">
+            {generatedImages.map((imageUrl, index) => (
+              <Image
+                key={index}
+                source={{ uri: imageUrl }}
+                className="h-[90vh] aspect-square mt-24 mx-2"
+                resizeMode="contain"
+              />
+            ))}
+          </ScrollView>
+        ) : (
+          <Avatar onImageLoaded={setAvatarUrl} />
+        )}
+      </View>
+
+      {/* Retry Button (only shown when there are results) */}
+      {generatedImages.length > 0 && (
+        <View className="items-center p-4">
+          <TouchableOpacity
+            className="bg-secondary p-3 rounded-lg"
+            onPress={handleRetry}
+            disabled={isLoading}
           >
-            <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 15 }}>Oops</Text>
-            <Text style={{ fontSize: 14, color: "#333", textAlign: "center", marginBottom: 30 }}>
-              Account Required{"\n"}Please sign in to use this feature.
-            </Text>
-            <TouchableOpacity
-              onPress={() => setPermissionModalVisible(false)}
-              style={{
-                backgroundColor: "#4b2e1e",
-                paddingHorizontal: 24,
-                paddingVertical: 10,
-                borderRadius: 20,
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "bold" }}>OK</Text>
-            </TouchableOpacity>
-          </View>
+            <Text className="text-white font-bold">Regenerate</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      )}
 
-      <StatusBar style="dark" />
-      <NewUserNamePop />
-
+      {/* Modals */}
       <ChooseGenerate
         isVisible={modalVisible}
-        onClose={handleCloseModal}
+        onClose={() => setModalVisible(false)}
         onSelectClothingItem={handleSelectClothingItem}
-        onSelectOutfit={handleSelectOutfit}
-        onGenerateOutfit={handleGenerateOutfit}
+        onSelectOutfit={() => console.log("Select Outfit")}
+        onGenerateOutfit={() => console.log("Generate Outfit")}
       />
-    </SafeAreaView>
+
+      <VirtualTryOnModal
+        visible={tryOnModalVisible}
+        onClose={() => setTryOnModalVisible(false)}
+        onSelect={handleClothingSelect}
+        category={selectedCategory}
+      />
+    </View>
   );
 };
 

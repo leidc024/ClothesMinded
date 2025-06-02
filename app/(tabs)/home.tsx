@@ -1,4 +1,3 @@
-import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
 import {
   generateVirtualTryOn,
@@ -12,6 +11,9 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  SafeAreaView,
+  Dimensions,
+  Modal
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons, Entypo } from "@expo/vector-icons";
@@ -230,7 +232,7 @@ const Home = () => {
         onSelect={handleClothingSelect}
         category={selectedCategory}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

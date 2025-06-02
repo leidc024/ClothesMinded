@@ -45,7 +45,7 @@ const getClothingURI = async (fileId) => {
   try {
     // Get file metadata first (optional)
     const file = await storage.getFile(clothesStorageID, fileId);
-    console.log('File metadata:', file);
+    // console.log('File metadata:', file);
     
     // Get the file preview/URI
     const result = storage.getFileView(clothesStorageID, fileId);
@@ -74,6 +74,7 @@ const getAvatarUriByUserID = async (userID) => {
   try {
     // Get file metadata first (optional)
     const avatarID = await getAvatarInfoByUserID(userID)
+    if (!avatarID) return;
     console.log('Avatar ID:', avatarID[0].avatarID);
     const file = await storage.getFile(avatarStorageID, avatarID[0].avatarID);
     console.log('File metadata:', file);

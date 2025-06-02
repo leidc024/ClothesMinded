@@ -16,7 +16,7 @@ import {
   Modal
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import ChooseGenerate from "../modal/chooseGenerate";
 import VirtualTryOnModal from "../modal/VirtualTryOnModal";
 import Avatar from "../../components/Avatar";
@@ -147,7 +147,7 @@ const Home = () => {
         <Text className="text-center text-2xl font-bold">Home</Text>
       </View>
 
-      <View className="flex-row justify-end mt-10 mr-10">
+      <View className="flex-row justify-end pt-10 pr-10">
         <TouchableOpacity
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           onPress={() => {
@@ -159,50 +159,19 @@ const Home = () => {
         </TouchableOpacity>
       </View>
 
-      <View className="flex-row justify-end mt-2 mb-4 mr-10">
+      <View className="flex-row justify-end py-2 pr-10">
         <TouchableOpacity
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           onPress={handleOpenModal}
         >
-          <Entypo name="arrow-with-circle-down" size={36} color="#4D2A0A" />
+          <Ionicons name="arrow-down-circle-outline" size={40} color="#4D2A0A" />
         </TouchableOpacity>
       </View>
 
       {/* Avatar Section (optional) */}
-      <View className="items-center justify-center h-[70vh]">
+      <View className="items-center justify-center h-[60vh]">
         <Avatar />
       </View> 
-
-      {/* Generate Button */}
-      <View className="items-center justify-center p-5">
-        <TouchableOpacity
-          className={`bg-secondary p-4 rounded-lg items-center justify-center ${
-            isLoading ? "opacity-50" : ""
-          }`}
-          onPress={() => setModalVisible(true)}
-          disabled={isLoading}
-        >
-          <Text className="text-white font-bold text-lg">Generate</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Results Display */}
-      <View className="items-center justify-center flex-1">
-        {generatedImages.length > 0 ? (
-          <ScrollView horizontal className="w-full">
-            {generatedImages.map((imageUrl, index) => (
-              <Image
-                key={index}
-                source={{ uri: imageUrl }}
-                className="h-[90vh] aspect-square mt-24 mx-2"
-                resizeMode="contain"
-              />
-            ))}
-          </ScrollView>
-        ) : (
-          <Avatar onImageLoaded={setAvatarUrl} />
-        )}
-      </View>
 
       {/* Retry Button (only shown when there are results) */}
       {generatedImages.length > 0 && (

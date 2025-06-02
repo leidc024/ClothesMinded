@@ -26,7 +26,7 @@ const Avatar = () => {
       {imageUrl ? (
         <Image
           source={{ uri: imageUrl }}
-          className="h-[90vh] aspect-square mt-24"
+          className="h-full aspect-square"
           resizeMode="contain"
         />
       ) : (

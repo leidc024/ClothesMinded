@@ -13,13 +13,14 @@ import {
   ScrollView,
   SafeAreaView,
   Dimensions,
-  Modal
+  Modal,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ChooseGenerate from "../modal/chooseGenerate";
 import VirtualTryOnModal from "../modal/VirtualTryOnModal";
 import Avatar from "../../components/Avatar";
+
 import Constants from "expo-constants";
 import { useUser } from "@/contexts/UserContext"; // ✅ import context
 
@@ -34,6 +35,9 @@ const Home = () => {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]); // Changed to array
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentAvatarOverride, setCurrentAvatarOverride] = useState<
+    string | null
+  >(null);
   const [lastSelectedClothing, setLastSelectedClothing] = useState<
     string | null
   >(null);
@@ -75,18 +79,26 @@ const Home = () => {
       }
 
       if (!avatarUrl) {
+        console.log(avatarUrl);
         throw new Error("Please select an avatar first");
       }
 
       let humanImage = avatarUrl;
       let clothImage = clothingImageUrl;
 
+      console.log("avatar", avatarUrl, "clothing", clothingImageUrl);
+
       // Convert to base64 if they are URLs
       if (avatarUrl.startsWith("http")) {
         humanImage = await convertImageToBase64(avatarUrl);
+        console.log("done convert");
+        console.log(avatarUrl);
       }
+
       if (clothingImageUrl.startsWith("http")) {
         clothImage = await convertImageToBase64(clothingImageUrl);
+        // console.log("here");
+        // console.log(clothingImageUrl);
       }
 
       const results = await generateVirtualTryOn(
@@ -94,7 +106,11 @@ const Home = () => {
         clothImage,
         config
       );
+      console.log("here again");
       setGeneratedImages(results); // Now setting an array of images
+      // setAvatarUrl(results);
+      setCurrentAvatarOverride(results[0]);
+      console.log(results);
     } catch (error) {
       console.error("Virtual try-on error:", error);
       Alert.alert(
@@ -142,36 +158,55 @@ const Home = () => {
         </View>
       )}
 
-      {/* Profile Button */}
       <View className="mt-10">
         <Text className="text-center text-2xl font-bold">Home</Text>
       </View>
 
-      <View className="flex-row justify-end pt-10 pr-10">
-        <TouchableOpacity
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          onPress={() => {
-            console.log("Pressed!");
-            router.push("../modal/profile");
-          }}
-        >
-          <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
-        </TouchableOpacity>
+      {/* Floating Buttons - Absolute positioned */}
+      <View className="absolute right-0 top-20 z-50">
+        <View className="pr-4 pt-4">
+          <TouchableOpacity
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            onPress={() => {
+              console.log("Pressed!");
+              router.push("../modal/profile");
+            }}
+          >
+            <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
+          </TouchableOpacity>
+        </View>
+
+        <View className="pr-4 pt-2">
+          <TouchableOpacity
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            onPress={handleOpenModal}
+          >
+            <Ionicons
+              name="arrow-down-circle-outline"
+              size={40}
+              color="#4D2A0A"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <View className="flex-row justify-end py-2 pr-10">
-        <TouchableOpacity
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          onPress={handleOpenModal}
-        >
-          <Ionicons name="arrow-down-circle-outline" size={40} color="#4D2A0A" />
-        </TouchableOpacity>
+      {/* Content Area */}
+      <View className="flex-1 items-center justify-center">
+        {generatedImages.length > 0 ? (
+          <ScrollView horizontal>
+            {generatedImages.map((imageUrl, index) => (
+              <Image
+                key={index}
+                source={{ uri: imageUrl }}
+                className="h-full aspect-square"
+                resizeMode="contain"
+              />
+            ))}
+          </ScrollView>
+        ) : (
+          <Avatar onImageLoaded={setAvatarUrl} />
+        )}
       </View>
-
-      {/* Avatar Section (optional) */}
-      <View className="items-center justify-center h-[60vh]">
-        <Avatar />
-      </View> 
 
       {/* Retry Button (only shown when there are results) */}
       {generatedImages.length > 0 && (

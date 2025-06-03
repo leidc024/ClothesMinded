@@ -17,6 +17,11 @@ interface VirtualTryOnModalProps {
   category: string;
 }
 
+interface clothingItem {
+  id: string;
+  uri: string;
+}
+
 const STORAGE_KEY = "wardrobe_images";
 
 const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
@@ -25,7 +30,7 @@ const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
   onSelect,
   category,
 }) => {
-  const [items, setItems] = useState<string[]>([]);
+  const [items, setItems] = useState<clothingItem[]>([]);
 
   const loadWardrobeItems = async () => {
     try {
@@ -66,9 +71,9 @@ const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.itemContainer}
-                  onPress={() => onSelect(item)}
+                  onPress={() => onSelect(item.uri)}
                 >
-                  <Image source={{ uri: item }} style={styles.itemImage} />
+                  <Image source={{ uri: item.uri }} style={styles.itemImage} />
                 </TouchableOpacity>
               )}
             />

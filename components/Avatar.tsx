@@ -1,25 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { Image, View, StyleSheet, ActivityIndicator } from 'react-native';
-import { getAvatarUriByUserID } from '@/contexts/database';
+import React, { useEffect, useState } from "react";
+import { Image, View, StyleSheet, ActivityIndicator } from "react-native";
+import { getAvatarUriByUserID } from "@/contexts/database";
+import { useUser } from "@/contexts/UserContext";
 
-import { useUser } from '@/contexts/UserContext';
+interface AvatarProps {
+  onImageLoaded?: (url: string) => void;
+  source?: string | null; // Add this line
+}
 
-const Avatar = () => {
-    
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
-    const { current:user } = useUser();
+const Avatar: React.FC<AvatarProps> = ({ onImageLoaded }) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const { current: user } = useUser();
 
-    useEffect(() => {
-
-        const bucketId = '6825d9f500066a3dc28e';
-        async function fetchAvatarId() {
-            if (!user) return;
-            const url = await getAvatarUriByUserID(user.$id);
-            setImageUrl(url);
-        }
-        fetchAvatarId();
-        
-    }, []);
+  useEffect(() => {
+    async function fetchAvatarId() {
+      if (!user) return;
+      const url = await getAvatarUriByUserID(user.$id);
+      setImageUrl(url);
+      if (url && onImageLoaded) {
+        onImageLoaded(url); // Call the callback with the image URL
+      }
+    }
+    fetchAvatarId();
+  }, [user, onImageLoaded]);
+  const displayImage = imageUrl;
 
   return (
     <View>

@@ -124,7 +124,7 @@ export const handleGoogleAuth = async (init: any) => {
         const categoryIDs: string[] = []
         const categoryElementsToStore: Array<{id: string; elements: {id: string; title: string; uri: string }[]}> = [];
         if(categoryData){
-            categoryData.forEach((item) => {
+            categoryData.forEach((item: any) => {
                 categoryInfoToStoreInLocalStorage.push({
                     id: item.$id,
                     title: item.categoryId
@@ -149,6 +149,7 @@ export const handleGoogleAuth = async (init: any) => {
                 saveCategoryElementsToStorage(categoryElementsToStore)
             ]);
         }
+
         
         if (user.prefs?.firstLogin === undefined) {
             // Mark first login in user's preferences (Optional)

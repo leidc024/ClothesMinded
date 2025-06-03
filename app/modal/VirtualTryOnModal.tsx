@@ -38,7 +38,10 @@ const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
       if (json) {
         const stored = JSON.parse(json);
         if (stored && stored[category]) {
-          setItems(stored[category]);
+          const mergedValues: clothingItem[] = Object.values(stored).flat() as clothingItem[];
+          console.log(mergedValues)
+          // setItems(stored[category]);
+          setItems(mergedValues)
         }
       }
     } catch (error) {
@@ -71,7 +74,7 @@ const VirtualTryOnModal: React.FC<VirtualTryOnModalProps> = ({
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.itemContainer}
-                  onPress={() => onSelect(item.uri)}
+                  onPress={() => {onSelect(item.uri)}}
                 >
                   <Image source={{ uri: item.uri }} style={styles.itemImage} />
                 </TouchableOpacity>

@@ -57,7 +57,6 @@ const Avalayout = () => {
 
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="body" />
-        <Stack.Screen name="clothes" />
       </Stack>
     </SafeAreaView>
   );

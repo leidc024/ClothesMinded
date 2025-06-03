@@ -3,13 +3,30 @@ import { View, Text, ActivityIndicator } from "react-native";
 import { useUser } from "@/contexts/UserContext"; // Import your UserContext
 import LottieView from "lottie-react-native";
 import { useRouter } from "expo-router";
+import { loadLocalSession } from "@/utils/localStorage";
 
 const LoadingScreen = () => {
     const [loadingText, setLoadingText] = useState("Boost your confidence...");
     const { current: user } = useUser();
+    const [localSession, setLocalSession] = useState<boolean>(false);
     const router = useRouter();
 
+    const checkLocalSession = async() => {
+        const session = await loadLocalSession();
+        if(session) setLocalSession(true);
+    }
+
+    useEffect(()=>{
+        if (localSession){
+            router.replace('/home');
+            console.log("LOCAL SESH")
+        }else{
+            console.log("NO LOCAL")
+        }
+    },[localSession])
+
     useEffect(() => {
+        checkLocalSession();
         const textSequence = [
             "Manage your Outfits...",
             "Generate your own avatar...",
@@ -29,11 +46,11 @@ const LoadingScreen = () => {
         const timer = setTimeout(() => {            
             console.log(user)
             if (user == null){
-                router.push("/sign-in");                 // Navigate using Expo Router
+                router.replace("/sign-in");                 // Navigate using Expo Router
             }else if(!user.prefs?.hasAvatar || user.prefs?.hasAvatar === undefined){
-                router.push('/(avatar)/body');
+                router.replace('/(avatar)/body');
             }else{
-                router.push('/(tabs)/home');
+                router.replace('/(tabs)/home');
             }
         }, 5000);
 

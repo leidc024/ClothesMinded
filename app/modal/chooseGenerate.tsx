@@ -44,14 +44,15 @@ const ChooseGenerate: React.FC<ChooseGenerateProps> = ({
           >
             <Text style={styles.buttonText}>Select Clothing Item</Text>
           </TouchableOpacity>
-
+          
+          {/* 
           <TouchableOpacity style={styles.button} onPress={onSelectOutfit}>
             <Text style={styles.buttonText}>Select Outfit</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button} onPress={onGenerateOutfit}>
             <Text style={styles.buttonText}>Generate Outfit</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </Modal>

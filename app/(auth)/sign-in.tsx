@@ -6,6 +6,7 @@ import images from "@/assets/images";
 import icons from "@/assets/icons";
 import { handleGoogleAuth } from "@/contexts/googleAuth";
 import { useUser } from "@/contexts/UserContext";
+import { saveLocalSession } from "@/utils/localStorage";
 
 const { useEffect } = React;
 
@@ -69,7 +70,7 @@ const Signin = () => {
         </TouchableOpacity>
 
               <TouchableOpacity
-                  onPress={() => router.push("/(tabs)/home")}
+                  onPress={() => { saveLocalSession(); router.replace("/(tabs)/home");}}
           className="mt-5 w-[75%] rounded-full border border-[#747775] bg-[#FFFFFF] py-3 shadow-zinc-300"
           activeOpacity={0.7}
         >

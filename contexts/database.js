@@ -257,6 +257,7 @@ const getAvatarInfoByUserID = async (userID) => {
 
 const getClothingItemsByClothingImageID = async (imageID) => {
   try {
+    if (clothingIDs.lengh === 0) return
     const response = await databases.listDocuments(
       databaseID,
       clothingCollectionID,
@@ -274,6 +275,7 @@ const getClothingItemsByClothingImageID = async (imageID) => {
 };
 
 const getClothesCategoriesItemsByCategoryIDs = async (categoryIDs) => {
+  if (categoryIDs.length === 0) return
   try {
     const response = await databases.listDocuments(
       databaseID,
@@ -301,7 +303,7 @@ const getClothesCategoriesItemsByCategoryIDs = async (categoryIDs) => {
     console.log("Grouped documents without categoryID:", groupedByCategory);
     return groupedByCategory;
   } catch (error) {
-    console.error("Error getting documents:", error);
+    console.error("Error getting clothes categories items documents:", error);
     throw error;
   }
 };
@@ -323,7 +325,7 @@ const getIDofClothesCategoriesItem = async (categoryID, clothingUri) => {
     return results;
     // response.documents will be an array of document objects that have the specified userID.
   } catch (error) {
-    console.error("Error getting documents:", error);
+    console.error("Error getting id of clothes categories item documents:", error);
     // Handle the error appropriately.
   }
 };

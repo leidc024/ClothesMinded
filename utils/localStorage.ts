@@ -2,13 +2,41 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = 'wardrobe_images';
 const CATEGORIES_KEY = 'category_data';
-const CATEGORY_ELEMENTS_KEY = 'category_element_data'
-const CLOTHES_MAP_KEY = 'clothes_map_key'
+const CATEGORY_ELEMENTS_KEY = 'category_element_data';
+const CLOTHES_MAP_KEY = 'clothes_map_key';
+const SESSION_KEY = 'current';
 
 type data = {id: string; title: string; uri: string };
 type image = {id: string; uri: string};
 // mapping of clothes to the categories they were stored
 export type ClothesMap = {[id: string]: string[]};
+
+export const saveLocalSession = async () => {
+    try{
+        await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({current: true}));
+    } catch(error){
+        console.error("Error saving session", error)
+    }
+}
+
+export const loadLocalSession = async (): Promise<boolean> => {
+    try{
+        const json = await AsyncStorage.getItem(SESSION_KEY);
+        if(!json) return false
+        return JSON.parse(json as string);
+    }catch(error){
+        console.error("Failed to load session", error);
+        return false;
+    }
+}
+
+export const removeLocalSession = async () => {
+    try{
+        await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(null));
+    } catch(error){
+        console.error("Error removing session", error)
+    }
+}
 
 export const saveImagesToStorage = async (images: Record<string, image[]>) => {
     try {

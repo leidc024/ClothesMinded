@@ -20,7 +20,7 @@ import { convertToPNG } from "@/utils/pngConverter";
 import * as ImageManipulator from "expo-image-manipulator";
 
 export default function App() {
-  const timer = 0;
+  const timer = 5;
   const [facing, setFacing] = useState<CameraType>("front"); // Use the front camera by default
   const [loadedAssets, setLoadedAssets] = useState<Asset[]>([]);
   const [poseNumber, setPoseNumber] = useState(0);
@@ -33,7 +33,7 @@ export default function App() {
   const countdownInterval = useRef<number>(null);
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isBackgroundRemoved, setIsBackgroundRemoved] = useState(false);
+  const [isBackgroundRemoved, setIsBackgroundRemoved] = useState(true);
 
   const { current: user, updatePreferences } = useUser();
 
@@ -94,7 +94,6 @@ export default function App() {
   const handleProceed = async () => {
     setIsBackgroundRemoved(false);
     setIsProcessing(false);
-    router.replace("/(tabs)/home");
 
     if (!photoUri) {
       console.error("No photo URI available");
@@ -133,6 +132,7 @@ export default function App() {
     } else {
       console.log("Proceeding with photo:", processedUri);
       const avatarID = await addUserAvatar(processedUri as string);
+      console.log(avatarID)
       if (avatarID && user.$id) {
         updatePreferences("hasAvatar", true);
         await addAvatarDocument({

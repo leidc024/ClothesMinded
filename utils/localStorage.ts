@@ -32,7 +32,7 @@ export const loadLocalSession = async (): Promise<boolean> => {
 
 export const removeLocalSession = async () => {
     try{
-        await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(null));
+        await AsyncStorage.removeItem(SESSION_KEY);
     } catch(error){
         console.error("Error removing session", error)
     }
@@ -237,6 +237,7 @@ export const loadClothesMap = async (): Promise<ClothesMap | null> => {
 
 export const saveClothesMap = async(clothesMap: ClothesMap) => {
     try {
+        if (!clothesMap) return;
         await AsyncStorage.setItem(CLOTHES_MAP_KEY, JSON.stringify(clothesMap));
     } catch (error) {
         console.error('Failed to save clothes map', error);

@@ -31,7 +31,8 @@ export const generateVirtualTryOn = async (
 ): Promise<string[]> => {
   try {
     if (!humanImage) throw new Error("Human image is required");
-
+    
+    console.log("STARTING IMAGE CONVERSION")
     // Convert images to base64
     const [humanImageBase64, clothImageBase64] = await Promise.all([
       convertToBase64(humanImage, options?.humanImageBucket),
@@ -39,7 +40,8 @@ export const generateVirtualTryOn = async (
         ? convertToBase64(clothImage, options?.clothImageBucket)
         : Promise.resolve(null),
     ]);
-
+    console.log("FINISHED IMAGE CONVERSION");
+    
     const payload: Record<string, string> = {
       model_name: "kolors-virtual-try-on-v1-5",
       human_image: humanImageBase64,
@@ -116,8 +118,10 @@ const convertToBase64 = async (
       return image;
     }
 
+    console.log("getting appwrite file");
+    
     let blob: Blob;
-
+    
     // Case 2: Appwrite file
     if (bucketId) {
       blob = await storage.getFileView(bucketId, image);

@@ -106,7 +106,7 @@ const addUserAvatar = async (filePath) => {
     console.log(result); // Success
     return id;
   } catch (error) {
-    console.error(error); // Failure
+    console.error("Error Adding user avatar", error); // Failure
     return null;
   }
 };

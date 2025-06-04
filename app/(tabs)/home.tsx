@@ -176,8 +176,9 @@ const Home = () => {
           </TouchableOpacity>
         </View>
 
-        <View className="pr-4 pt-2">
+        {/* <View>
           <TouchableOpacity
+            className="absolute bottom-0 left-0 right-0 flex justify-center items-center z-50"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             onPress={handleOpenModal}
           >
@@ -187,7 +188,7 @@ const Home = () => {
               color="#4D2A0A"
             />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
 
       {/* Content Area */}
@@ -204,7 +205,19 @@ const Home = () => {
             ))}
           </ScrollView>
         ) : (
-          <Avatar onImageLoaded={setAvatarUrl} />
+          <View className="relative">
+            <Avatar onImageLoaded={setAvatarUrl} />
+            <View className="absolute bottom-16 left-0 right-0 flex items-center z-10">
+              <TouchableOpacity
+                className="bg-secondary px-11 py-3 rounded-lg"
+                style={{ backgroundColor: "#4D2A0A" }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                onPress={handleOpenModal}
+              >
+                <Text className="text-white font-bold text-lg">Generate</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
       </View>
 

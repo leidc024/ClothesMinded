@@ -90,13 +90,13 @@ const Home = () => {
 
       // Convert to base64 if they are URLs
       if (avatarUrl.startsWith("http")) {
-        humanImage = await convertImageToBase64(avatarUrl);
+        // humanImage = await convertImageToBase64(avatarUrl);
         console.log("done convert");
         console.log(avatarUrl);
       }
 
       if (clothingImageUrl.startsWith("http")) {
-        clothImage = await convertImageToBase64(clothingImageUrl);
+        // clothImage = await convertImageToBase64(clothingImageUrl);
         // console.log("here");
         // console.log(clothingImageUrl);
       }

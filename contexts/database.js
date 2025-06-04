@@ -257,7 +257,6 @@ const getAvatarInfoByUserID = async (userID) => {
 
 const getClothingItemsByClothingImageID = async (imageID) => {
   try {
-    if (clothingIDs.lengh === 0) return
     const response = await databases.listDocuments(
       databaseID,
       clothingCollectionID,
@@ -421,6 +420,7 @@ const removeClothingFromCategories = async (clothingID, categoryIDs) => {
 
 const removeClothingDocument = async (clothingID) => {
   const clothingDocument = await getClothingItemsByClothingImageID(clothingID);
+  if(!clothingDocument) return;
   const item = clothingDocument.pop();
   if (!item) {
     return;

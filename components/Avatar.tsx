@@ -14,7 +14,7 @@ const Avatar: React.FC<AvatarProps> = ({ onImageLoaded, source }) => {
 
   useEffect(() => {
     if (source){
-      setImageUrl(source)
+      setImageUrl(source);
       return
     } 
     async function fetchAvatarId() {

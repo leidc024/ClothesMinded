@@ -101,12 +101,12 @@ const Home = () => {
         // console.log(clothingImageUrl);
       }
 
-      // const results = ["https://cdn.klingai.com/bs2/upload-kling-api/9823912225/virtualTryOn/Cjz0o2gmuJkAAAAABa5DYg-0.png"]
-      const results = await generateVirtualTryOn(
-        humanImage,
-        clothImage,
-        config
-      );
+      const results = ["https://cdn.klingai.com/bs2/upload-kling-api/9823912225/virtualTryOn/Cjz0o2gmuJkAAAAABa5DYg-0.png"]
+      // const results = await generateVirtualTryOn(
+      //   humanImage,
+      //   clothImage,
+      //   config
+      // );
       console.log("here again");
       setGeneratedImages(results); // Now setting an array of images
       // setAvatarUrl(results);
@@ -193,10 +193,19 @@ const Home = () => {
       </View>
 
       {/* Content Area */}
-      <View className="flex-1 items-center justify-center relative">
-        {generatedImages.length > 0 ? (
-          <View className="relative">
-            <Avatar source={generatedImages[generatedImages.length-1]} />
+      {(current && 
+        <View className="flex-1 items-center justify-center">
+          {generatedImages.length > 0 ? (
+            <View className="relative">
+              <Avatar source={generatedImages[generatedImages.length-1]} />
+            </View>
+          ) : (
+            <View className="relative">
+              <Avatar onImageLoaded={setAvatarUrl} />
+            </View>
+          )}
+
+          {avatarUrl && (
             <View className="absolute bottom-16 left-0 right-0 flex items-center z-10">
               <TouchableOpacity
                 className="bg-secondary px-11 py-3 rounded-lg"
@@ -207,23 +216,9 @@ const Home = () => {
                 <Text className="text-white font-bold text-lg">Generate</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        ) : (
-          <View className="relative">
-            <Avatar onImageLoaded={setAvatarUrl} />
-            <View className="absolute bottom-16 left-0 right-0 flex items-center z-10">
-              <TouchableOpacity
-                className="bg-secondary px-11 py-3 rounded-lg"
-                style={{ backgroundColor: "#4D2A0A" }}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                onPress={handleOpenModal}
-              >
-                <Text className="text-white font-bold text-lg">Generate</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      )}
 
       {/* Retry Button (only shown when there are results) */}
       {generatedImages.length > 0 && (

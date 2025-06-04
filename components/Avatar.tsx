@@ -8,11 +8,15 @@ interface AvatarProps {
   source?: string | null; // Add this line
 }
 
-const Avatar: React.FC<AvatarProps> = ({ onImageLoaded }) => {
+const Avatar: React.FC<AvatarProps> = ({ onImageLoaded, source }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { current: user } = useUser();
 
   useEffect(() => {
+    if (source){
+      setImageUrl(source)
+      return
+    } 
     async function fetchAvatarId() {
       if (!user) return;
       const url = await getAvatarUriByUserID(user.$id);
@@ -23,7 +27,6 @@ const Avatar: React.FC<AvatarProps> = ({ onImageLoaded }) => {
     }
     fetchAvatarId();
   }, [user, onImageLoaded]);
-  const displayImage = imageUrl;
 
   return (
     <View>

@@ -101,6 +101,7 @@ const Home = () => {
         // console.log(clothingImageUrl);
       }
 
+      // const results = ["https://cdn.klingai.com/bs2/upload-kling-api/9823912225/virtualTryOn/Cjz0o2gmuJkAAAAABa5DYg-0.png"]
       const results = await generateVirtualTryOn(
         humanImage,
         clothImage,
@@ -192,18 +193,21 @@ const Home = () => {
       </View>
 
       {/* Content Area */}
-      <View className="flex-1 items-center justify-center">
+      <View className="flex-1 items-center justify-center relative">
         {generatedImages.length > 0 ? (
-          <ScrollView horizontal>
-            {generatedImages.map((imageUrl, index) => (
-              <Image
-                key={index}
-                source={{ uri: imageUrl }}
-                className="h-full aspect-square"
-                resizeMode="contain"
-              />
-            ))}
-          </ScrollView>
+          <View className="relative">
+            <Avatar source={generatedImages[generatedImages.length-1]} />
+            <View className="absolute bottom-16 left-0 right-0 flex items-center z-10">
+              <TouchableOpacity
+                className="bg-secondary px-11 py-3 rounded-lg"
+                style={{ backgroundColor: "#4D2A0A" }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                onPress={handleOpenModal}
+              >
+                <Text className="text-white font-bold text-lg">Generate</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         ) : (
           <View className="relative">
             <Avatar onImageLoaded={setAvatarUrl} />

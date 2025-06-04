@@ -1,39 +1,141 @@
-import { SafeAreaView, View, Text, Pressable, Modal, TouchableOpacity } from 'react-native';
-import React, {useState} from 'react';
-import { StatusBar } from 'expo-status-bar'
-import { Ionicons } from '@expo/vector-icons';
-
-import { useRouter } from 'expo-router';
-
-import NewUserNamePop from '../../components/Popups/NewUserNamePop'
+import { SafeAreaView, View, Text, Dimensions, TouchableOpacity, Modal } from "react-native";
+import React, { useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import NewUserNamePop from "../../components/Popups/NewUserNamePop";
+import ChooseGenerate from "../modal/chooseGenerate";
+import Avatar from "../../components/Avatar";
+import { useUser } from "@/contexts/UserContext"; // ✅ import context
 
 const Home = () => {
-    const router = useRouter();
+  const router = useRouter();
+  const { current } = useUser(); // ✅ get current user
+  const [modalVisible, setModalVisible] = useState(false);
+  const [permissionModalVisible, setPermissionModalVisible] = useState(false);
 
-    return (
-        <SafeAreaView className="bg-primary flex-1">
-            {/* Top Section */}
-            <View className="flex-1 p-5">
-                {/* Profile Button (top right corner) */}
-                <View className="flex-1 items-end justify-start p-5">
-                    <TouchableOpacity
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        onPress={() => {
-                            console.log("Pressed!");
-                            router.push('../modal/profile');
-                        }}
-                    >
-                        <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
-                    </TouchableOpacity>
-                </View>
+  const handleOpenModal = () => {
+    if (!current) {
+      setPermissionModalVisible(true);
+      return;
+    }
+    setModalVisible(true);
+  };
 
-            </View>
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
 
-            <StatusBar style="dark" />
-            <NewUserNamePop/>
+  const handleSelectClothingItem = () => {
+    console.log("Select clothing item pressed");
+    setModalVisible(false);
+    // Add your logic here
+  };
 
-        </SafeAreaView>
-    );
+  const handleSelectOutfit = () => {
+    console.log("Select outfit pressed");
+    setModalVisible(false);
+    // Add your logic here
+  };
+
+  const handleGenerateOutfit = () => {
+    console.log("Generate outfit pressed");
+    setModalVisible(false);
+    // Add your logic here
+  };
+
+  return (
+    <SafeAreaView className="bg-[#F5EEDC] flex-1">
+
+      {/* Profile Button */}
+      <View className="mt-10">
+        <Text className="text-center text-2xl font-bold">Home</Text>
+      </View>
+
+      <View className="flex-row justify-end pt-10 pr-10">
+        <TouchableOpacity
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          onPress={() => {
+            console.log("Pressed!");
+            router.push("../modal/profile");
+          }}
+        >
+          <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
+        </TouchableOpacity>
+      </View>
+
+      <View className="flex-row justify-end py-2 pr-10">
+        <TouchableOpacity
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          onPress={handleOpenModal}
+        >
+          <Ionicons name="arrow-down-circle-outline" size={40} color="#4D2A0A" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Avatar Section (optional) */}
+      <View className="items-center justify-center h-[60vh]">
+        <Avatar />
+      </View> 
+
+      {/* Bottom Section with Generate Button */}
+
+
+      {/* Custom Permission Modal */}
+      <Modal
+        visible={permissionModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setPermissionModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "transparent",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#f5eedc",
+              borderRadius: 20,
+              padding: 30,
+              alignItems: "center",
+              width: 300,
+            }}
+          >
+            <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 15 }}>Oops</Text>
+            <Text style={{ fontSize: 14, color: "#333", textAlign: "center", marginBottom: 30 }}>
+              Account Required{"\n"}Please sign in to use this feature.
+            </Text>
+            <TouchableOpacity
+              onPress={() => setPermissionModalVisible(false)}
+              style={{
+                backgroundColor: "#4b2e1e",
+                paddingHorizontal: 24,
+                paddingVertical: 10,
+                borderRadius: 20,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <StatusBar style="dark" />
+      <NewUserNamePop />
+
+      <ChooseGenerate
+        isVisible={modalVisible}
+        onClose={handleCloseModal}
+        onSelectClothingItem={handleSelectClothingItem}
+        onSelectOutfit={handleSelectOutfit}
+        onGenerateOutfit={handleGenerateOutfit}
+      />
+    </SafeAreaView>
+  );
 };
 
 export default Home;

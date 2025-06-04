@@ -52,6 +52,7 @@ export function UserProvider(props) {
     } catch (err) {
       toast('Failed to log out. Please try again.');
       console.error("Logout failed:", err);
+      setUser(null);
       // Optionally: setUser(null) here too if you want to force local logout
     }
   }
@@ -65,6 +66,35 @@ export function UserProvider(props) {
     } 
     catch (err) {
       toast(err.message);
+    }
+  }
+
+  function updatePreferences(key, value){
+    console.log('Updating preferences:', key, value);
+    try{
+      account.getPrefs().then(currentPrefs => {
+        currentPrefs[key] = value // 🆕 this is the new preference you're adding
+        return account.updatePrefs(currentPrefs);
+      }).then(updated => {
+        console.log('Updated prefs:', updated);
+      }).catch(err => {
+        console.error('Error updating prefs:', err);
+      });
+    } catch(error){
+      console.log('Error updating preferences:', error);
+      toast('Failed to update preferences. Please try again.');
+    }
+  }
+
+  async function getPreferences() {
+    try {
+      const prefs = await account.getPrefs();
+      console.log('Fetched preferences:', prefs);
+      return prefs;
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+      toast('Failed to fetch preferences. Please try again.');
+      return null;
     }
   }
 
@@ -83,7 +113,7 @@ export function UserProvider(props) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ current: user, login, logout, register, toast }}>
+    <UserContext.Provider value={{ current: user, login, logout, register, toast, init, updatePreferences, getPreferences }}>
       {props.children}
     </UserContext.Provider>
   );

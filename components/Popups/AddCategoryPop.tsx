@@ -1,28 +1,26 @@
-import React, { useState, useContext, useEffect } from 'react';
+﻿import React, { useState, useContext, useEffect } from 'react';
 import { Modal, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 
-//local imports
 import { CreateCategoryContext } from '../../contexts/CreateCategoryContext';
 
 const AddCategoryPop = () => {
     const {
-        createCategory, //treat as a bool
-        setCreateCategory, 
-        setTitleCategory, //treat as a string
-        categoryList, //list of categories
+        createCategory,
+        setCreateCategory,
+        setTitleCategory,
+        categoryList,
         categoryId,
         editCategory,
-        setCategoryList
+        setCategoryList,
     } = useContext(CreateCategoryContext);
-
 
     const [title, setTitle] = useState(() => {
         const item = categoryList.find((item: { id: string; title: string }) => item.id === categoryId);
         return item ? item.title : '';
     });
 
-    const [isDuplicate, setIsDuplicate] = useState(false);    
+    const [isDuplicate, setIsDuplicate] = useState(false);
 
     useEffect(() => {
         const duplicate = categoryList.some(
@@ -33,22 +31,19 @@ const AddCategoryPop = () => {
     }, [title, categoryList]);
 
     const handleConfirm = () => {
-
         if (editCategory) {
-            setCategoryList((prev: { id: string; title: string }[]) => {
-                return prev.map((item) => {
-                    if (item.id === categoryId) {
-                        return { ...item, title: title.trim() };
-                    }
-                    return item;
-                });
-            });
-        }
-        else if (!isDuplicate && title.trim() !== '') {
+            setCategoryList((prev: { id: string; title: string }[]) =>
+                prev.map((item) =>
+                    item.id === categoryId ? { ...item, title: title.trim() } : item
+                )
+
+            );
+        } else if (!isDuplicate && title.trim() !== '') {
             setTitleCategory(title.trim());
         }
-            setCreateCategory(false);
-            setTitle('');
+
+        setCreateCategory(false);
+        setTitle('');
     };
 
     const handleCancel = () => {
@@ -58,41 +53,49 @@ const AddCategoryPop = () => {
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView className="flex-1 justify-center items-center">
+            <SafeAreaView className="flex-1 items-center justify-center">
                 <Modal
-                    animationType="slide"
+                    animationType="fade"
                     transparent={true}
                     visible={createCategory}
                 >
-                    <View className="flex-1 justify-center items-center">
-                        <View className="m-5 bg-white rounded-2xl p-9 items-center shadow-lg w-80">
+                    <View className="flex-1 items-center justify-center bg-black/40">
+                        <View className="w-80 items-center rounded-2xl border border-black bg-[#D2B48C] p-6">
+                            <Text className="mb-2 text-2xl font-bold">Category</Text>
+                            <Text className="mb-4 text-center text-gray-800">Enter the name of the new category</Text>
+
                             <TextInput
                                 onChangeText={setTitle}
                                 value={title}
-                                className="border border-gray-300 rounded-md px-4 py-2 w-64 mb-2"
+                                className="mb-4 w-full rounded-md border border-black bg-[#f5f7fa] px-4 py-2"
                                 placeholder="Enter title"
                                 maxLength={18}
+                                placeholderTextColor="#888"
                             />
+
                             {isDuplicate && (
-                                <Text className="text-red-500 mb-2 text-sm">Title already exists!</Text>
+                                <Text className="mb-2 text-sm text-red-500">Title already exists!</Text>
                             )}
-                            <View className="flex-row space-x-4 mt-2">
-                                {/* Confirm */}
+
+                            <View className="mt-2 w-full flex-row justify-between space-x-4">
+
                                 <TouchableOpacity
-                                    className={`rounded-xl px-4 py-2 ${isDuplicate || title.trim() === '' ? 'bg-gray-400' : 'bg-[#D2B48C]'}`}
+                                    className="flex-1 items-center rounded-full bg-[#4B2E1E] px-4 py-2"
+                                    onPress={handleCancel}
+                                >
+                                    <Text className="font-bold text-white">Cancel</Text>
+                                </TouchableOpacity>
+
+
+                                <TouchableOpacity
+                                    className={`flex-1 items-center rounded-full px-4 py-2 ${isDuplicate || title.trim() === '' ? 'bg-gray-400' : 'bg-[#4B2E1E]'
+                                        }`}
                                     disabled={isDuplicate || title.trim() === ''}
                                     onPress={handleConfirm}
                                 >
-                                    <Text className="text-white font-bold text-center">Confirm</Text>
+                                    <Text className="font-bold text-white">Confirm</Text>
                                 </TouchableOpacity>
 
-                                {/* Cancel */}
-                                <TouchableOpacity
-                                    className="rounded-xl px-4 py-2 bg-[#D2B48C]"
-                                    onPress={handleCancel}
-                                >
-                                    <Text className="text-white font-bold text-center">Cancel</Text>
-                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>

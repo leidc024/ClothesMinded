@@ -1,24 +1,29 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
-import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Animated, Button } from 'react-native';
+﻿import React, { useState, useContext, useEffect } from 'react';
+import { FlatList, Text, View, Image, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { CreateCategoryContext } from '../contexts/CreateCategoryContext';
-
-//icons
+import { saveCategoriesToStorage, loadCategoriesFromStorage, insertCategoryToStorage, removeACategoryWithElements } from '@/utils/localStorage';
+import { addCategoryDocument, generateID, removeCategoryDocument } from '@/contexts/database';
+import { useUser } from '@/contexts/UserContext';
+import { router } from "expo-router";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { RelativePathString } from 'expo-router';
 
-type ItemListProps = {
-    keyword: string;
-};
+type Category = { id: string; title: string; iconUri?: string };
+type ItemListProps = { keyword: string };
 
 const ItemList = ({ keyword }: ItemListProps) => {
-
+    const {current: user} = useUser();
     const { 
-        titleCategory, //current title of the category
+        titleCategory,
         setTitleCategory, 
         categoryList, 
         setCategoryList,
         editCategory,
         getCategoryId,
-        setCreateCategory,
+        setCreateCategory,          
+        setCategorySelectionPop,
+        getCategoryTitle,
     } = useContext(CreateCategoryContext);
 
     const { height, width } = Dimensions.get('window');
@@ -26,21 +31,60 @@ const ItemList = ({ keyword }: ItemListProps) => {
     const DELETE_BUTTON_WIDTH = width * 0.15;
 
     useEffect(() => {
+        const load = async () => {
+            const savedCategories = await loadCategoriesFromStorage();
+            setCategoryList(savedCategories || []);
+        };
+        load();
+    }, []);
 
+    // Handle adding to list
+    useEffect(() => {
         if (titleCategory.trim() !== '') {
-            const newItem = { id: Date.now().toString(), title: titleCategory.trim() };
-            setCategoryList((prev: { id: string; title: string }[]) => [...prev, newItem]);
+            const newItem: Category = { id: generateID(), title: titleCategory.trim() };
+            setCategoryList((prev: Category[]) => [...prev, newItem]);
+            insertCategoryToStorage(newItem.id);
+            if(user != null){
+                addCategoryDocument(newItem.id, {categoryId: newItem.title, userID: user.$id});
+            }
             setTitleCategory('');
         }
     }, [titleCategory]);
 
+    // Save categories when categoryList changes
+    useEffect(() => {
+        const saveCategories = async () => {
+            await saveCategoriesToStorage(categoryList);
+        };
+        saveCategories();
+    }, [categoryList]);
+
+    // Image picker logic
+    const pickImage = async (categoryId: string) => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const uri = result.assets[0].uri;
+            setCategoryList((prev: Category[]) =>
+                prev.map(cat =>
+                    cat.id === categoryId ? { ...cat, iconUri: uri } : cat
+                )
+            );
+        }
+    };
+
     const filteredAndSortedList = categoryList
-        .filter((item: { id: string; title: string }) => item.title.toLowerCase().includes(keyword.toLowerCase()))
-        .sort((a: { id: string; title: string }, b: { id: string; title: string }) => a.title.localeCompare(b.title));
+        .filter((item: Category) => item.title.toLowerCase().includes(keyword.toLowerCase()))
+        .sort((a: Category, b: Category) => a.title.localeCompare(b.title));
 
     return (
-        <View className='h-4/5 justify-center items-center'>
-            <View className="flex-1 pb-16 w-full">
+        <View className='h-4/5 items-center justify-center'>
+            <View className="w-full flex-1 pb-16">
                 <FlatList
                     data={filteredAndSortedList}
                     keyExtractor={(item) => item.id}
@@ -51,7 +95,6 @@ const ItemList = ({ keyword }: ItemListProps) => {
                             }}
                             className="mt-5 flex-row items-center justify-center"
                         >
-                            
                             {editCategory && (
                                 <TouchableOpacity
                                     style={{
@@ -60,11 +103,15 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         marginRight: 5,
-                                        backgroundColor: '#ddd',
+                                        backgroundColor: '#ff8080',
                                         borderRadius: 10,
                                     }}
                                     onPress={() => {
-                                        setCategoryList((prevList: { id: string; title: string }[]) => prevList.filter(listItem => listItem.id !== item.id));
+                                        if (user != null){
+                                            removeCategoryDocument(item.id);
+                                        }
+                                        removeACategoryWithElements(item.id);
+                                        setCategoryList((prevList: Category[]) => prevList.filter(listItem => listItem.id !== item.id));
                                     }}
                                 >
                                     <AntDesign 
@@ -74,29 +121,39 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                     />
                                 </TouchableOpacity>
                             )}
-                            <TouchableOpacity className="rounded-3xl flex-row border-2 w-3/4 h-full justify-center items-center px-4"
+                            <TouchableOpacity className="h-full w-3/4 flex-row items-center justify-center rounded-3xl border-2 bg-[#D2B48C] px-4"
                                 onPress={() => {
                                     if (editCategory) {
-                                        // Perform edit action
                                         getCategoryId(item.id);
                                         setCreateCategory(true);
-                                        console.log('Edit action triggered for:', item.title);
                                     } else {
-                                        // Perform default action
-                                        console.log('Default action triggered for:', item.title);
+                                        const path = `/${item.title}/${item.id}` as RelativePathString;
+                                        router.push(path);
+                                        getCategoryTitle(item.title);
                                     }
                                 }}
                             >
-                                <View style={{ aspectRatio: 1 }} className="rounded-2xl h-3/4 border-2 justify-center items-center">
-                                    <Image
-                                        source={require('../assets/icons/Union.png')}
-                                        className="h-1/4"
-                                        style={{ aspectRatio: 1 }}
-                                        resizeMode="contain"
-                                    />
-                                </View>
-                                <Text className="flex-1 text-lg font-bold ml-4">{item.title}</Text>
-
+                                <TouchableOpacity
+                                    onPress={() => pickImage(item.id)}
+                                    style={{ aspectRatio: 1 }}
+                                    className="h-3/4 items-center justify-center rounded-2xl border-2 overflow-hidden bg-white"
+                                >
+                                    {item.iconUri ? (
+                                        <Image
+                                            source={{ uri: item.iconUri }}
+                                            style={{ width: '100%', height: '100%' }}
+                                            resizeMode="cover"
+                                        />
+                                    ) : (
+                                        <Image
+                                            source={require('../assets/icons/Union.png')}
+                                            className="h-1/4"
+                                            style={{ aspectRatio: 1 }}
+                                            resizeMode="contain"
+                                        />
+                                    )}
+                                </TouchableOpacity>
+                                <Text className="ml-4 flex-1 text-lg font-bold">{item.title}</Text>
                                 {editCategory && (
                                     <AntDesign 
                                         name="edit" 
@@ -104,7 +161,6 @@ const ItemList = ({ keyword }: ItemListProps) => {
                                         color="black" 
                                     />
                                 )}
-
                             </TouchableOpacity>
                         </TouchableOpacity>
                     )}

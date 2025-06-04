@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "ClothesMinded-v1",
-    "slug": "ClothesMinded-v1",
+    "name": "ClothesMinded",
+    "slug": "ClothesMinded",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -13,8 +13,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#fcf9e8"
       },
       "package": "com.leidc024.ClothesMindedv1"
     },
@@ -24,7 +24,9 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
@@ -34,8 +36,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "386d634f-09f4-439b-9de2-2479231444e9"
+        "projectId": "94e6648e-1056-409d-bfcc-b4238f5d6da1"
       }
-    }
+    },
+    "owner": "leidc024"
   }
 }

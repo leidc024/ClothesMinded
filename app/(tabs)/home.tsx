@@ -191,8 +191,8 @@ const Home = () => {
                 
                 marginTop: 5,
               }}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              onPress={handleOpenModal}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                onPress={handleOpenModal}
             >
               <Ionicons name="add-circle" size={40} color="#4C2A0A" />
             </TouchableOpacity>
@@ -209,8 +209,8 @@ const Home = () => {
                   
                   marginTop: 5,
                 }}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                onPress={handleOpenModal}
+                onPress={handleRetry}
+                disabled={isLoading}
               >
                 <MaterialCommunityIcons  name="restart" size={40} color="#4C2A0A" />
               </TouchableOpacity>

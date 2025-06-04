@@ -16,7 +16,7 @@ import {
   Modal,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons  } from "@expo/vector-icons";
 import ChooseGenerate from "../modal/chooseGenerate";
 import VirtualTryOnModal from "../modal/VirtualTryOnModal";
 import Avatar from "../../components/Avatar";
@@ -173,10 +173,8 @@ const Home = () => {
         <View className="pr-4 pt-4">
           <TouchableOpacity
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            onPress={() => {
-              console.log("Pressed!");
-              router.push("../modal/profile");
-            }}
+            onPress={handleRetry}
+            disabled={isLoading}
           >
             <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
           </TouchableOpacity>
@@ -199,6 +197,25 @@ const Home = () => {
               <Ionicons name="add-circle" size={40} color="#4C2A0A" />
             </TouchableOpacity>
           </View>
+          {generatedImages.length > 0 && (
+
+            <View className="pr-4 pt-4">
+              <TouchableOpacity
+                className="items-center justify-center"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  
+                  marginTop: 5,
+                }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                onPress={handleOpenModal}
+              >
+                <MaterialCommunityIcons  name="restart" size={40} color="#4C2A0A" />
+              </TouchableOpacity>
+            </View>
+    )}
         </View>
 
          {/* Guest Alert Modal */}
@@ -238,17 +255,6 @@ const Home = () => {
       )}
 
       {/* Retry Button (only shown when there are results) */}
-      {generatedImages.length > 0 && (
-        <View className="items-center p-4">
-          <TouchableOpacity
-            className="bg-secondary p-3 rounded-lg"
-            onPress={handleRetry}
-            disabled={isLoading}
-          >
-            <Text className="text-white font-bold">Regenerate</Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       {/* Modals */}
       <ChooseGenerate

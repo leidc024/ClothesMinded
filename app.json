@@ -37,10 +37,11 @@
         "origin": false
       },
       "eas": {
-        "projectId": "386d634f-09f4-439b-9de2-2479231444e9"
+        "projectId": "94e6648e-1056-409d-bfcc-b4238f5d6da1"
       },
       "KLING_API_KEY_ID": "add8a07c396d40c6b24b08331ddbfc1d",
       "KLING_API_SECRET": "c407a28d01aa42629f5f550a14470691"
-    }
+    },
+    "owner": "leidc024"
   }
 }

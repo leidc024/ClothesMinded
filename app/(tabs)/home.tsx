@@ -20,7 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ChooseGenerate from "../modal/chooseGenerate";
 import VirtualTryOnModal from "../modal/VirtualTryOnModal";
 import Avatar from "../../components/Avatar";
-
+import GuestAlertModal from "../../components/guest_modal";
 import Constants from "expo-constants";
 import { useUser } from "@/contexts/UserContext"; // ✅ import context
 
@@ -28,6 +28,7 @@ const { height } = Dimensions.get("window");
 
 const Home = () => {
   const router = useRouter();
+  const [guestAlertVisible, setGuestAlertVisible] = useState(false);
   const { current } = useUser(); // ✅ get current user
   const [modalVisible, setModalVisible] = useState(false);
   const [tryOnModalVisible, setTryOnModalVisible] = useState(false);
@@ -50,13 +51,17 @@ const Home = () => {
 
   const [permissionModalVisible, setPermissionModalVisible] = useState(false);
 
-  const handleOpenModal = () => {
-    if (!current) {
-      setPermissionModalVisible(true);
-      return;
-    }
-    setModalVisible(true);
-  };
+ const handleOpenModal = () => {
+  console.log("Current user:", current);
+  // If user is not logged in (guest), show guest alert
+  if (!current) {
+    setGuestAlertVisible(true);
+    return;
+  }
+  // If you have a permission modal for something else, handle it separately if needed
+  // If user is not guest, open the generate modal
+  setModalVisible(true);
+};
 
   const handleCloseModal = () => {
     setModalVisible(false);
@@ -175,7 +180,32 @@ const Home = () => {
           >
             <Ionicons name="person-circle-outline" size={40} color="#4D2A0A" />
           </TouchableOpacity>
+
+            {/* Generate Button */}
+        
+          <View className="pr-4 pt-4">
+            <TouchableOpacity
+              className="items-center justify-center"
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                
+                marginTop: 5,
+              }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              onPress={handleOpenModal}
+            >
+              <Ionicons name="add-circle" size={40} color="#4C2A0A" />
+            </TouchableOpacity>
+          </View>
         </View>
+
+         {/* Guest Alert Modal */}
+      <GuestAlertModal
+        visible={guestAlertVisible}
+        onClose={() => setGuestAlertVisible(false)}
+      />
 
         {/* <View>
           <TouchableOpacity
@@ -202,19 +232,6 @@ const Home = () => {
           ) : (
             <View className="relative">
               <Avatar onImageLoaded={setAvatarUrl} />
-            </View>
-          )}
-
-          {avatarUrl && (
-            <View className="absolute bottom-16 left-0 right-0 flex items-center z-10">
-              <TouchableOpacity
-                className="bg-secondary px-11 py-3 rounded-lg"
-                style={{ backgroundColor: "#4D2A0A" }}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                onPress={handleOpenModal}
-              >
-                <Text className="text-white font-bold text-lg">Generate</Text>
-              </TouchableOpacity>
             </View>
           )}
         </View>

@@ -161,11 +161,13 @@ export const handleGoogleAuth = async (init: any) => {
             });
             // Redirect to '/head'
             router.push('/(avatar)/body');
+            console.log("")
         } else if (user.prefs?.hasAvatar === false || user.prefs?.hasAvatar === undefined) {
             // Redirect to '/head'
             router.push('/(avatar)/body');
         }else {
             // Redirect to '/home'
+            console.log("")
             router.push('/home');
         }
         init()

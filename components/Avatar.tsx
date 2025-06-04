@@ -37,7 +37,7 @@ const Avatar: React.FC<AvatarProps> = ({ onImageLoaded, source }) => {
           resizeMode="contain"
         />
       ) : (
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" className="h-full aspect-square" />
       )}
     </View>
   );

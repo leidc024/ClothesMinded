@@ -101,12 +101,12 @@ const Home = () => {
         // console.log(clothingImageUrl);
       }
 
-      const results = ["https://cdn.klingai.com/bs2/upload-kling-api/9823912225/virtualTryOn/Cjz0o2gmuJkAAAAABa5DYg-0.png"]
-      // const results = await generateVirtualTryOn(
-      //   humanImage,
-      //   clothImage,
-      //   config
-      // );
+      // const results = ["https://cdn.klingai.com/bs2/upload-kling-api/9823912225/virtualTryOn/Cjz0o2gmuJkAAAAABa5DYg-0.png"]
+      const results = await generateVirtualTryOn(
+        humanImage,
+        clothImage,
+        config
+      );
       console.log("here again");
       setGeneratedImages(results); // Now setting an array of images
       // setAvatarUrl(results);
